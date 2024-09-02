@@ -1,7 +1,36 @@
 package view
 
-templ Index() {
+import (
+  "strings"
+)
+
+type Metadata struct {
+  Language string
+
+  Title string
+  Description string
+  Keywords []string
+  Image string
+  URL string
+}
+
+templ Index(m *Metadata) {
   <!DOCTYPE html>
-  <html>
+  <html lang={m.Language}>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>{m.Title}</title>
+      <meta property="og:title" content={m.Title} />
+      <meta property="og:description" content={m.Description} />
+      <meta property="og:image" content={m.Image} />
+      <meta property="og:url" content={m.URL} />
+      <meta name="description" content={m.Description} />
+      <meta name="keywords" content={strings.Join(m.Keywords, ",")} />
+      <link rel="canonical" href={m.URL} />
+    </head>
+    <body>
+    
+    </body>
   </html>
 }
