@@ -2,6 +2,7 @@ package view
 
 import (
   "strings"
+	"time"
 )
 
 type Metadata struct {
@@ -13,6 +14,9 @@ type Metadata struct {
   Keywords []string
   Image string
   URL string
+
+  CreatedAt time.Time
+  UpdatedAt time.Time
 }
 
 templ Head(m *Metadata) {
