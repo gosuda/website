@@ -33,7 +33,7 @@ var font_pool_IBMPlexSansKR_Thin = sync.Pool{
 }
 
 // GenerateImage creates an Open Graph image with the given logo, title, and date.
-func GenerateImage(name string, title string, date time.Time) (image.Image, error) {
+func GenerateImage(name string, title string, date time.Time) image.Image {
 	// Create a new context with the specified dimensions
 	ctx := gg.NewContext(1150, 630)
 	ctx.Clear()
@@ -70,5 +70,5 @@ func GenerateImage(name string, title string, date time.Time) (image.Image, erro
 	ctx.DrawString(name, 40, 630-40)
 
 	// Return the generated image
-	return ctx.Image(), nil
+	return ctx.Image()
 }
