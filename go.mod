@@ -4,6 +4,7 @@ go 1.23.0
 
 require (
 	github.com/fogleman/gg v1.3.0
+	github.com/google/uuid v1.6.0
 	golang.org/x/image v0.19.0
 )
 
