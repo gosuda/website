@@ -9,6 +9,7 @@ type Metadata struct {
 
   Title string
   Description string
+  Author string
   Keywords []string
   Image string
   URL string
@@ -26,11 +27,12 @@ templ Index(m *Metadata) {
       <meta property="og:image" content={m.Image} />
       <meta property="og:url" content={m.URL} />
       <meta name="description" content={m.Description} />
+      <meta name="author" content={m.Author} />
       <meta name="keywords" content={strings.Join(m.Keywords, ",")} />
       <link rel="canonical" href={m.URL} />
     </head>
     <body>
-    
+
     </body>
   </html>
 }
