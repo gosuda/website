@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoSuda Blog</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            margin-right: 20px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-right input[type="text"] {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .header-right button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        nav {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        nav li {
+            margin-right: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        main {
+            width: 80%;
+            margin: 20px auto;
+            display: flex;
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        aside {
+            flex: 1;
+        }
+
+        article {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .post-header input {
+            margin-right: 10px;
+        }
+
+        .post-header div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-header span {
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .post-header img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .post-title {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            transition: color 0.3s ease; /* Add transition for smooth color change */
+        }
+
+        .post-title:hover {
+            color: #007bff; /* Change color on hover */
+            text-decoration: underline;
+        }
+
+        .post-description {
+            font-size: 1em;
+            color: #555;
+            transition: color 0.3s ease; /* Add transition for smooth color change */
+        }
+
+        .post-description:hover {
+            color: #007bff; /* Change color on hover */
+        }
+
+        .post-image {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>GoSuda Blog</h1>
+        </div>
+        <div class="header-right">
+            <input type="text" placeholder="Search">
+            <button>Sign up</button>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#">Overview</a></li>
+            <li><a href="#">Technology</a></li>
+            <li><a href="#">Culture</a></li>
+            <li><a href="#">Products</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section class="left-side">
+            <h2>Engineering</h2>
+            <p>Building the future of technology at GoSuda</p>
+
+            <article>
+                <div class="post-header">
+                    <img src="https://placehold.co/30x30" alt="Profile Picture">
+                    <div>
+                        <span>John Doe</span>
+                        <span>October 26, 2023</span>
+                    </div>
+                </div>
+                <img src="https://placehold.co/800x400" alt="Post Image" class="post-image">
+                <h2 class="post-title">Scaling GoSuda's Infrastructure for Global Reach</h2>
+                <p class="post-description">
+                    As GoSuda expands its services globally, we face the challenge of scaling our infrastructure to meet the demands of millions of users. 
+                    This post explores the strategies and technologies we're using to ensure high availability, low latency, and seamless performance for our users worldwide.
+                </p>
+            </article>
+
+            <article>
+                <div class="post-header">
+                    <img src="https://placehold.co/30x30" alt="Profile Picture">
+                    <div>
+                        <span>Jane Smith</span>
+                        <span>November 15, 2023</span>
+                    </div>
+                </div>
+                <img src="https://placehold.co/800x400" alt="Post Image" class="post-image">
+                <h2 class="post-title">Developing Secure and Reliable APIs at GoSuda</h2>
+                <p class="post-description">
+                    APIs are the backbone of modern web applications, and at GoSuda, we take API security and reliability very seriously. 
+                    This post delves into the best practices and tools we use to design, develop, and deploy APIs that are secure, scalable, and performant.
+                </p>
+            </article>
+
+            <article>
+                <div class="post-header">
+                    <img src="https://placehold.co/30x30" alt="Profile Picture">
+                    <div>
+                        <span>Alice Johnson</span>
+                        <span>November 22, 2023</span>
+                    </div>
+                </div>
+                <img src="https://placehold.co/800x400" alt="Post Image" class="post-image">
+                <h2 class="post-title">Building a Culture of Innovation at GoSuda</h2>
+                <p class="post-description">
+                    At GoSuda, we believe that innovation is the key to success in the fast-paced tech industry. 
+                    This post explores the initiatives and programs we've implemented to foster a culture of creativity, collaboration, and experimentation among our engineers and product teams.
+                </p>
+            </article>
+        </section>
+
+        <aside class="right-side">
+            <h3>Featured Articles</h3>
+            <ul>
+                <li><a href="#">GoSuda's Mission and Values</a></li>
+                <li><a href="#">Meet the GoSuda Team</a></li>
+                <li><a href="#">GoSuda in the News</a></li>
+            </ul>
+            <h3>About GoSuda</h3>
+            <p>GoSuda is a leading technology company that is revolutionizing the way people connect and interact with the world around them. We're passionate about building innovative products and services that make a positive impact on society.</p>
+        </aside>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 GoSuda Blog</p>
+    </footer>
+</body>
+</html>

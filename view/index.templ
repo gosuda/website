@@ -17,27 +17,56 @@ type Metadata struct {
 
   CreatedAt time.Time
   UpdatedAt time.Time
+
+  CustomHead string
 }
 
 templ Head(m *Metadata) {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{m.Title}</title>
-    <meta property="og:title" content={m.Title} />
-    <meta property="og:description" content={m.Description} />
-    <meta property="og:image" content={m.Image} />
-    <meta property="og:url" content={m.URL} />
-    <meta name="description" content={m.Description} />
-    <meta name="author" content={m.Author} />
-    <meta name="keywords" content={strings.Join(m.Keywords, ",")} />
-    <link rel="canonical" href={m.URL} />
+    if m.Title != "" {
+      <title>{m.Title}</title>
+      <meta property="og:title" content={m.Title} />
+    }
+    if m.Image != "" {
+      <meta property="og:image" content={m.Image} />
+    } else {
+      <meta property="og:image" content={m.URL + "/assets/images/ogp_placeholder.png"} />
+    }
+    if m.URL != "" {
+      <meta property="og:url" content={m.URL} />
+      <link rel="canonical" href={m.URL} />
+    }
+    if m.Description != "" {
+      <meta name="description" content={m.Description} />
+      <meta property="og:description" content={m.Description} />
+    }
+    if m.Author != "" {
+      <meta name="author" content={m.Author} />
+    }
+    if len(m.Keywords) > 0 {
+      <meta name="keywords" content={strings.Join(m.Keywords, ",")} />
+    }
+    if m.CustomHead != "" {
+      @templ.Raw(m.CustomHead)
+    }
   </head>
 }
 
-templ Index(m *Metadata) {
+templ IndexPage(m *Metadata) {
   <!DOCTYPE html>
   <html lang={m.Language}>
     @Head(m)
   </html>
+}
+
+templ IndexPageBody(m *Metadata) {
+  <body>
+  @IndexPostList(m)
+  </body>
+}
+
+templ IndexPostList(m *Metadata) {
+  
 }
