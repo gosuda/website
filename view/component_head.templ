@@ -1,0 +1,38 @@
+package view
+
+import (
+	"strings"
+)
+
+templ Head(m *Metadata) {
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		if m.Title != "" {
+			<title>{ m.Title }</title>
+			<meta property="og:title" content={ m.Title }/>
+		}
+		if m.Image != "" {
+			<meta property="og:image" content={ m.Image }/>
+		} else {
+			<meta property="og:image" content={ m.URL + "/assets/images/ogp_placeholder.png" }/>
+		}
+		if m.URL != "" {
+			<meta property="og:url" content={ m.URL }/>
+			<link rel="canonical" href={ m.URL }/>
+		}
+		if m.Description != "" {
+			<meta name="description" content={ m.Description }/>
+			<meta property="og:description" content={ m.Description }/>
+		}
+		if m.Author != "" {
+			<meta name="author" content={ m.Author }/>
+		}
+		if len(m.Keywords) > 0 {
+			<meta name="keywords" content={ strings.Join(m.Keywords, ",") }/>
+		}
+		if m.CustomHead != "" {
+			@templ.Raw(m.CustomHead)
+		}
+	</head>
+}

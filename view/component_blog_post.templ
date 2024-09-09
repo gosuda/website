@@ -1,0 +1,33 @@
+package view
+
+import (
+	"time"
+)
+
+type BlogPost struct {
+	Author  string
+	Date    time.Time
+	Title   string
+	Content string
+}
+
+templ BlogPostCard(post BlogPost) {
+	<div class="border-2 border-black rounded-lg overflow-hidden">
+		<img
+			src={ "/placeholder.svg?height=200&width=400&text=Cover+Image" }
+			alt={ "Cover image for " + post.Title }
+			class="w-full h-48 object-cover"
+		/>
+		<div class="p-4">
+			<div class="flex items-center mb-4">
+				<div class="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+				<div>
+					<div class="font-semibold">{ post.Author }</div>
+					<div class="text-sm text-gray-600">{ post.Date.Format("January 2, 2006") }</div>
+				</div>
+			</div>
+			<h2 class="text-xl font-bold mb-2">{ post.Title }</h2>
+			<p class="text-gray-700">{ post.Content }</p>
+		</div>
+	</div>
+}
