@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	blogPosts := []view.BlogPost{
+	blogPosts := []*view.BlogPostPreview{
 		{
 			Author:  "방장아님",
 			Date:    time.Date(2024, 9, 3, 0, 0, 0, 0, time.UTC),
