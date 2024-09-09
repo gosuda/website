@@ -77,5 +77,4 @@ func IndexPage(m *Metadata) templ.Component {
 	})
 }
 
-// Other components (Head, IndexPageBody, IndexPostList, GosudaBlog) are now in separate files
 var _ = templruntime.GeneratedTemplate

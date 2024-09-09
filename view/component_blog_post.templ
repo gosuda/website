@@ -4,14 +4,14 @@ import (
 	"time"
 )
 
-type BlogPost struct {
+type BlogPostPreview struct {
 	Author  string
 	Date    time.Time
 	Title   string
 	Content string
 }
 
-templ BlogPostCard(post BlogPost) {
+templ BlogPostCard(post *BlogPostPreview) {
 	<div class="border-2 border-black rounded-lg overflow-hidden">
 		<img
 			src={ "/placeholder.svg?height=200&width=400&text=Cover+Image" }

@@ -31,7 +31,7 @@ func BlogSidebar(featuredPosts []FeaturedPost) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"lg:w-64 lg:ml-6 mt-6 lg:mt-0 lg:flex-shrink-0\"><div class=\"border-2 border-black rounded-lg p-4 sticky top-6\"><h3 class=\"text-xl font-bold mb-2\">About GoSuda</h3><p class=\"text-gray-700 mb-4\">GoSuda is a leader of innovative solutions for global challenges. Our blog shares insights into our technology, culture, and vision for the future.</p><h4 class=\"text-lg font-semibold mb-2\">Featured Posts</h4><ul class=\"space-y-2\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"lg:w-64 lg:ml-6 mt-6 lg:mt-0 lg:flex-shrink-0\"><div class=\"border-2 border-black rounded-lg p-4 sticky top-6\"><h4 class=\"text-lg font-semibold mb-2\">Featured Posts</h4><ul class=\"space-y-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -52,7 +52,7 @@ func BlogSidebar(featuredPosts []FeaturedPost) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(post.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_sidebar.templ`, Line: 21, Col: 19}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_sidebar.templ`, Line: 16, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
