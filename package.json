@@ -1,0 +1,13 @@
+{
+  "name": "website",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tailwindcss": "^3.4.10"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "build": "tailwindcss -i public/tailwind-main.css -o public/main.css"
+  }
+}
