@@ -76,6 +76,8 @@ func (g *skipList) _allocate(size uint32) uint64 {
 	return uint64(offset)<<32 | uint64(size)
 }
 
+// _newNode creates a new skipNode with the given key, value, and level, and appends it to the g.nodes slice.
+// It returns the index of the new node within the g.nodes slice.
 func (g *skipList) _newNode(key, value uint64, level int) uint32 {
 	g.nodes = append(g.nodes, skipNode{
 		key:   key,
@@ -86,6 +88,10 @@ func (g *skipList) _newNode(key, value uint64, level int) uint32 {
 	return uint32(len(g.nodes) - 1)
 }
 
+// _randomLevel generates a random level for a new skiplist node. It uses a geometric
+// distribution with a success probability of 0.5 to determine the level, up to a
+// maximum of _DATABASE_MEMTABLE_MAX_HEIGHT. This ensures that the skiplist has the
+// desired logarithmic height distribution.
 func (g *skipList) _randomLevel() int {
 	var n int = 1
 	for g._r.Uint64()%2 == 1 && n < _DATABASE_MEMTABLE_MAX_HEIGHT {
@@ -94,6 +100,10 @@ func (g *skipList) _randomLevel() int {
 	return n
 }
 
+// newSkipList creates a new skipList instance. It initializes the skipList with a
+// random number generator, sets the min and max version to the appropriate values,
+// allocates a byte buffer for the skipList, and creates the head and tail nodes.
+// The function returns a pointer to the new skipList instance.
 func newSkipList() *skipList {
 	g := &skipList{
 		_r:         rand.NewPCG(rand.Uint64(), rand.Uint64()),
