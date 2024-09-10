@@ -1,8 +1,9 @@
 package database
 
 const (
-	_DATABASE_SSTABLE_MAGIC   = 0xf3db64e176e9b2f5
-	_DATABASE_SSTABLE_VERSION = 10
+	_DATABASE_SSTABLE_MAGIC        = 0xf3db64e176e9b2f5
+	_DATABASE_SSTABLE_FOOTER_MAGIC = 0xcf56bff25a91312a
+	_DATABASE_SSTABLE_VERSION      = 10
 
 	_DATABASE_SSTABLE_MAX_SIZE = 20 * 1024 * 1024 // 20MiB
 )
@@ -41,14 +42,16 @@ const (
 //      d. Offset (8 bytes): Offset of the data block containing the key
 //
 // 5. Footer:
-//    - Index Block Offset (8 bytes)
-//    - Index Block Size (4 bytes)
+//    - Index Block Offset (8 bytes): Offset of the index block
+//    - Index Block Size (4 bytes): Size of the index block
 //    - Minimum Version (8 bytes): Minimum version of the SSTable
 //    - Maximum Version (8 bytes): Maximum version of the SSTable
 //    - Minimum Key Length (4 bytes): Minimum length of keys in the SSTable
 //    - Maximum Key Length (4 bytes): Maximum length of keys in the SSTable
 //    - Minimum Key (variable length): Minimum key in the SSTable
 //    - Maximum Key (variable length): Maximum key in the SSTable
+//    - Footer Block Offset (8 bytes): Offset of the footer block
 //    - WyHash Checksum of above (8 bytes)
+//    - Footer Magic (8 bytes): Identifies the file as an SSTable footer
 //
 // Note: All multi-byte integers are stored in little-endian format.
