@@ -17,12 +17,6 @@ const (
 //    - Version (4 bytes): SSTable format version
 //    - Flags (4 bytes): Reserved for future use
 //    - Hash Seed (8 bytes): Seed for the WyHash checksum
-//    - Minimum Version (8 bytes): Minimum version of the SSTable
-//    - Maximum Version (8 bytes): Maximum version of the SSTable
-//    - Minimum Key Length (4 bytes): Minimum length of keys in the SSTable
-//    - Maximum Key Length (4 bytes): Maximum length of keys in the SSTable
-//    - Minimum Key (variable length): Minimum key in the SSTable
-//    - Maximum Key (variable length): Maximum key in the SSTable
 //    - WyHash Checksum of above (8 bytes)
 //
 // 2. Data Blocks:
@@ -49,6 +43,12 @@ const (
 // 5. Footer:
 //    - Index Block Offset (8 bytes)
 //    - Index Block Size (4 bytes)
+//    - Minimum Version (8 bytes): Minimum version of the SSTable
+//    - Maximum Version (8 bytes): Maximum version of the SSTable
+//    - Minimum Key Length (4 bytes): Minimum length of keys in the SSTable
+//    - Maximum Key Length (4 bytes): Maximum length of keys in the SSTable
+//    - Minimum Key (variable length): Minimum key in the SSTable
+//    - Maximum Key (variable length): Maximum key in the SSTable
 //    - WyHash Checksum of above (8 bytes)
 //
 // Note: All multi-byte integers are stored in little-endian format.
