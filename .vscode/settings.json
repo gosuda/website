@@ -1,12 +1,19 @@
 {
   "cSpell.words": [
+    "alecthomas",
+    "chtml",
     "fogleman",
+    "goldmark",
     "gosuda",
+    "Linkify",
     "MEMTABLE",
+    "mvdan",
     "ogimage",
     "skiplist",
     "SSTABLE",
     "webauthn",
-    "wyhash"
+    "wyhash",
+    "xurls",
+    "yuin"
   ]
 }
