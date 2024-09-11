@@ -29,6 +29,7 @@ const (
 //         - Key Length (4 bytes)
 //         - Key (variable length)
 //         - Version (8 bytes)
+//         - Flags (4 bytes): Flags for the key-value pair
 //         - Value Length (4 bytes)
 //         - Value (variable length)
 //      e. WyHash Checksum of a || b || c || d (8 bytes)

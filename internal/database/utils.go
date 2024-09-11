@@ -37,3 +37,29 @@ func _CompareKey(a, b []byte) int {
 
 	return 0
 }
+
+// _Version returns the version encoded in the last _VERSION_LEN bytes of the given key.
+func _Version(key []byte) uint64 {
+	if len(key) < _VERSION_LEN {
+		return 0
+	}
+	return binary.BigEndian.Uint64(key[len(key)-_VERSION_LEN:])
+}
+
+// _RawKey returns the raw key without the version encoded in the last _VERSION_LEN bytes.
+func _RawKey(key []byte) []byte {
+	if len(key) < _VERSION_LEN {
+		return key
+	}
+	return key[:len(key)-_VERSION_LEN]
+}
+
+func _KeyAt(key []byte, version uint64) []byte {
+	if len(key) < _VERSION_LEN {
+		return key
+	}
+	keyBuf := make([]byte, len(key)+_VERSION_LEN)
+	copy(keyBuf, key)
+	binary.BigEndian.PutUint64(keyBuf[len(key):], version)
+	return keyBuf
+}

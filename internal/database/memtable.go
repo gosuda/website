@@ -1,6 +1,7 @@
 package database
 
 import (
+	"bytes"
 	"math"
 	"math/rand/v2"
 )
@@ -23,8 +24,9 @@ type skipList struct {
 	_r    rand.Source
 	nodes []skipNode
 
-	head uint32
-	tail uint32
+	head    uint32
+	tail    uint32
+	deleted uint64
 
 	minVersion uint64
 	maxVersion uint64
@@ -62,17 +64,17 @@ func (g *skipList) _bytes(i uint64) []byte {
 // If the allocation fails due to insufficient space in the byte buffer, the function returns 0.
 func (g *skipList) _allocate(size uint32) uint64 {
 	offset := g.bHead
-	size = ((size + 7) >> 3) << 3
+	alignedSize := ((size + 7) >> 3) << 3
 
 	if int(offset) >= len(g.b) {
 		return 0
 	}
 
-	if uint64(offset)+uint64(size) > uint64(len(g.b)) {
+	if uint64(offset)+uint64(alignedSize) > uint64(len(g.b)) {
 		return 0
 	}
 
-	g.bHead += size
+	g.bHead += alignedSize
 	return uint64(offset)<<32 | uint64(size)
 }
 
@@ -122,6 +124,7 @@ func newSkipList() *skipList {
 	if null != 0 {
 		return nil
 	}
+	g.deleted = null
 
 	g.minKey = null
 	g.maxKey = null
@@ -179,4 +182,127 @@ func (g *skipList) _seek(key []byte, log *[_DATABASE_MEMTABLE_SKIPLIST_MAX_HEIGH
 	// Return the index of the node that either contains the key, or is the
 	// first node whose key is greater than the given key.
 	return node
+}
+
+func (g *skipList) Lookup(key []byte) ([]byte, bool) {
+	if len(key) < _VERSION_LEN {
+		return nil, false
+	}
+
+	node := g._seek(key, nil)
+	if node == g.tail {
+		return nil, false
+	}
+
+	raw := _RawKey(g._bytes(g.nodes[node].key))
+	if !bytes.Equal(raw, _RawKey(key)) {
+		return nil, false
+	}
+
+	if g.nodes[node].value == g.deleted {
+		return nil, false
+	}
+
+	return g._bytes(g.nodes[node].value), true
+}
+
+func (g *skipList) Insert(key []byte, value []byte) bool {
+	if len(key) < _VERSION_LEN {
+		return false
+	}
+
+	var log [_DATABASE_MEMTABLE_SKIPLIST_MAX_HEIGHT]uint32
+
+	node := g._seek(key, &log)
+	if node == g.tail {
+		return false
+	}
+
+	keyBuf := g._allocate(uint32(len(key)))
+	valueBuf := g._allocate(uint32(len(value)))
+	if keyBuf == 0 || valueBuf == 0 {
+		return false
+	}
+
+	if _CompareKey(g._bytes(g.nodes[node].key), key) == 0 {
+		g.nodes[node].key = keyBuf
+		g.nodes[node].value = valueBuf
+		return true
+	}
+
+	newNode := g._newNode(keyBuf, valueBuf, g._randomLevel())
+	if newNode == 0 {
+		return false // tail node accidentally allocated
+	}
+
+	for i := 0; i < g.nodes[newNode].level; i++ {
+		g.nodes[newNode].next[i] = g.nodes[log[i]].next[i]
+		g.nodes[log[i]].next[i] = newNode
+	}
+
+	if g.nodes[newNode].key < g.minKey {
+		g.minKey = g.nodes[newNode].key
+	}
+	if g.nodes[newNode].key > g.maxKey {
+		g.maxKey = g.nodes[newNode].key
+	}
+
+	if _Version(key) > g.maxVersion {
+		g.maxVersion = _Version(key)
+	}
+	if _Version(key) < g.minVersion {
+		g.minVersion = _Version(key)
+	}
+
+	return true
+}
+
+func (g *skipList) Delete(key []byte) bool {
+	if len(key) < _VERSION_LEN {
+		return false
+	}
+
+	var log [_DATABASE_MEMTABLE_SKIPLIST_MAX_HEIGHT]uint32
+
+	node := g._seek(key, &log)
+	if node == g.tail {
+		return false
+	}
+
+	keyBuf := g._allocate(uint32(len(key)))
+	if keyBuf == 0 {
+		return false
+	}
+
+	if _CompareKey(g._bytes(g.nodes[node].key), key) == 0 {
+		g.nodes[node].key = keyBuf
+		g.nodes[node].value = g.deleted
+		return true
+	}
+
+	newNode := g._newNode(keyBuf, g.deleted, g._randomLevel())
+	if newNode == 0 {
+		return false // tail node accidentally allocated
+	}
+
+	for i := 0; i < g.nodes[newNode].level; i++ {
+		g.nodes[newNode].next[i] = g.nodes[log[i]].next[i]
+		g.nodes[log[i]].next[i] = newNode
+	}
+
+	if g.nodes[newNode].key < g.minKey {
+		g.minKey = g.nodes[newNode].key
+	}
+	if g.nodes[newNode].key > g.maxKey {
+		g.maxKey = g.nodes[newNode].key
+	}
+
+	if _Version(key) > g.maxVersion {
+		g.maxVersion = _Version(key)
+	}
+	if _Version(key) < g.minVersion {
+		g.minVersion = _Version(key)
+	}
+
+	return true
 }
