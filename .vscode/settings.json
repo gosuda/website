@@ -6,6 +6,7 @@
     "ogimage",
     "skiplist",
     "SSTABLE",
-    "webauthn"
+    "webauthn",
+    "wyhash"
   ]
 }

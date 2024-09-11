@@ -1,11 +1,29 @@
 package database
 
+import (
+	"crypto/rand"
+	"encoding/binary"
+	"encoding/hex"
+	"io"
+
+	"gosuda.org/website/internal/wyhash"
+)
+
 const (
-	_DATABASE_SSTABLE_MAGIC        = 0xf3db64e176e9b2f5
-	_DATABASE_SSTABLE_FOOTER_MAGIC = 0xcf56bff25a91312a
+	_DATABASE_SSTABLE_MAGIC        = "f3db64e176e9b2f5"
+	_DATABASE_SSTABLE_FOOTER_MAGIC = "cf56bff25a91312a"
 	_DATABASE_SSTABLE_VERSION      = 10
 
 	_DATABASE_SSTABLE_MAX_SIZE = 20 * 1024 * 1024 // 20MiB
+
+)
+const (
+	_DATABASE_SSTABLE_HEADER_FLAG_RESERVED uint32 = 1 << iota
+)
+
+var (
+	_MAGIC_BYTES, _        = hex.DecodeString(_DATABASE_SSTABLE_MAGIC)
+	_FOOTER_MAGIC_BYTES, _ = hex.DecodeString(_DATABASE_SSTABLE_FOOTER_MAGIC)
 )
 
 // SSTable File Format
@@ -55,3 +73,56 @@ const (
 //    - Footer Magic (8 bytes): Identifies the file as an SSTable footer
 //
 // Note: All multi-byte integers are stored in little-endian format.
+
+type SStableWriter struct {
+	w io.WriteCloser
+
+	hashSeed uint64
+
+	currentBlockSize int
+	currentBlockData []byte
+
+	minKey []byte
+	maxKey []byte
+
+	minVersion uint64
+	maxVersion uint64
+
+	currentBlockKeys [][]byte
+}
+
+func NewSStableWriter(w io.WriteCloser) *SStableWriter {
+	g := &SStableWriter{
+		w: w,
+	}
+
+	var b [8]byte
+	rand.Read(b[:])
+	g.hashSeed = binary.LittleEndian.Uint64(b[:])
+	return g
+}
+
+func (g *SStableWriter) WriteHeader() error {
+	g.currentBlockData = g.currentBlockData[:0]
+
+	g.currentBlockData = append(g.currentBlockData, _MAGIC_BYTES...)
+	var b [8]byte
+	binary.LittleEndian.PutUint32(b[:4], _DATABASE_SSTABLE_VERSION)
+	g.currentBlockData = append(g.currentBlockData, b[:4]...)
+	flag := _DATABASE_SSTABLE_HEADER_FLAG_RESERVED
+	binary.LittleEndian.PutUint32(b[:4], flag)
+	g.currentBlockData = append(g.currentBlockData, b[:4]...)
+	binary.LittleEndian.PutUint64(b[:], g.hashSeed)
+	g.currentBlockData = append(g.currentBlockData, b[:8]...)
+
+	// Calculate and append the WyHash checksum
+	checksum := wyhash.Hash(g.currentBlockData, g.hashSeed)
+	binary.LittleEndian.PutUint64(b[:], checksum)
+	g.currentBlockData = append(g.currentBlockData, b[:8]...)
+
+	_, err := g.w.Write(g.currentBlockData)
+	if err != nil {
+		return err
+	}
+	return nil
+}
