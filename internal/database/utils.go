@@ -29,9 +29,9 @@ func _CompareKey(a, b []byte) int {
 	bVersion := binary.BigEndian.Uint64(b[len(b)-_VERSION_LEN:])
 
 	// Reverse the comparison order when comparing versions
-	if aVersion > bVersion {
+	if aVersion < bVersion {
 		return -1
-	} else if aVersion < bVersion {
+	} else if aVersion > bVersion {
 		return 1
 	}
 

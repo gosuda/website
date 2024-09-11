@@ -207,7 +207,7 @@ func (g *skipList) Lookup(key []byte) ([]byte, bool) {
 }
 
 func (g *skipList) Insert(key []byte, value []byte) bool {
-	if len(key) < _VERSION_LEN {
+	if len(key) < _VERSION_LEN || len(key) > _DATABASE_MEMTABLE_SKIPLIST_MAX_KEY_SIZE {
 		return false
 	}
 
@@ -223,6 +223,8 @@ func (g *skipList) Insert(key []byte, value []byte) bool {
 	if keyBuf == 0 || valueBuf == 0 {
 		return false
 	}
+	copy(g._bytes(keyBuf), key)
+	copy(g._bytes(valueBuf), value)
 
 	if _CompareKey(g._bytes(g.nodes[node].key), key) == 0 {
 		g.nodes[node].key = keyBuf
@@ -240,10 +242,10 @@ func (g *skipList) Insert(key []byte, value []byte) bool {
 		g.nodes[log[i]].next[i] = newNode
 	}
 
-	if g.nodes[newNode].key < g.minKey {
+	if g.minKey == g.deleted || bytes.Compare(g._bytes(g.nodes[newNode].key), g._bytes(g.minKey)) < 0 {
 		g.minKey = g.nodes[newNode].key
 	}
-	if g.nodes[newNode].key > g.maxKey {
+	if g.minKey == g.deleted || bytes.Compare(g._bytes(g.nodes[newNode].key), g._bytes(g.minKey)) > 0 {
 		g.maxKey = g.nodes[newNode].key
 	}
 
@@ -290,10 +292,10 @@ func (g *skipList) Delete(key []byte) bool {
 		g.nodes[log[i]].next[i] = newNode
 	}
 
-	if g.nodes[newNode].key < g.minKey {
+	if g.minKey == g.deleted || bytes.Compare(g._bytes(g.nodes[newNode].key), g._bytes(g.minKey)) < 0 {
 		g.minKey = g.nodes[newNode].key
 	}
-	if g.nodes[newNode].key > g.maxKey {
+	if g.minKey == g.deleted || bytes.Compare(g._bytes(g.nodes[newNode].key), g._bytes(g.minKey)) > 0 {
 		g.maxKey = g.nodes[newNode].key
 	}
 
