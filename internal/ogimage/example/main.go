@@ -5,13 +5,13 @@ import (
 	"os"
 	"time"
 
-	"gosuda.org/website/ogimage"
+	"gosuda.org/website/internal/ogimage"
 )
 
 func main() {
 	img := ogimage.GenerateImage("GoSuda", "The 고수다 웹사이트", time.Now())
 
-	f, err := os.Create("ogimage/example/ogimage.png")
+	f, err := os.Create("internal/ogimage/example/ogimage.png")
 	if err != nil {
 		panic(err)
 	}
