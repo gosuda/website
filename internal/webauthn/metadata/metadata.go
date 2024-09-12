@@ -1,6 +1,12 @@
 package metadata
 
-import "github.com/google/uuid"
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/google/uuid"
+)
 
 const MDS3URL = "https://mds3.fidoalliance.org/"
 
@@ -77,4 +83,25 @@ type Options struct {
 	ClientPin bool `json:"clientPin"`
 	Up        bool `json:"up"`
 	Uv        bool `json:"uv"`
+}
+
+func DownloadFIDO2MetaData(c *http.Client) (*Root, error) {
+	var root Root
+
+	resp, err := c.Get(MDS3URL)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("HTTP request failed with status code %d", resp.StatusCode)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&root)
+	if err != nil {
+		return nil, err
+	}
+
+	return &root, nil
 }
