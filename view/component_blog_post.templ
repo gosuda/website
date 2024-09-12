@@ -5,19 +5,28 @@ import (
 )
 
 type BlogPostPreview struct {
-	Author  string
-	Date    time.Time
 	Title   string
-	Content string
+	Author  string
+	Description string
+	Date    time.Time
+	CoverImageURL string
 }
 
 templ BlogPostCard(post *BlogPostPreview) {
 	<div class="border-2 border-black rounded-lg overflow-hidden">
-		<img
-			src={ "/placeholder.svg?height=200&width=400&text=Cover+Image" }
-			alt={ "Cover image for " + post.Title }
-			class="w-full h-48 object-cover"
-		/>
+		if  post.CoverImageURL != "" {
+			<img
+				src={ post.CoverImageURL }
+				alt={ "Cover image for " + post.Title }
+				class="w-full h-48 object-cover"
+			/>
+		} else {
+			<img
+				src="/assets/images/post_cover_placeholder.png"
+				alt={ "Cover image for " + post.Title }
+				class="w-full h-48 object-cover"
+			/>
+		}
 		<div class="p-4">
 			<div class="flex items-center mb-4">
 				<div class="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
@@ -27,7 +36,7 @@ templ BlogPostCard(post *BlogPostPreview) {
 				</div>
 			</div>
 			<h2 class="text-xl font-bold mb-2">{ post.Title }</h2>
-			<p class="text-gray-700">{ post.Content }</p>
+			<p class="text-gray-700">{ post.Description }</p>
 		</div>
 	</div>
 }
