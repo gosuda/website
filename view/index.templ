@@ -17,11 +17,10 @@ type Metadata struct {
 	CustomHead  string
 }
 
-// The components are now imported from their respective files
-templ IndexPage(m *Metadata) {
+templ IndexPage(m *Metadata, blogPosts []*BlogPostPreview, featuredPosts []FeaturedPost) {
 	<!DOCTYPE html>
 	<html lang={ m.Language }>
 		@Head(m)
-		@IndexPageBody(m)
+		@IndexPageBody(m, blogPosts, featuredPosts)
 	</html>
 }
