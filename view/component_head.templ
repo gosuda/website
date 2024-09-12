@@ -34,5 +34,6 @@ templ Head(m *Metadata) {
 		if m.CustomHead != "" {
 			@templ.Raw(m.CustomHead)
 		}
+		<link rel="stylesheet" href="/main.css"/>
 	</head>
 }

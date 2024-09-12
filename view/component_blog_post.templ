@@ -13,7 +13,7 @@ type BlogPostPreview struct {
 }
 
 templ BlogPostCard(post *BlogPostPreview) {
-	<div class="border-2 border-black rounded-lg overflow-hidden">
+	<div class="border-2 border-black rounded-lg overflow-hidden transition hover:shadow-lg hover:drop-shadow-lg">
 		if  post.CoverImageURL != "" {
 			<img
 				src={ post.CoverImageURL }

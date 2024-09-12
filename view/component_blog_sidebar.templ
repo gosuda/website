@@ -8,7 +8,7 @@ type FeaturedPost struct {
 templ BlogSidebar(featuredPosts []FeaturedPost) {
 	<div class="lg:w-64 lg:ml-6 mt-6 lg:mt-0 lg:flex-shrink-0">
 		<div class="border-2 border-black rounded-lg p-4 sticky top-6">
-			<h4 class="text-lg font-semibold mb-2">Featured Posts</h4>
+			<span class="text-lg font-semibold mb-2">Featured Posts</span>
 			<ul class="space-y-2">
 				for _, post := range featuredPosts {
 					<li>
