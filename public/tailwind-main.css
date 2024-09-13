@@ -1,3 +1,7 @@
+html {
+  font-weight: 300;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -34,7 +34,7 @@ func BlogSidebar(featuredPosts []FeaturedPost) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"lg:w-64 lg:ml-6 mt-6 lg:mt-0 lg:flex-shrink-0\"><div class=\"border-2 border-black rounded-lg p-4 sticky top-6\"><span class=\"text-lg font-semibold mb-2\">Featured Posts</span><ul class=\"space-y-2\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"lg:w-64 lg:ml-6 mt-6 lg:mt-0 lg:flex-shrink-0\"><div class=\"border-2 border-black rounded-lg p-4 sticky top-6\"><span class=\"text-lg font-bold mb-2\">Featured Posts</span><ul class=\"space-y-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -48,7 +48,7 @@ func BlogSidebar(featuredPosts []FeaturedPost) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"text-blue-600 hover:underline\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"text-blue-500 hover:underline\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

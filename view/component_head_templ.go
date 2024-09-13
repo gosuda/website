@@ -8,9 +8,7 @@ package view
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"strings"
-)
+import "strings"
 
 func Head(m *Metadata) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -45,7 +43,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(m.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 12, Col: 19}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 10, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -58,7 +56,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(m.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 13, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 11, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -77,7 +75,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(m.Image)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 16, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 14, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -95,7 +93,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(m.URL + "/assets/images/ogp_placeholder.png")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 18, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 16, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -114,7 +112,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(m.URL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 21, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 19, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -127,7 +125,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(m.URL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 22, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 20, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -146,7 +144,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(m.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 25, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 23, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -159,7 +157,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(m.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 26, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 24, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -178,7 +176,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(m.Author)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 29, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 27, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -197,7 +195,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(strings.Join(m.Keywords, ","))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 32, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 30, Col: 64}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -214,7 +212,7 @@ func Head(m *Metadata) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<link rel=\"stylesheet\" href=\"/main.css\"></head>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n\t\t/* ibm-plex-sans-kr-300 - korean_latin */\n\t\t@font-face {\n\t\t  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */\n\t\t  font-family: 'IBM Plex Sans KR';\n\t\t  font-style: normal;\n\t\t  font-weight: 300;\n\t\t  src: \n\t\t      local('IBM Plex Sans KR'),\n\t\t      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */\n\t\t      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */\n\t\t}\n\t\t\n\t\t/* ibm-plex-sans-kr-500 - korean_latin */\n\t\t@font-face {\n\t\t  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */\n\t\t  font-family: 'IBM Plex Sans KR';\n\t\t  font-style: normal;\n\t\t  font-weight: 500;\n\t\t  src:\n\t\t      local('IBM Plex Sans KR'),\n\t\t      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */\n\t\t      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */\n\t\t}\n\t\t</style><link rel=\"stylesheet\" href=\"/main.css\"></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

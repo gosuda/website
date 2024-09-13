@@ -8,11 +8,11 @@ type FeaturedPost struct {
 templ BlogSidebar(featuredPosts []FeaturedPost) {
 	<div class="lg:w-64 lg:ml-6 mt-6 lg:mt-0 lg:flex-shrink-0">
 		<div class="border-2 border-black rounded-lg p-4 sticky top-6">
-			<span class="text-lg font-semibold mb-2">Featured Posts</span>
+			<span class="text-lg font-bold mb-2">Featured Posts</span>
 			<ul class="space-y-2">
 				for _, post := range featuredPosts {
 					<li>
-						<a href={ templ.SafeURL(post.Link) } class="text-blue-600 hover:underline">
+						<a href={ templ.SafeURL(post.Link) } class="text-blue-500 hover:underline">
 							{ post.Title }
 						</a>
 					</li>
