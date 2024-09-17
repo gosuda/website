@@ -2,6 +2,7 @@
 title: "The GoSuda Website"
 path: "/website"
 go_package: "gosuda.org/website"
+hidden: true
 ---
 GoSuda is an industry-leading open source working group enabling developers to easily build, prototype, and deploy applications. Our comprehensive suite of tools and frameworks empowers developers to create robust, scalable solutions across various domains.
 
