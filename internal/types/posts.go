@@ -42,5 +42,3 @@ type Document struct {
 	// Parsed metadata from the Markdown document.
 	Metadata map[string]interface{} `json:"metadata"`
 }
-
-func GetPosts()
