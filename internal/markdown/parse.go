@@ -11,90 +11,86 @@ import (
 	meta "github.com/yuin/goldmark-meta"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
+	"gosuda.org/website/internal/types"
 	"mvdan.cc/xurls/v2"
 )
 
-type Document struct {
-	Title       string    `json:"title"`
-	Author      string    `json:"author"`
-	Description string    `json:"description"`
-	Date        time.Time `json:"date"`
-
-	Content string `json:"content"`
-	HTML    string `json:"html"`
-
-	Path string `json:"path"`
-}
-
 var ErrInvalidMetadata = errors.New("invalid metadata")
 
-func ParseDocument(text string) (*Document, error) {
-	gMark := goldmark.New(
-		goldmark.WithExtensions(
-			meta.New(
-				meta.WithStoresInDocument(),
-			),
-			extension.NewLinkify(
-				extension.WithLinkifyAllowedProtocols([]string{
-					"http:",
-					"https:",
-				}),
-				extension.WithLinkifyURLRegexp(
-					xurls.Strict(),
-				),
-			),
-			highlighting.NewHighlighting(
-				highlighting.WithStyle("dracula"),
-				highlighting.WithFormatOptions(
-					chtml.WithLineNumbers(true),
-					// chtml.WithLinkableLineNumbers(true, "CL"), I don't need this (It hurts SEO)
-				),
-				highlighting.WithGuessLanguage(true),
-			),
-			extension.GFM,
-			extension.CJK,
+var gMark = goldmark.New(
+	goldmark.WithExtensions(
+		meta.New(meta.WithStoresInDocument()),
+		extension.NewLinkify(
+			extension.WithLinkifyAllowedProtocols([]string{"http:", "https:"}),
+			extension.WithLinkifyURLRegexp(xurls.Strict()),
 		),
-	)
+		highlighting.NewHighlighting(
+			highlighting.WithStyle("dracula"),
+			highlighting.WithFormatOptions(
+				chtml.WithLineNumbers(true),
+			),
+			highlighting.WithGuessLanguage(true),
+		),
+		extension.GFM,
+		extension.CJK,
+	),
+)
 
-	doc := Document{}
-	context := parser.NewContext()
-
-	var buf bytes.Buffer
-	if err := gMark.Convert([]byte(text), &buf, parser.WithContext(context)); err != nil {
-		return nil, err
-	}
-	metadata := meta.Get(context)
-
+func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
 	for key, value := range metadata {
 		switch key {
 		case "title":
 			s, ok := value.(string)
 			if !ok {
-				return nil, ErrInvalidMetadata
+				return ErrInvalidMetadata
 			}
 			doc.Title = s
 		case "author":
 			s, ok := value.(string)
 			if !ok {
-				return nil, ErrInvalidMetadata
+				return ErrInvalidMetadata
 			}
 			doc.Author = s
 		case "description":
 			s, ok := value.(string)
 			if !ok {
-				return nil, ErrInvalidMetadata
+				return ErrInvalidMetadata
 			}
 			doc.Description = s
 		case "date":
-			s, ok := value.(time.Time)
+			t, ok := value.(time.Time)
 			if !ok {
-				return nil, ErrInvalidMetadata
+				return ErrInvalidMetadata
 			}
-			doc.Date = s
+			doc.Date = t
 		}
 	}
-	doc.Content = text
+
+	doc.Metadata = metadata
+	return nil
+}
+
+func RenderMarkdown(text string) (*types.Document, error) {
+	doc := &types.Document{
+		Type:     types.DocumentTypeMarkdown,
+		Markdown: text,
+	}
+
+	context := parser.NewContext()
+	var buf bytes.Buffer
+
+	err := gMark.Convert([]byte(text), &buf, parser.WithContext(context))
+	if err != nil {
+		return nil, err
+	}
+
+	metadata := meta.Get(context)
+	err = parseMetadata(doc, metadata)
+	if err != nil {
+		return nil, err
+	}
+
 	doc.HTML = buf.String()
 
-	return &doc, nil
+	return doc, nil
 }
