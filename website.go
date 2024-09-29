@@ -9,6 +9,9 @@ import (
 	"gosuda.org/website/view"
 )
 
+//go:generate templ generate
+//go:generate bun run build
+
 func main() {
 	blogPosts := []*view.BlogPostPreview{
 		{
