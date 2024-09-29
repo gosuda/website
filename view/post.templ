@@ -1,8 +1,11 @@
 package view
 
-templ PostPage(m *Metadata) {
+import "gosuda.org/website/internal/types"
+
+templ PostPage(m *Metadata, doc *types.Document, post *types.Post) {
 	<!DOCTYPE html>
 	<html lang={ m.Language }>
 		@Head(m)
+		@PostPageBody(m, doc, post)
 	</html>
 }

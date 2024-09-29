@@ -1,82 +1,140 @@
 package main
 
 import (
-	"bytes"
-	"context"
-	"fmt"
-	"time"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"strings"
 
-	"gosuda.org/website/view"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"gosuda.org/website/internal/markdown"
+)
+
+const (
+	rootDir   = "root"
+	publicDir = "public"
+	distDir   = "dist"
 )
 
 //go:generate templ generate
 //go:generate bun run build
 
-func main() {
-	blogPosts := []*view.BlogPostPreview{
-		{
-			Author:      "방장아님",
-			Date:        time.Date(2024, 9, 3, 0, 0, 0, 0, time.UTC),
-			Title:       "Scaling GoSuda's Infrastructure for Global Reach",
-			Description: "In this post, we explore the challenges and solutions in scaling GoSuda's infrastructure to meet the demands of our growing global user base. Learn about our approach to distributed systems, load balancing, and data replication strategies.",
-		},
-		{
-			Author:      "아Zig초보",
-			Date:        time.Date(2024, 9, 5, 0, 0, 0, 0, time.UTC),
-			Title:       "Developing Secure and Reliable APIs at GoSuda",
-			Description: "Security and reliability are paramount in API development. This article delves into GoSuda's best practices for creating robust APIs, including authentication mechanisms, rate limiting, and comprehensive error handling to ensure a seamless developer experience.",
-		},
-		{
-			Author:      "snowmerak",
-			Date:        time.Date(2024, 9, 7, 0, 0, 0, 0, time.UTC),
-			Title:       "Building a Culture of Innovation at GoSuda",
-			Description: "Innovation is at the heart of GoSuda's success. In this post, we dive into the strategies and practices that foster a culture of continuous innovation within our organization. From encouraging creative thinking to implementing innovative ideas, discover how GoSuda stays at the forefront of technological advancements.",
-		},
-		{
-			Author:      "GoSuda Team",
-			Date:        time.Date(2024, 9, 10, 0, 0, 0, 0, time.UTC),
-			Title:       "Introducing GoSuda's New AI-Powered Analytics Platform",
-			Description: "We're excited to announce the launch of our new AI-powered analytics platform. This cutting-edge tool will revolutionize how businesses interpret and act on their data. Dive into the features and see how it can transform your decision-making process.",
-		},
-		{
-			Author:      "TechGuru",
-			Date:        time.Date(2024, 9, 12, 0, 0, 0, 0, time.UTC),
-			Title:       "The Future of Cloud Computing: GoSuda's Perspective",
-			Description: "Cloud computing is evolving rapidly. In this post, we share GoSuda's vision for the future of cloud technologies, including edge computing, serverless architectures, and AI-driven infrastructure management.",
-		},
-		{
-			Author:      "CodeMaster",
-			Date:        time.Date(2024, 9, 15, 0, 0, 0, 0, time.UTC),
-			Title:       "Mastering Concurrency in Go: Tips from GoSuda Engineers",
-			Description: "Concurrency is a powerful feature of Go, but it can be challenging to master. Our engineers share their top tips and best practices for writing efficient, bug-free concurrent code in Go.",
-		},
-	}
+func generateFileList(dir string) ([]string, error) {
+	var fileList []string
+	err := filepath.Walk(dir, func(path string, info fs.FileInfo, err error) error {
+		if !info.IsDir() {
+			fileList = append(fileList, path)
+		}
+		return nil
+	})
 
-	featuredPosts := []view.FeaturedPost{
-		{
-			Title: "The Rise of Edge Computing: GoSuda's Innovative Approach",
-			Link:  "#",
-		},
-		{
-			Title: "How GoSuda is Revolutionizing Data Privacy",
-			Link:  "#",
-		},
-		{
-			Title: "GoSuda's Open Source Contributions: A Year in Review",
-			Link:  "#",
-		},
-	}
-
-	htmlComp := view.IndexPage(&view.Metadata{
-		Language:    "en",
-		Title:       "Home | Gosuda",
-		Description: "Welcome to the Gosuda Blog, where we share insights and updates on the latest trends in technology, including cloud computing, AI, and more.",
-	}, blogPosts, featuredPosts)
-
-	var b bytes.Buffer
-	err := htmlComp.Render(context.Background(), &b)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	fmt.Println(b.String())
+	return fileList, nil
+}
+
+func copyFile(src, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+
+	_, err = srcFile.WriteTo(dstFile)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func copyDir(src, dst string) error {
+	filepath.Walk(src, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		relPath := strings.TrimPrefix(path, src)
+		dstPath := filepath.Join(dst, relPath)
+		if info.IsDir() {
+			err := os.MkdirAll(dstPath, os.ModePerm)
+			if err != nil {
+				return err
+			}
+		} else {
+			err := copyFile(path, dstPath)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return nil
+}
+
+func generate() error {
+	log.Debug().Msg("start generating website")
+
+	distInfo, err := os.Stat(distDir)
+	if err == nil && distInfo.IsDir() {
+		log.Debug().Msg("deleting dist directory")
+		err := os.RemoveAll(distDir)
+		if err != nil {
+			return err
+		}
+		log.Debug().Msg("deleted dist directory")
+	}
+
+	log.Debug().Msg("copying static files")
+	err = copyDir(publicDir, distDir)
+	if err != nil {
+		return err
+	}
+	log.Debug().Msg("copied static files")
+
+	log.Debug().Msg("creating root file index")
+	list, err := generateFileList(rootDir)
+	if err != nil {
+		return err
+	}
+
+	for _, path := range list {
+		log.Debug().Str("path", path).Msgf("processing file %s", path)
+		switch strings.ToLower(filepath.Ext(path)) {
+		case ".md", ".markdown":
+			log.Debug().Str("path", path).Msgf("start processing markdown file %s", path)
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			log.Debug().Str("path", path).Int("size", len(data)).Msgf("read markdown file %s", path)
+
+			log.Debug().Str("path", path).Msgf("rendering markdown file %s", path)
+			doc, err := markdown.RenderMarkdown(string(data))
+			if err != nil {
+				return err
+			}
+			log.Debug().Str("path", path).Int("rendered_size", len(doc.HTML)).Msgf("rendered markdown file %s", path)
+
+			log.Debug().Str("path", path).Msgf("end processing markdown file %s", path)
+		default:
+			log.Debug().Str("path", path).Msgf("skipping %s", path)
+		}
+	}
+
+	log.Debug().Msg("end generating website")
+	return nil
+}
+
+func main() {
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02 15:04:05"})
+
+	generate()
 }

@@ -8,6 +8,8 @@ import (
 type Post struct {
 	// ID is the unique identifier for the post.
 	ID string `json:"id"`
+	// FilePath is the file path to the image or other media associated with the post.
+	FilePath string `json:"file_path"`
 	// Path is the URL path or slug for the post.
 	Path string `json:"path"`
 
@@ -17,6 +19,11 @@ type Post struct {
 	Canonical string `json:"canonical,omitempty"`
 	// Hidden indicates whether the post should be listed on the front page.
 	Hidden bool `json:"hidden"`
+
+	// CreatedAt is the date and time when the post was created.
+	CreatedAt time.Time `json:"created_at"`
+	// UpdatedAt is the date and time when the post was last updated.
+	UpdatedAt time.Time `json:"updated_at"`
 
 	// Main contains the primary language version of the post content.
 	Main *Document `json:"main"`
