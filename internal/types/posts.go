@@ -19,7 +19,7 @@ func RandID() string {
 type Post struct {
 	// ID is the unique identifier for the post.
 	ID string `json:"id" yaml:"id"`
-	// FilePath is the file path to the image or other media associated with the post.
+	// FilePath is the file path to the post file.
 	FilePath string `json:"file_path" yaml:"file_path"`
 	// Path is the URL path for the post.
 	Path string `json:"path" yaml:"path"`
@@ -67,7 +67,7 @@ type Document struct {
 
 // Metadata is a struct that holds various types of meta data parsed from a Markdown document
 type Metadata struct {
-	// ID is the unique identifier for the post.
+	// ID is the unique identifier for the post. (propagated to Post.ID)
 	ID string `json:"id" yaml:"id"`
 	// Title is the title of the document.
 	Title string `json:"title,omitempty" yaml:"title,omitempty"`
@@ -77,6 +77,8 @@ type Metadata struct {
 	Description string `json:"description,omitempty" yaml:"description,omitempty"`
 	// Date is the publication date of the document.
 	Date time.Time `json:"date,omitempty" yaml:"date,omitempty"`
+	// Path is the URL path for the post. (propagated to Post.Path)
+	Path string `json:"path,omitempty" yaml:"path,omitempty"`
 	// GoPackage is the Go package associated with the post (optional). Only effective if the post is Main Document.
 	GoPackage string `json:"go_package,omitempty" yaml:"go_package,omitempty"`
 	// Canonical is the canonical URL for the post.

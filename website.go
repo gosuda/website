@@ -1,13 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"gopkg.in/yaml.v3"
 	"gosuda.org/website/internal/markdown"
 	"gosuda.org/website/internal/types"
 )
@@ -16,6 +19,10 @@ const (
 	rootDir   = "root"
 	publicDir = "public"
 	distDir   = "dist"
+)
+
+var (
+	ErrInvalidMarkdown = fmt.Errorf("invalid markdown file")
 )
 
 //go:generate templ generate
@@ -79,17 +86,6 @@ func copyDir(src, dst string) error {
 	return nil
 }
 
-// readMarkdownFile reads the contents of a markdown file.
-func readMarkdownFile(path string) ([]byte, error) {
-	log.Debug().Str("path", path).Msgf("start reading markdown file %s", path)
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	log.Debug().Str("path", path).Int("size", len(data)).Msgf("read markdown file %s", path)
-	return data, nil
-}
-
 // parseMarkdown renders the given markdown data into HTML.
 func parseMarkdown(path string, data []byte) (*types.Document, error) {
 	log.Debug().Str("path", path).Msgf("rendering markdown file %s", path)
@@ -104,18 +100,64 @@ func parseMarkdown(path string, data []byte) (*types.Document, error) {
 // processMarkdownFile processes a markdown file and returns the rendered HTML document.
 func processMarkdownFile(path string) (*types.Document, error) {
 	log.Debug().Str("path", path).Msgf("start processing markdown file %s", path)
-	data, err := readMarkdownFile(path)
+
+	log.Debug().Str("path", path).Msgf("start reading markdown file %s", path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
+	log.Debug().Str("path", path).Int("size", len(data)).Msgf("read markdown file %s", path)
 
 	doc, err := parseMarkdown(path, data)
 	if err != nil {
 		return nil, err
 	}
 
+	var updated bool
+
 	if doc.Metadata.ID == "" {
+		updated = true
 		doc.Metadata.ID = types.RandID()
+		log.Debug().Str("path", path).Str("id", doc.Metadata.ID).Msgf("assigned new ID to document %s", path)
+	}
+
+	if doc.Metadata.Date.IsZero() {
+		updated = true
+		doc.Metadata.Date = time.Now().UTC()
+		log.Debug().Str("path", path).Msgf("assigned new date to document %s", path)
+	}
+
+	if updated {
+		log.Debug().Str("path", path).Msgf("saving updated document %s", path)
+
+		if doc.Type == types.DocumentTypeMarkdown {
+			newMeta, err := yaml.Marshal(&doc.Metadata)
+			if err != nil {
+				return nil, err
+			}
+
+			original := doc.Markdown
+			original = strings.TrimPrefix(original, "---\n")
+			_, origDocument, ok := strings.Cut(original, "---\n")
+			if !ok {
+				return nil, ErrInvalidMarkdown
+			}
+			newDocument := "---\n" + string(newMeta) + "---\n" + origDocument
+			doc.Markdown = newDocument
+
+			fStat, err := os.Stat(path)
+			if err != nil {
+				return nil, err
+			}
+
+			err = os.WriteFile(path, []byte(doc.Markdown), fStat.Mode())
+			if err != nil {
+				return nil, err
+			}
+			log.Debug().Str("path", path).Msgf("saved updated document %s", path)
+		} else {
+			log.Debug().Str("path", path).Msgf("skipping non-markdown document %s", path)
+		}
 	}
 
 	log.Debug().Str("path", path).Msgf("end processing markdown file %s", path)
@@ -154,11 +196,12 @@ func generate() error {
 		case ".md", ".markdown":
 			_, err := processMarkdownFile(path)
 			if err != nil {
-				return err
+				log.Error().Err(err).Str("path", path).Msgf("failed to process markdown file %s", path)
 			}
 		default:
 			log.Debug().Str("path", path).Msgf("skipping %s", path)
 		}
+		log.Debug().Str("path", path).Msgf("processed file %s", path)
 	}
 
 	log.Debug().Msg("end generating website")

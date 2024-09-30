@@ -72,6 +72,10 @@ func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
 			if b, ok := value.(bool); ok {
 				m.Hidden = b
 			}
+		case "path":
+			if s, ok := value.(string); ok {
+				m.Path = s
+			}
 		}
 	}
 
