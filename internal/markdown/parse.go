@@ -37,40 +37,52 @@ var gMark = goldmark.New(
 )
 
 func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
+	m := &doc.Metadata
 	for key, value := range metadata {
 		switch key {
+		case "id":
+			if s, ok := value.(string); ok {
+				m.ID = s
+			}
 		case "title":
-			s, ok := value.(string)
-			if !ok {
-				return ErrInvalidMetadata
+			if s, ok := value.(string); ok {
+				m.Title = s
 			}
-			doc.Title = s
 		case "author":
-			s, ok := value.(string)
-			if !ok {
-				return ErrInvalidMetadata
+			if s, ok := value.(string); ok {
+				m.Author = s
 			}
-			doc.Author = s
 		case "description":
-			s, ok := value.(string)
-			if !ok {
-				return ErrInvalidMetadata
+			if s, ok := value.(string); ok {
+				m.Description = s
 			}
-			doc.Description = s
 		case "date":
-			t, ok := value.(time.Time)
-			if !ok {
-				return ErrInvalidMetadata
+			if t, ok := value.(time.Time); ok {
+				m.Date = t
 			}
-			doc.Date = t
+		case "go_package":
+			if s, ok := value.(string); ok {
+				m.GoPackage = s
+			}
+		case "canonical":
+			if s, ok := value.(string); ok {
+				m.Canonical = s
+			}
+		case "hidden":
+			if b, ok := value.(bool); ok {
+				m.Hidden = b
+			}
 		}
 	}
 
-	doc.Metadata = metadata
+	// If ID is not set in metadata, generate a random one
+	if m.ID == "" {
+		m.ID = types.RandID()
+	}
+
 	return nil
 }
-
-func RenderMarkdown(text string) (*types.Document, error) {
+func ParseMarkdown(text string) (*types.Document, error) {
 	doc := &types.Document{
 		Type:     types.DocumentTypeMarkdown,
 		Markdown: text,

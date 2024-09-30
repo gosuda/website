@@ -10,10 +10,10 @@ templ GosudaBlogPost(doc *types.Document, post *types.Post) {
 		@BlogHeader()
 		<article class="flex-grow">
 			<header class="mb-8">
-				<h1 class="text-4xl font-bold mb-4">{ doc.Title }</h1>
+				<h1 class="text-4xl font-bold mb-4">{ doc.Metadata.Title }</h1>
 				<div class="flex items-center text-gray-600">
-					<span class="mr-4">By { doc.Author }</span>
-					<time datetime={ doc.Date.Format(time.RFC3339) } class="inline-block text-gray-600 italic">{ doc.Date.Format("January 2, 2006") }</time>
+					<span class="mr-4">By { doc.Metadata.Author }</span>
+					<time datetime={ doc.Metadata.Date.Format(time.RFC3339) } class="inline-block text-gray-600 italic">{ doc.Metadata.Date.Format("January 2, 2006") }</time>
 				</div>
 			</header>
 			<div class="max-w-none">

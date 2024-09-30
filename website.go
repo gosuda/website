@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gosuda.org/website/internal/markdown"
+	"gosuda.org/website/internal/types"
 )
 
 const (
@@ -78,6 +79,49 @@ func copyDir(src, dst string) error {
 	return nil
 }
 
+// readMarkdownFile reads the contents of a markdown file.
+func readMarkdownFile(path string) ([]byte, error) {
+	log.Debug().Str("path", path).Msgf("start reading markdown file %s", path)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	log.Debug().Str("path", path).Int("size", len(data)).Msgf("read markdown file %s", path)
+	return data, nil
+}
+
+// parseMarkdown renders the given markdown data into HTML.
+func parseMarkdown(path string, data []byte) (*types.Document, error) {
+	log.Debug().Str("path", path).Msgf("rendering markdown file %s", path)
+	doc, err := markdown.ParseMarkdown(string(data))
+	if err != nil {
+		return nil, err
+	}
+	log.Debug().Str("path", path).Int("rendered_size", len(doc.HTML)).Msgf("rendered markdown file %s", path)
+	return doc, nil
+}
+
+// processMarkdownFile processes a markdown file and returns the rendered HTML document.
+func processMarkdownFile(path string) (*types.Document, error) {
+	log.Debug().Str("path", path).Msgf("start processing markdown file %s", path)
+	data, err := readMarkdownFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	doc, err := parseMarkdown(path, data)
+	if err != nil {
+		return nil, err
+	}
+
+	if doc.Metadata.ID == "" {
+		doc.Metadata.ID = types.RandID()
+	}
+
+	log.Debug().Str("path", path).Msgf("end processing markdown file %s", path)
+	return doc, nil
+}
+
 func generate() error {
 	log.Debug().Msg("start generating website")
 
@@ -108,21 +152,10 @@ func generate() error {
 		log.Debug().Str("path", path).Msgf("processing file %s", path)
 		switch strings.ToLower(filepath.Ext(path)) {
 		case ".md", ".markdown":
-			log.Debug().Str("path", path).Msgf("start processing markdown file %s", path)
-			data, err := os.ReadFile(path)
+			_, err := processMarkdownFile(path)
 			if err != nil {
 				return err
 			}
-			log.Debug().Str("path", path).Int("size", len(data)).Msgf("read markdown file %s", path)
-
-			log.Debug().Str("path", path).Msgf("rendering markdown file %s", path)
-			doc, err := markdown.RenderMarkdown(string(data))
-			if err != nil {
-				return err
-			}
-			log.Debug().Str("path", path).Int("rendered_size", len(doc.HTML)).Msgf("rendered markdown file %s", path)
-
-			log.Debug().Str("path", path).Msgf("end processing markdown file %s", path)
 		default:
 			log.Debug().Str("path", path).Msgf("skipping %s", path)
 		}
