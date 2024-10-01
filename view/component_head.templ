@@ -13,7 +13,7 @@ templ Head(m *Metadata) {
 		if m.Image != "" {
 			<meta property="og:image" content={ m.Image }/>
 		} else {
-			<meta property="og:image" content={ m.URL + "/assets/images/ogp_placeholder.png" }/>
+			<meta property="og:image" content={ m.BaseURL + "/assets/images/ogp_placeholder.png" }/>
 		}
 		if m.URL != "" {
 			<meta property="og:url" content={ m.URL }/>

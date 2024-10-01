@@ -349,6 +349,7 @@ func generatePostPages(gc *GenerationContext) error {
 			Description: post.Main.Metadata.Description,
 			Author:      post.Main.Metadata.Author,
 			URL:         baseURL + post.Path,
+			BaseURL:     baseURL,
 			Canonical:   baseURL + post.Path,
 			CreatedAt:   post.CreatedAt,
 			UpdatedAt:   post.UpdatedAt,

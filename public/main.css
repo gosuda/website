@@ -48,6 +48,10 @@ pre {
   overflow: scroll;
 }
 
+html {
+  cursor: url('/assets/images/cursor.svg'), url('/assets/images/cursor.png'), auto;
+}
+
 /* ! tailwindcss v3.4.10 | MIT License | https://tailwindcss.com */
 
 /*

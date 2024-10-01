@@ -30,6 +30,10 @@ pre {
   overflow: scroll;
 }
 
+html {
+  cursor: url('/assets/images/cursor.svg'), url('/assets/images/cursor.png'), auto;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
