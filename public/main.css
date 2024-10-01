@@ -1,10 +1,50 @@
+/* ibm-plex-sans-kr-300 - korean_latin */
+
+@font-face {
+  font-display: swap;
+
+  /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+
+  font-family: 'IBM Plex Sans KR';
+
+  font-style: normal;
+
+  font-weight: 300;
+
+  src: 
+      local('IBM Plex Sans KR'),
+      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.ttf') format('truetype');
+
+  /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */
+}
+
+/* ibm-plex-sans-kr-500 - korean_latin */
+
+@font-face {
+  font-display: swap;
+
+  /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+
+  font-family: 'IBM Plex Sans KR';
+
+  font-style: normal;
+
+  font-weight: 500;
+
+  src:
+      local('IBM Plex Sans KR'),
+      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.ttf') format('truetype');
+
+  /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */
+}
+
 html {
   font-weight: 300;
 }
 
-/*
-! tailwindcss v3.4.10 | MIT License | https://tailwindcss.com
-*/
+/* ! tailwindcss v3.4.10 | MIT License | https://tailwindcss.com */
 
 /*
 1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)

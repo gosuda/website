@@ -206,13 +206,32 @@ func Head(m *Metadata) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
+		if m.GoImport != "" {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<link rel=\"import\" href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(m.GoImport)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 33, Col: 39}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
 		if m.CustomHead != "" {
 			templ_7745c5c3_Err = templ.Raw(m.CustomHead).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n\t\t/* ibm-plex-sans-kr-300 - korean_latin */\n\t\t@font-face {\n\t\t  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */\n\t\t  font-family: 'IBM Plex Sans KR';\n\t\t  font-style: normal;\n\t\t  font-weight: 300;\n\t\t  src: \n\t\t      local('IBM Plex Sans KR'),\n\t\t      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */\n\t\t      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */\n\t\t}\n\t\t\n\t\t/* ibm-plex-sans-kr-500 - korean_latin */\n\t\t@font-face {\n\t\t  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */\n\t\t  font-family: 'IBM Plex Sans KR';\n\t\t  font-style: normal;\n\t\t  font-weight: 500;\n\t\t  src:\n\t\t      local('IBM Plex Sans KR'),\n\t\t      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */\n\t\t      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */\n\t\t}\n\t\t</style><link rel=\"stylesheet\" href=\"/main.css\"></head>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<link rel=\"stylesheet\" href=\"/main.css\"></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

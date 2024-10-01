@@ -79,6 +79,8 @@ type Metadata struct {
 	Path string `json:"path,omitempty" yaml:"path,omitempty"`
 	// GoPackage is the Go package associated with the post (optional). Only effective if the post is Main Document.
 	GoPackage string `json:"go_package,omitempty" yaml:"go_package,omitempty"`
+	// GoRepoURL is the URL of the Go package repository (optional). Only effective if the post is Main Document.
+	GoRepoURL string `json:"go_repourl,omitempty" yaml:"go_repo_url,omitempty"`
 	// Canonical is the canonical URL for the post.
 	Canonical string `json:"canonical,omitempty" yaml:"canonical,omitempty"`
 	// Hidden indicates whether the post should be listed on the front page.
@@ -94,6 +96,7 @@ func (g *Metadata) Hash() string {
 	h.WriteString(g.Date.Format(time.RFC3339))
 	h.WriteString(g.Path)
 	h.WriteString(g.GoPackage)
+	h.WriteString(g.GoRepoURL)
 	h.WriteString(g.Canonical)
 	h.WriteString(strconv.FormatBool(g.Hidden))
 	return hex.EncodeToString(h.Sum(nil))

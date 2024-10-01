@@ -96,7 +96,7 @@ func generatePath(title string) string {
 
 	var b [4]byte
 	rand.Read(b[:])
-	fp = fmt.Sprintf("/blog/posts/%s-%x", fp, b)
+	fp = fmt.Sprintf("/blog/posts/%s-z%x", fp, b)
 
 	return fp
 }
@@ -320,13 +320,15 @@ func main() {
 	}
 
 	var gc GenerationContext
+	var ds DataStore
+	gc.DataStore = &ds
 
 	r, err := zstd.NewReader(f)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to create zstd reader for database file %s", dbFile)
 	}
 
-	err = json.NewDecoder(r).Decode(&gc.DataStore)
+	err = json.NewDecoder(r).Decode(&ds)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to decode database file %s", dbFile)
 	}
@@ -358,7 +360,7 @@ func main() {
 		log.Fatal().Err(err).Msgf("failed to create zstd writer for database file %s", dbFile)
 	}
 
-	err = json.NewEncoder(w).Encode(gc.DataStore)
+	err = json.NewEncoder(w).Encode(&ds)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to encode database file %s", dbFile)
 	}
@@ -382,7 +384,7 @@ func main() {
 	log.Info().Msgf("website generated")
 
 	// print database as JSON
-	jsonData, err := json.MarshalIndent(gc.DataStore, "", "  ")
+	jsonData, err := json.MarshalIndent(&gc, "", "  ")
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to marshal database file %s", dbFile)
 	}

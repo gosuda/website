@@ -3,6 +3,7 @@ package markdown
 import (
 	"bytes"
 	"errors"
+	"strings"
 	"time"
 
 	chtml "github.com/alecthomas/chroma/v2/formatters/html"
@@ -39,7 +40,7 @@ var gMark = goldmark.New(
 func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
 	m := &doc.Metadata
 	for key, value := range metadata {
-		switch key {
+		switch strings.ToLower(key) {
 		case "id":
 			if s, ok := value.(string); ok {
 				m.ID = s
@@ -79,6 +80,10 @@ func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
 		case "go_package":
 			if s, ok := value.(string); ok {
 				m.GoPackage = s
+			}
+		case "go_repourl", "go_repo":
+			if s, ok := value.(string); ok {
+				m.GoRepoURL = s
 			}
 		case "canonical":
 			if s, ok := value.(string); ok {
