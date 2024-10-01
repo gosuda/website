@@ -1,10 +1,14 @@
 package translate
 
 import (
+	"context"
+	"errors"
 	"strings"
 
 	"cloud.google.com/go/vertexai/genai"
 	"cloud.google.com/go/vertexai/genai/tokenizer"
+	"github.com/lemon-mint/coord/llm"
+	"github.com/lemon-mint/coord/llmtools"
 	"github.com/rs/zerolog/log"
 )
 
@@ -116,4 +120,46 @@ func chunkMarkdown(input string) []string {
 	}
 
 	return chunks
+}
+
+var (
+	ErrFailedToTranslate = errors.New("failed to translate")
+)
+
+func translateChunk(ctx context.Context, l llm.Model, chunk string, targetLanguage string) (string, error) {
+	prompt := strings.Replace(prompt, "<TARGET_LANGUAGE>", targetLanguage, -1)
+	prompt += "[ZZTEXTSTARTZZ]" + chunk + "[ZZTEXTENDZZ]"
+
+	resp := l.GenerateStream(ctx, &llm.ChatContext{}, llm.TextContent(llm.RoleUser, prompt))
+	err := resp.Wait()
+	if err != nil {
+		return "", err
+	}
+
+	text := llmtools.TextFromContents(resp.Content)
+	// Cut from [ZZTEXTSTARTZZ] to [ZZTEXTENDZZ]
+	sidx := strings.Index(text, "[ZZTEXTSTARTZZ]")
+	eidx := strings.Index(text, "[ZZTEXTENDZZ]")
+	if sidx != -1 && eidx != -1 {
+		text = text[sidx+len("[ZZTEXTSTARTZZ]") : eidx]
+		return text, nil
+	}
+
+	return "", ErrFailedToTranslate
+}
+func Translate(ctx context.Context, l llm.Model, input, targetLanguage string) (string, error) {
+	chunks := chunkMarkdown(input)
+	translatedChunks := make([]string, len(chunks))
+
+	for i, chunk := range chunks {
+		translatedChunk, err := translateChunk(ctx, l, chunk, targetLanguage)
+		if err != nil {
+			return "", err
+		}
+		translatedChunks[i] = translatedChunk
+	}
+
+	// Join the translated chunks back into a single string
+	translatedText := strings.Join(translatedChunks, "")
+	return translatedText, nil
 }

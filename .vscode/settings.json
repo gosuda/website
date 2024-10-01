@@ -2,6 +2,7 @@
   "cSpell.words": [
     "alecthomas",
     "chtml",
+    "eidx",
     "fogleman",
     "goldmark",
     "gosuda",
@@ -11,11 +12,14 @@
     "mjson",
     "mvdan",
     "ogimage",
+    "sidx",
     "skiplist",
     "SSTABLE",
     "webauthn",
     "wyhash",
     "xurls",
-    "yuin"
+    "yuin",
+    "ZZTEXTENDZZ",
+    "ZZTEXTSTARTZZ"
   ]
 }

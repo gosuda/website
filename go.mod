@@ -9,6 +9,7 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/google/uuid v1.6.0
 	github.com/klauspost/compress v1.17.10
+	github.com/lemon-mint/coord v0.0.0-20240828063213-3a5371b67000
 	github.com/pemistahl/lingua-go v1.4.0
 	github.com/rs/zerolog v1.33.0
 	github.com/tdewolff/minify/v2 v2.20.37
