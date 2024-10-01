@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/klauspost/compress v1.17.10
 	github.com/rs/zerolog v1.33.0
+	github.com/tdewolff/minify/v2 v2.20.37
 	github.com/yuin/goldmark v1.7.4
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 	github.com/yuin/goldmark-meta v1.1.0
@@ -24,6 +25,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/tdewolff/parse/v2 v2.7.15 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

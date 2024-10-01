@@ -7,6 +7,8 @@
     "gosuda",
     "Linkify",
     "MEMTABLE",
+    "minifier",
+    "mjson",
     "mvdan",
     "ogimage",
     "skiplist",
