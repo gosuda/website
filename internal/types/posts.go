@@ -3,7 +3,10 @@ package types
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"strconv"
 	"time"
+
+	"github.com/zeebo/blake3"
 )
 
 func RandID() string {
@@ -48,11 +51,6 @@ const (
 	DocumentTypeHTML                         // html
 )
 
-// MarshalJSON customizes the JSON marshaling of DocumentType to output the string representation.
-func (g DocumentType) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + g.String() + `"`), nil
-}
-
 // Document represents the content and metadata of a post in a specific language.
 type Document struct {
 	// Type indicates the format of the document content.
@@ -85,4 +83,27 @@ type Metadata struct {
 	Canonical string `json:"canonical,omitempty" yaml:"canonical,omitempty"`
 	// Hidden indicates whether the post should be listed on the front page.
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty"`
+}
+
+func (g *Metadata) Hash() string {
+	h := blake3.New()
+	h.Write([]byte(g.ID))
+	h.WriteString(g.Title)
+	h.WriteString(g.Author)
+	h.WriteString(g.Description)
+	h.WriteString(g.Date.Format(time.RFC3339))
+	h.WriteString(g.Path)
+	h.WriteString(g.GoPackage)
+	h.WriteString(g.Canonical)
+	h.WriteString(strconv.FormatBool(g.Hidden))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func (g *Document) Hash() string {
+	h := blake3.New()
+	h.WriteString(g.Type.String())
+	h.WriteString(g.Markdown)
+	h.WriteString(g.HTML)
+	h.WriteString(g.Metadata.Hash())
+	return hex.EncodeToString(h.Sum(nil))
 }

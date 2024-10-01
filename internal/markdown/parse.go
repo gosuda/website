@@ -60,6 +60,22 @@ func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
 			if t, ok := value.(time.Time); ok {
 				m.Date = t
 			}
+
+			if s, ok := value.(string); ok {
+				t, err := time.Parse(time.RFC3339, s)
+				if err != nil {
+					return err
+				}
+				m.Date = t
+			}
+
+			if s, ok := value.(string); ok {
+				t, err := time.Parse(time.RFC3339Nano, s)
+				if err != nil {
+					return err
+				}
+				m.Date = t
+			}
 		case "go_package":
 			if s, ok := value.(string); ok {
 				m.GoPackage = s

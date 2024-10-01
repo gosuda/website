@@ -1,7 +1,7 @@
 ---
 id: 836392b881019d74b69df26ab014d628
 title: The GoSuda Website
-date: 2024-09-30T07:09:13.174101Z
+date: 2024-10-01T01:04:05.37583Z
 path: /website
 go_package: gosuda.org/website
 hidden: true
