@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -16,6 +19,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"gosuda.org/website/internal/markdown"
 	"gosuda.org/website/internal/types"
+	"gosuda.org/website/view"
 )
 
 const (
@@ -23,6 +27,7 @@ const (
 	publicDir = "public"
 	distDir   = "dist"
 	dbFile    = "zdata/data.json.zstd"
+	baseURL   = "https://gosuda.org"
 )
 
 var (
@@ -44,6 +49,8 @@ func generateFileList(dir string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	sort.Strings(fileList)
 	return fileList, nil
 }
 
@@ -228,8 +235,81 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		post.UpdatedAt = now
 	}
 
-	log.Debug().Str("path", path).Msgf("end processing markdown file %s", path)
+	if gc.UsedPosts == nil {
+		gc.UsedPosts = make(map[string]struct{})
+	}
+	gc.UsedPosts[post.ID] = struct{}{}
+
+	if gc.PathMap == nil {
+		gc.PathMap = make(map[string]string)
+	}
+	gc.PathMap[post.Path] = post.ID
+
+	log.Debug().Str("path", path).Msgf("done processing markdown file %s", path)
 	return doc, nil
+}
+
+func generatePostPages(gc *GenerationContext) error {
+	log.Debug().Msg("start generating post pages")
+	postList := make([]*types.Post, 0, len(gc.DataStore.Posts))
+	for _, post := range gc.DataStore.Posts {
+		postList = append(postList, post)
+	}
+
+	sort.Slice(postList, func(i, j int) bool {
+		return postList[i].ID < postList[j].ID
+	})
+
+	var b bytes.Buffer
+	ctx := context.Background()
+
+	for _, post := range postList {
+		log.Debug().Str("path", post.Path).Msgf("generating post page %s", post.Path)
+		fp := filepath.Join(distDir, post.Path)
+		err := os.MkdirAll(filepath.Dir(fp), 0755)
+		if err != nil {
+			return err
+		}
+
+		meta := &view.Metadata{
+			Language:    "en", // TODO: support language detection
+			Title:       post.Main.Metadata.Title,
+			Description: post.Main.Metadata.Description,
+			Author:      post.Main.Metadata.Author,
+			URL:         baseURL + post.Path,
+			Canonical:   baseURL + post.Path,
+			CreatedAt:   post.CreatedAt,
+			UpdatedAt:   post.UpdatedAt,
+		}
+
+		if post.Main.Metadata.Canonical != "" {
+			meta.Canonical = post.Main.Metadata.Canonical
+		}
+
+		if post.Main.Metadata.GoPackage != "" {
+			meta.GoImport = fmt.Sprintf("%s git %s", post.Main.Metadata.GoPackage, post.Main.Metadata.GoRepoURL)
+		}
+
+		b.Reset()
+		err = view.PostPage(meta, post.Main, post).Render(ctx, &b)
+		if err != nil {
+			return err
+		}
+
+		if strings.HasSuffix(fp, "/") {
+			fp += "index.html"
+		} else {
+			fp += ".html"
+		}
+
+		err = os.WriteFile(fp, b.Bytes(), 0644)
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Debug().Msg("done generating post pages")
+	return nil
 }
 
 func generate(gc *GenerationContext) error {
@@ -272,7 +352,12 @@ func generate(gc *GenerationContext) error {
 		log.Debug().Str("path", path).Msgf("processed file %s", path)
 	}
 
-	log.Debug().Msg("end generating website")
+	err = generatePostPages(gc)
+	if err != nil {
+		return err
+	}
+
+	log.Debug().Msg("done generating website")
 	return nil
 }
 
@@ -347,7 +432,10 @@ func main() {
 		gc.DataStore.Posts = make(map[string]*types.Post)
 	}
 
-	generate(&gc)
+	err = generate(&gc)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to generate website")
+	}
 
 	// Update Database
 	f, err = os.OpenFile(dbFile+".tmp", os.O_CREATE|os.O_RDWR|os.O_TRUNC|os.O_EXCL, 0644)

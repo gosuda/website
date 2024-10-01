@@ -17,7 +17,13 @@ templ Head(m *Metadata) {
 		}
 		if m.URL != "" {
 			<meta property="og:url" content={ m.URL }/>
-			<link rel="canonical" href={ m.URL }/>
+		}
+		if m.Canonical != "" {
+			<link rel="canonical" href={ m.Canonical }/>
+		} else {
+			if m.URL != "" {
+				<link rel="canonical" href={ m.URL }/>
+			}
 		}
 		if m.Description != "" {
 			<meta name="description" content={ m.Description }/>
