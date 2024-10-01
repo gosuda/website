@@ -255,27 +255,21 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		return nil, err
 	}
 
-	var updated bool
-
 	if doc.Metadata.ID == "" {
-		updated = true
 		doc.Metadata.ID = types.RandID()
 		log.Debug().Str("path", path).Str("id", doc.Metadata.ID).Msgf("assigned new ID to document %s", path)
 	}
 
 	if doc.Metadata.Date.IsZero() {
-		updated = true
 		doc.Metadata.Date = time.Now().UTC()
 		log.Debug().Str("path", path).Msgf("assigned new date to document %s", path)
 	}
 
 	if doc.Metadata.Path == "" {
-		updated = true
 		doc.Metadata.Path = generatePath(doc.Metadata.Title)
 	}
 
 	if doc.Metadata.Language == "" {
-		updated = true
 		log.Debug().Str("path", path).Msgf("detecting language of document %s", path)
 		detectedLang, ok := languageDetector.DetectLanguageOf(doc.Markdown)
 		lang := "en"
@@ -314,37 +308,35 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		}
 	}
 
-	if updated {
-		log.Debug().Str("path", path).Msgf("saving updated document %s", path)
+	log.Debug().Str("path", path).Msgf("saving updated document %s", path)
 
-		if doc.Type == types.DocumentTypeMarkdown {
-			newMeta, err := yaml.Marshal(&doc.Metadata)
-			if err != nil {
-				return nil, err
-			}
-
-			original := doc.Markdown
-			original = strings.TrimPrefix(original, "---\n")
-			_, origDocument, ok := strings.Cut(original, "---\n")
-			if !ok {
-				return nil, ErrInvalidMarkdown
-			}
-			newDocument := "---\n" + string(newMeta) + "---\n" + origDocument
-			doc.Markdown = newDocument
-
-			fStat, err := os.Stat(path)
-			if err != nil {
-				return nil, err
-			}
-
-			err = os.WriteFile(path, []byte(doc.Markdown), fStat.Mode())
-			if err != nil {
-				return nil, err
-			}
-			log.Debug().Str("path", path).Msgf("saved updated document %s", path)
-		} else {
-			log.Debug().Str("path", path).Msgf("skipping non-markdown document %s", path)
+	if doc.Type == types.DocumentTypeMarkdown {
+		newMeta, err := yaml.Marshal(&doc.Metadata)
+		if err != nil {
+			return nil, err
 		}
+
+		original := doc.Markdown
+		original = strings.TrimPrefix(original, "---\n")
+		_, origDocument, ok := strings.Cut(original, "---\n")
+		if !ok {
+			return nil, ErrInvalidMarkdown
+		}
+		newDocument := "---\n" + string(newMeta) + "---\n" + origDocument
+		doc.Markdown = newDocument
+
+		fStat, err := os.Stat(path)
+		if err != nil {
+			return nil, err
+		}
+
+		err = os.WriteFile(path, []byte(doc.Markdown), fStat.Mode())
+		if err != nil {
+			return nil, err
+		}
+		log.Debug().Str("path", path).Msgf("saved updated document %s", path)
+	} else {
+		log.Debug().Str("path", path).Msgf("skipping non-markdown document %s", path)
 	}
 
 	now := time.Now()
@@ -498,6 +490,14 @@ func generate(gc *GenerationContext) error {
 	err = minifyDir(distDir)
 	if err != nil {
 		return err
+	}
+
+	// Remove unused posts
+	for id := range gc.DataStore.Posts {
+		if _, ok := gc.UsedPosts[id]; !ok {
+			log.Debug().Str("id", id).Msgf("removing unused post %s", id)
+			delete(gc.DataStore.Posts, id)
+		}
 	}
 
 	log.Debug().Msg("done generating website")
