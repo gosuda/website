@@ -44,6 +44,10 @@ html {
   font-weight: 300;
 }
 
+pre {
+  overflow: scroll;
+}
+
 /* ! tailwindcss v3.4.10 | MIT License | https://tailwindcss.com */
 
 /*

@@ -26,6 +26,10 @@ html {
   font-weight: 300;
 }
 
+pre {
+  overflow: scroll;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
