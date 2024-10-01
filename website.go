@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/klauspost/compress/zstd"
+	"github.com/pemistahl/lingua-go"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/tdewolff/minify/v2"
@@ -51,6 +52,30 @@ func init() {
 	minifier.AddFunc("application/javascript", js.Minify)
 	minifier.AddFunc("application/json", mjson.Minify)
 	minifier.AddFunc("application/xml", xml.Minify)
+}
+
+var languageDetector lingua.LanguageDetector
+
+func init() {
+	languages := []lingua.Language{
+		lingua.English,
+		lingua.Spanish,
+		lingua.Chinese,
+		lingua.Korean,
+		lingua.Japanese,
+		lingua.German,
+		lingua.Russian,
+		lingua.French,
+		lingua.Dutch,
+		lingua.Italian,
+		lingua.Indonesian,
+		lingua.Portuguese,
+		lingua.Swedish,
+	}
+
+	languageDetector = lingua.NewLanguageDetectorBuilder().
+		FromLanguages(languages...).
+		Build()
 }
 
 //go:generate templ generate
@@ -249,6 +274,46 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		doc.Metadata.Path = generatePath(doc.Metadata.Title)
 	}
 
+	if doc.Metadata.Language == "" {
+		updated = true
+		log.Debug().Str("path", path).Msgf("detecting language of document %s", path)
+		detectedLang, ok := languageDetector.DetectLanguageOf(doc.Markdown)
+		lang := "en"
+		if ok {
+			switch detectedLang {
+			case lingua.English:
+				lang = "en"
+			case lingua.Spanish:
+				lang = "es"
+			case lingua.Chinese:
+				lang = "zh"
+			case lingua.Korean:
+				lang = "ko"
+			case lingua.Japanese:
+				lang = "ja"
+			case lingua.German:
+				lang = "de"
+			case lingua.Russian:
+				lang = "ru"
+			case lingua.French:
+				lang = "fr"
+			case lingua.Dutch:
+				lang = "nl"
+			case lingua.Italian:
+				lang = "it"
+			case lingua.Indonesian:
+				lang = "id"
+			case lingua.Portuguese:
+				lang = "pt"
+			case lingua.Swedish:
+				lang = "sv"
+			}
+			confidence := languageDetector.ComputeLanguageConfidence(doc.Markdown, detectedLang)
+			log.Debug().Str("path", path).Str("lang", lang).Float64("confidence", confidence).Msgf("detected language of document %s", path)
+			doc.Metadata.Language = lang
+		}
+	}
+
 	if updated {
 		log.Debug().Str("path", path).Msgf("saving updated document %s", path)
 
@@ -344,7 +409,7 @@ func generatePostPages(gc *GenerationContext) error {
 		}
 
 		meta := &view.Metadata{
-			Language:    "en", // TODO: support language detection
+			Language:    post.Main.Metadata.Language,
 			Title:       post.Main.Metadata.Title,
 			Description: post.Main.Metadata.Description,
 			Author:      post.Main.Metadata.Author,

@@ -67,12 +67,14 @@ type Document struct {
 type Metadata struct {
 	// ID is the unique identifier for the post. (propagated to Post.ID)
 	ID string `json:"id" yaml:"id"`
-	// Title is the title of the document.
-	Title string `json:"title,omitempty" yaml:"title,omitempty"`
 	// Author is the author of the document.
 	Author string `json:"author,omitempty" yaml:"author,omitempty"`
+	// Title is the title of the document.
+	Title string `json:"title,omitempty" yaml:"title,omitempty"`
 	// Description is a brief description of the document.
 	Description string `json:"description,omitempty" yaml:"description,omitempty"`
+	// Language is the language of the document.
+	Language string `json:"language,omitempty" yaml:"language,omitempty"`
 	// Date is the publication date of the document.
 	Date time.Time `json:"date,omitempty" yaml:"date,omitempty"`
 	// Path is the URL path for the post. (propagated to Post.Path)

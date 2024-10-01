@@ -45,17 +45,21 @@ func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
 			if s, ok := value.(string); ok {
 				m.ID = s
 			}
-		case "title":
-			if s, ok := value.(string); ok {
-				m.Title = s
-			}
 		case "author":
 			if s, ok := value.(string); ok {
 				m.Author = s
 			}
+		case "title":
+			if s, ok := value.(string); ok {
+				m.Title = s
+			}
 		case "description":
 			if s, ok := value.(string); ok {
 				m.Description = s
+			}
+		case "language":
+			if s, ok := value.(string); ok {
+				m.Language = s
 			}
 		case "date":
 			if t, ok := value.(time.Time); ok {

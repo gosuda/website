@@ -1,7 +1,8 @@
 ---
 id: d3dfc66d64bdca73c50fac7d5b2b6308
-title: The Test Post
 author: Lemon Mint
+title: The Test Post
+language: en
 date: 2024-10-01T01:39:19.208064Z
 path: /blog/posts/the-test-post-z8229e6e8
 ---

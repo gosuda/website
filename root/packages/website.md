@@ -1,11 +1,11 @@
 ---
 id: 836392b881019d74b69df26ab014d628
-title: The GoSuda Website
 author: Lemon Mint
+title: The GoSuda Website
+language: en
 date: 2024-10-01T02:06:18.969716Z
 path: /website
 go_package: gosuda.org/website
-go_repo_url: https://github.com/gosuda/website.git
 hidden: true
 ---
 GoSuda is an industry-leading open source working group enabling developers to easily build, prototype, and deploy applications. Our comprehensive suite of tools and frameworks empowers developers to create robust, scalable solutions across various domains.
