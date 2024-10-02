@@ -2,6 +2,8 @@ package translate
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"strings"
 
@@ -128,7 +130,14 @@ var (
 
 func translateChunk(ctx context.Context, l llm.Model, chunk string, targetLanguage string) (string, error) {
 	prompt := strings.Replace(prompt, "<TARGET_LANGUAGE>", targetLanguage, -1)
-	prompt += "[ZZTEXTSTARTZZ]" + chunk + "[ZZTEXTENDZZ]"
+
+	var b [8]byte
+	rand.Read(b[:])
+	startToken := "[" + hex.EncodeToString(b[:]) + "]"
+	rand.Read(b[:])
+	endToken := "[" + hex.EncodeToString(b[:]) + "]"
+
+	prompt += startToken + chunk + endToken
 
 	resp := l.GenerateStream(ctx, &llm.ChatContext{}, llm.TextContent(llm.RoleUser, prompt))
 	err := resp.Wait()
@@ -137,16 +146,16 @@ func translateChunk(ctx context.Context, l llm.Model, chunk string, targetLangua
 	}
 
 	text := llmtools.TextFromContents(resp.Content)
-	// Cut from [ZZTEXTSTARTZZ] to [ZZTEXTENDZZ]
-	sidx := strings.Index(text, "[ZZTEXTSTARTZZ]")
-	eidx := strings.Index(text, "[ZZTEXTENDZZ]")
+	sidx := strings.Index(text, startToken)
+	eidx := strings.Index(text, endToken)
 	if sidx != -1 && eidx != -1 {
-		text = text[sidx+len("[ZZTEXTSTARTZZ]") : eidx]
+		text = text[sidx+len(startToken) : eidx]
 		return text, nil
 	}
 
 	return "", ErrFailedToTranslate
 }
+
 func Translate(ctx context.Context, l llm.Model, input, targetLanguage string) (string, error) {
 	chunks := chunkMarkdown(input)
 	translatedChunks := make([]string, len(chunks))
