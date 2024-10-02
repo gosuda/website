@@ -13,6 +13,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lemon-mint/coord"
+	"github.com/lemon-mint/coord/llm"
+	"github.com/lemon-mint/coord/pconf"
+	"github.com/lemon-mint/coord/provider"
+	_ "github.com/lemon-mint/coord/provider/aistudio"
+	_ "github.com/lemon-mint/coord/provider/anthropic"
+	_ "github.com/lemon-mint/coord/provider/openai"
+	_ "github.com/lemon-mint/coord/provider/vertexai"
+	"gopkg.eu.org/envloader"
+
 	"github.com/klauspost/compress/zstd"
 	"github.com/pemistahl/lingua-go"
 	"github.com/rs/zerolog"
@@ -26,10 +36,18 @@ import (
 	"github.com/tdewolff/minify/v2/xml"
 	"gopkg.in/yaml.v3"
 
+	"gosuda.org/website/internal/description"
 	"gosuda.org/website/internal/markdown"
 	"gosuda.org/website/internal/types"
 	"gosuda.org/website/view"
 )
+
+var _ = func() struct{} {
+	envloader.LoadEnvFile(".env")
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02 15:04:05"})
+	return struct{}{}
+}()
 
 const (
 	rootDir   = "root"
@@ -76,6 +94,34 @@ func init() {
 	languageDetector = lingua.NewLanguageDetectorBuilder().
 		FromLanguages(languages...).
 		Build()
+}
+
+var llmClient provider.LLMClient
+var llmModel llm.Model
+
+func Ptr[T any](t T) *T {
+	return &t
+}
+
+func init() {
+	log.Debug().Str("location", os.Getenv("LOCATION")).Str("project_id", os.Getenv("PROJECT_ID")).Msg("initializing llm client")
+	client, err := coord.NewLLMClient(
+		context.Background(),
+		"vertexai",
+		pconf.WithLocation(os.Getenv("LOCATION")),
+		pconf.WithProjectID(os.Getenv("PROJECT_ID")),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create llm client")
+	}
+	llmClient = client
+	log.Debug().Err(err).Msg("llm client initialized")
+
+	llmModel, err = llmClient.NewLLM("gemini-1.5-flash-002", &llm.Config{
+		Temperature:           Ptr(float32(0.7)),
+		MaxOutputTokens:       Ptr(8192),
+		SafetyFilterThreshold: llm.BlockOnlyHigh,
+	})
 }
 
 //go:generate templ generate
@@ -267,6 +313,16 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 
 	if doc.Metadata.Path == "" {
 		doc.Metadata.Path = generatePath(doc.Metadata.Title)
+	}
+
+	if doc.Metadata.Description == "" {
+		log.Debug().Str("path", path).Msgf("generating description for document %s", path)
+		desc, err := description.GenerateDescription(context.Background(), llmModel, doc.Markdown)
+		if err != nil {
+			log.Error().Str("path", path).Msgf("failed to generate description for document %s", path)
+		}
+		doc.Metadata.Description = desc
+		log.Debug().Str("path", path).Str("description", doc.Metadata.Description).Msgf("generated description for document %s", path)
 	}
 
 	if doc.Metadata.Language == "" {
@@ -505,8 +561,8 @@ func generate(gc *GenerationContext) error {
 }
 
 func main() {
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02 15:04:05"})
+	defer llmClient.Close()
+	defer llmModel.Close()
 
 	_, err := os.Stat(dbFile)
 	if err != nil && !os.IsNotExist(err) {
