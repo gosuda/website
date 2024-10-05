@@ -1,39 +1,23 @@
 ---
-id: 9f71a47742845c548b1063cc998a7c2c
+id: 960bcc31b5c245d20cef3d01a5b81f7f
 author: Lemon Mint
-title: The Test Post
-description: Blog post testing Markdown features including tables, code blocks, and images.
+title: Go is a great choice for AI applications, and how we'll make it even better
+description: Go is a powerful language for AI applications due to its ability to handle complex cloud-native tasks and integrate with AI services.
 language: en
-date: 2024-10-01T13:50:23.80227Z
-path: /blog/posts/the-test-post-z8229e6e8
+date: 2024-10-05T13:38:58.779498Z
+path: /blog/posts/go-is-a-great-choice-for-ai-applications-and-how-we-ll-make-it-even-better-z4bd97719
 ---
-Hello, World! This is a blog test post.
+As AI continues to evolve, it is becoming increasingly important to have a programming language that can handle the demands of these applications.  Go could be the perfect choice for AI applications.
 
-----
+## Why Go is a great choice for AI applications
 
-Markdown table test:
+In short, AI applications are not a specialized field. As abstraction levels of AI applications increase, they are becoming more like general services geared towards integration. Go has a proven track record as an excellent choice for complex cloud-native applications.
 
-| Column 1 | Column 2 | Column 3 |
-| -------- | -------- | -------- |
-| Row 1    | Row 1    | Row 1    |
-| Row 2    | Row 2    | Row 2    |
-| Row 3    | Row 3    | Row 3    |
+### What is important for AI applications?
 
-Markdown Code Block test:
+Most AI applications are calling APIs from popular AI foundation model services like OpenAI, VertexAI, and Anthropic.
+These types of tasks is nothing new for Go, actually Go excels at this type of task.
 
-```python
-from flask import Flask
+## Our Plans for Making Go Even Better
 
-app = Flask(__name__)
-
-@app.route('/')
-def hello():
-  return 'This is a test Flask app.'
-
-if __name__ == '__main__':
-  app.run(debug=False, host='0.0.0.0', port=8080)
-```
-
-> This is a blockquote.
-
-![Image Alt Text](https://via.placeholder.com/150)
+We are working on a highly-ergonomic AI interface that will make it easier to use Go for AI applications.

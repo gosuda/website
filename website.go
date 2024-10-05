@@ -117,7 +117,7 @@ func init() {
 	llmClient = client
 	log.Debug().Err(err).Msg("llm client initialized")
 
-	llmModel, err = llmClient.NewLLM("gemini-1.5-flash-002", &llm.Config{
+	llmModel, err = llmClient.NewLLM("gemini-pro-experimental", &llm.Config{
 		Temperature:           Ptr(float32(0.7)),
 		MaxOutputTokens:       Ptr(8192),
 		SafetyFilterThreshold: llm.BlockOnlyHigh,
@@ -184,12 +184,17 @@ func generatePath(title string) string {
 	fp = strings.ReplaceAll(fp, `'`, "-")
 	fp = strings.ReplaceAll(fp, `"`, "-")
 	fp = strings.ReplaceAll(fp, "`", "-")
+	fp = strings.ReplaceAll(fp, ",", "-")
+	fp = strings.ReplaceAll(fp, ".", "-")
 
 	fp = strings.ReplaceAll(fp, `----`, "-")
 	fp = strings.ReplaceAll(fp, `---`, "-")
 	fp = strings.ReplaceAll(fp, `--`, "-")
 	fp = strings.ReplaceAll(fp, `--`, "-")
 	fp = strings.ReplaceAll(fp, `--`, "-")
+	fp = strings.TrimSuffix(fp, "---")
+	fp = strings.TrimSuffix(fp, "--")
+	fp = strings.TrimSuffix(fp, "-")
 
 	var b [4]byte
 	rand.Read(b[:])
