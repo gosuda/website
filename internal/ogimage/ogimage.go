@@ -13,7 +13,7 @@ import (
 // font_pool_IBMPlexSansKR_Medium is a sync.Pool for caching IBM Plex Mono Medium font faces.
 var font_pool_IBMPlexSansKR_Medium = sync.Pool{
 	New: func() interface{} {
-		f, err := gg.LoadFontFace("fonts/IBMPlexSansKR-Medium.ttf", 100)
+		f, err := gg.LoadFontFace("fonts/IBMPlexSansKR-Medium.ttf", 70)
 		if err != nil {
 			panic(err)
 		}

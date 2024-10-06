@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"image/png"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/rs/zerolog/log"
+	"gosuda.org/website/internal/ogimage"
 	"gosuda.org/website/internal/types"
 	"gosuda.org/website/view"
 )
@@ -98,11 +100,18 @@ func generatePostPages(gc *GenerationContext) error {
 			return err
 		}
 
+		ogImagePath := filepath.Join(distDir, "assets", post.ID+"_"+post.Main.Metadata.Language+".png")
+		err = os.MkdirAll(filepath.Dir(ogImagePath), 0755)
+		if err != nil {
+			return err
+		}
+
 		meta := &view.Metadata{
 			Language:    post.Main.Metadata.Language,
 			Title:       post.Main.Metadata.Title,
 			Description: post.Main.Metadata.Description,
 			Author:      post.Main.Metadata.Author,
+			Image:       baseURL + "/assets/" + post.ID + "_" + post.Main.Metadata.Language + ".png",
 			URL:         baseURL + post.Path,
 			BaseURL:     baseURL,
 			Canonical:   baseURL + post.Path,
@@ -131,6 +140,26 @@ func generatePostPages(gc *GenerationContext) error {
 		}
 
 		err = os.WriteFile(fp, b.Bytes(), 0644)
+		if err != nil {
+			return err
+		}
+
+		img := ogimage.GenerateImage("GoSuda", post.Main.Metadata.Title, post.Main.Metadata.Date)
+		f, err := os.Create(ogImagePath)
+		if err != nil {
+			return err
+		}
+
+		err = png.Encode(f, img)
+		if err != nil {
+			err = f.Close()
+			if err != nil {
+				return err
+			}
+			return err
+		}
+
+		err = f.Close()
 		if err != nil {
 			return err
 		}
