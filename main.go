@@ -17,6 +17,9 @@ var _ = func() struct{} {
 	return struct{}{}
 }()
 
+//go:generate templ generate
+//go:generate bun run build
+
 func main() {
 	// Note: llmClient and llmModel are not defined in this file.
 	// Make sure they are imported or defined elsewhere in your project.

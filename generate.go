@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"gosuda.org/website/internal/ogimage"
@@ -72,6 +73,11 @@ func generate(gc *GenerationContext) error {
 			log.Debug().Str("id", id).Msgf("removing unused post %s", id)
 			delete(gc.DataStore.Posts, id)
 		}
+	}
+
+	err = generateIndex(gc)
+	if err != nil {
+		return err
 	}
 
 	log.Debug().Msg("done generating website")
@@ -166,5 +172,65 @@ func generatePostPages(gc *GenerationContext) error {
 	}
 
 	log.Debug().Msg("done generating post pages")
+	return nil
+}
+
+func generateIndex(gc *GenerationContext) error {
+	log.Debug().Msg("start generating index")
+	var b bytes.Buffer
+	ctx := context.Background()
+
+	meta := &view.Metadata{
+		Language:    "en",
+		Title:       "GoSuda | Home",
+		Description: "GoSuda is an industry-leading open source working group enabling developers to easily build, prototype, and deploy applications. Our comprehensive suite of tools and frameworks empowers developers to create robust, scalable solutions across various domains.",
+		Author:      "GoSuda",
+		Image:       baseURL + "/assets/images/ogp_placeholder.png",
+		URL:         baseURL + "/",
+		BaseURL:     baseURL + "/",
+		Canonical:   baseURL + "/",
+		CreatedAt:   time.Date(2024, 10, 07, 0, 0, 0, 0, time.UTC),
+		UpdatedAt:   time.Now().UTC(),
+	}
+
+	var posts []*types.Post
+	for _, post := range gc.DataStore.Posts {
+		if post.Main.Metadata.Hidden {
+			continue
+		}
+		posts = append(posts, post)
+	}
+	sort.Slice(posts, func(i, j int) bool {
+		return posts[i].Main.Metadata.Date.After(posts[j].Main.Metadata.Date)
+	})
+
+	if len(posts) > 16 {
+		posts = posts[:16]
+	}
+
+	var previews []*view.BlogPostPreview
+	for _, post := range posts {
+		previews = append(previews, &view.BlogPostPreview{
+			Title:       post.Main.Metadata.Title,
+			Author:      post.Main.Metadata.Author,
+			Description: post.Main.Metadata.Description,
+			Date:        post.Main.Metadata.Date,
+			URL:         post.Path,
+		})
+	}
+
+	var featuredPosts []view.FeaturedPost
+
+	err := view.IndexPage(meta, previews, featuredPosts).Render(ctx, &b)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(filepath.Join(distDir, "index.html"), b.Bytes(), 0644)
+	if err != nil {
+		return err
+	}
+
+	log.Debug().Msg("done generating index")
 	return nil
 }

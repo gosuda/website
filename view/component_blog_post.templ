@@ -3,14 +3,15 @@ package view
 import "time"
 
 type BlogPostPreview struct {
-	Title         string
-	Author        string
-	Description   string
-	Date          time.Time
+	Title       string
+	Author      string
+	Description string
+	Date        time.Time
+	URL         string
 }
 
 templ BlogPostCard(post *BlogPostPreview) {
-	<div class="border-2 border-black rounded-lg overflow-hidden transition hover:shadow-lg hover:drop-shadow-lg">
+	<a class="border-2 border-black rounded-lg overflow-hidden transition hover:shadow-lg hover:drop-shadow-lg" href={ templ.SafeURL(post.URL) }>
 		<div class="p-4">
 			<div class="flex items-center mb-4">
 				<div class="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
@@ -22,5 +23,5 @@ templ BlogPostCard(post *BlogPostPreview) {
 			<h2 class="text-xl font-bold mb-2">{ post.Title }</h2>
 			<p class="text-m font-weight-300">{ post.Description }</p>
 		</div>
-	</div>
+	</a>
 }

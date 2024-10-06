@@ -38,7 +38,6 @@ templ Head(m *Metadata) {
 		if m.GoImport != "" {
 			<meta name="go-import" content={ m.GoImport }/>
 		}
-
 		if m.CustomHead != "" {
 			@templ.Raw(m.CustomHead)
 		}
