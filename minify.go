@@ -21,6 +21,7 @@ func init() {
 	minifier.Add("text/html", &html.Minifier{
 		KeepDocumentTags: true,
 		KeepEndTags:      true,
+		KeepQuotes:       true,
 	})
 	minifier.AddFunc("text/css", css.Minify)
 	minifier.AddFunc("image/svg+xml", svg.Minify)
