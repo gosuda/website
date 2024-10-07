@@ -29,7 +29,7 @@ func BlogFooter() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer class=\"mt-8 text-center border-t border-black pt-4\"><p>© 2024 GoSuda. All rights reserved.</p><div class=\"mt-2 space-x-4\"><a href=\"https://github.com/gosuda\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black\">GitHub</a> <a href=\"https://gosuda.org/editor\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black\">Editor</a> <a href=\"https://gosuda.org\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black\">Website</a></div></footer>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<footer class=\"mt-8 text-center border-t border-black pt-4\"><p>© 2024 GoSuda. All rights reserved.</p><div class=\"mt-2 space-x-4\"><a href=\"https://github.com/gosuda\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black\">GitHub</a> <a href=\"https://gosuda.org/editor\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black\">Editor</a> <a href=\"https://gosuda.org\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black\">Website</a></div></footer><!-- Cloudflare Web Analytics --><script defer src=\"https://static.cloudflareinsights.com/beacon.min.js\" data-cf-beacon=\"{&#34;token&#34;: &#34;4e67af35fb5a4e11ac4ce2a2053cf8d4&#34;}\"></script><!-- End Cloudflare Web Analytics -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
