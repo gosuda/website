@@ -27,3 +27,11 @@ go.work.sum
 
 node_modules
 dist
+
+# GCP Credentials
+
+gha-creds-*.json
+
+# Service Account Credentials
+
+service-account.json
