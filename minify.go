@@ -18,7 +18,10 @@ import (
 var minifier = minify.New()
 
 func init() {
-	minifier.AddFunc("text/html", html.Minify)
+	minifier.Add("text/html", &html.Minifier{
+		KeepDocumentTags: true,
+		KeepEndTags:      true,
+	})
 	minifier.AddFunc("text/css", css.Minify)
 	minifier.AddFunc("image/svg+xml", svg.Minify)
 	minifier.AddFunc("application/javascript", js.Minify)
