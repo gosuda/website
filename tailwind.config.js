@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+
+import typography from '@tailwindcss/typography';
 export default {
   content: ["./{view,public,templates}/**/*.{html,js,templ}"],
   theme: {
@@ -13,6 +15,8 @@ export default {
       "bold": 500
     },
   },
-  plugins: [],
+  plugins: [
+    typography,
+  ],
 }
 
