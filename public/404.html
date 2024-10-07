@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>404 - Page Not Found</title>
+  <style>
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f3f4f6;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 8rem;
+      color: #3b82f6;
+      margin: 0;
+      animation: fadeInDown 0.5s ease-out;
+    }
+
+    p {
+      font-size: 1.5rem;
+      color: #4b5563;
+      margin-bottom: 2rem;
+      animation: fadeInUp 0.5s ease-out 0.2s both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      background-color: #3b82f6;
+      color: white;
+      text-decoration: none;
+      border-radius: 9999px;
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.1s;
+      animation: fadeIn 0.5s ease-out 0.4s both;
+    }
+
+    .btn:hover {
+      background-color: #2563eb;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn svg {
+      margin-right: 0.5rem;
+    }
+
+    .circle-animation {
+      width: 200px;
+      height: 200px;
+      margin: 2rem auto 0;
+      position: relative;
+    }
+
+    .circle {
+      stroke-dasharray: 503;
+      stroke-dashoffset: 503;
+      animation: drawCircle 2s ease-out forwards;
+    }
+
+    .checkmark {
+      stroke-dasharray: 70;
+      stroke-dashoffset: 70;
+      animation: drawCheck 1s ease-out 1s forwards;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes drawCircle {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes drawCheck {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>404</h1>
+    <p>Oops! Page not found</p>
+    <a href="/" class="btn" onmouseover="this.style.backgroundColor='#2563eb'"
+      onmouseout="this.style.backgroundColor='#3b82f6'" onmousedown="this.style.transform='scale(0.95)'"
+      onmouseup="this.style.transform='scale(1)'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Back to Home
+    </a>
+    <div class="circle-animation">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle class="circle" cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" stroke-width="2" />
+        <path class="checkmark" d="M30,50 L45,65 L70,40" fill="none" stroke="#3b82f6" stroke-width="2" />
+      </svg>
+    </div>
+  </div>
+</body>
+
+</html>
