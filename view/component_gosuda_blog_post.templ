@@ -16,7 +16,7 @@ templ GosudaBlogPost(doc *types.Document, post *types.Post) {
 					<time datetime={ doc.Metadata.Date.Format(time.RFC3339) } class="inline-block text-gray-600 italic">{ doc.Metadata.Date.Format("January 2, 2006") }</time>
 				</div>
 			</header>
-			<div class="max-w-none">
+			<div class="max-w-none prose">
 				@templ.Raw(doc.HTML)
 			</div>
 		</article>
