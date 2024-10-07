@@ -21,10 +21,8 @@ var _ = func() struct{} {
 //go:generate bun run build
 
 func main() {
-	// Note: llmClient and llmModel are not defined in this file.
-	// Make sure they are imported or defined elsewhere in your project.
-	// defer llmClient.Close()
-	// defer llmModel.Close()
+	defer llmClient.Close()
+	defer llmModel.Close()
 
 	ds, err := initializeDatabase(dbFile)
 	if err != nil {
