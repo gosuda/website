@@ -43,3 +43,13 @@ jobs:
 
       - name: Update Metadata
         run: ./build.sh
+        env:
+          PROJECT_ID: '${{ secrets.PROJECT_ID }}'
+          LOCATION: us-central1
+
+      - name: Commit Changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: Show GitHub logo
+          committer_name: GitHub Actions
+          committer_email: 41898282+github-actions[bot]@users.noreply.github.com
