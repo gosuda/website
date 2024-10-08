@@ -41,6 +41,11 @@ func init() {
 		FromLanguages(languages...).
 		Build()
 
+	if os.Getenv("LLM_INIT") == "false" || os.Getenv("LLM_INIT") == "0" {
+		log.Info().Msg("llm init skipped")
+		return
+	}
+
 	log.Debug().Str("location", os.Getenv("LOCATION")).Str("project_id", os.Getenv("PROJECT_ID")).Msg("initializing llm client")
 	client, err := coord.NewLLMClient(
 		context.Background(),
