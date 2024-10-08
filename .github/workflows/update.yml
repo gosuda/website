@@ -2,47 +2,48 @@ name: Update Blog Metadata
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      id-token: 'write'
-    
+      id-token: "write"
+
     steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: 'stable'
-        check-latest: true
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+          check-latest: true
 
-    - name: Set up Bun
-      uses: oven-sh/setup-bun@v2
-      with:
-        bun-version: latest
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
-    - name: Set up Google Cloud SDK
-      uses: 'google-github-actions/setup-gcloud@v2'
+      - name: Set up Google Cloud SDK
+        uses: "google-github-actions/setup-gcloud@v2"
 
-    - name: Workload Identity Federation
-      id: auth
-      uses: 'google-github-actions/auth@v2'
-      with:
-        project_id: ${{ secrets.PROJECT_ID }}
-        workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-        service_account: ${{ secrets.SERVICE_ACCOUNT }}
+      - name: Workload Identity Federation
+        id: auth
+        uses: "google-github-actions/auth@v2"
+        with:
+          token_format: access_token
+          project_id: ${{ secrets.PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          create_credentials_file: true
 
-    - name: Google Cloud Login
-      run: gcloud auth login --cred-file=${{steps.auth.outputs.credentials_file_path}}
-    
-    - name: Go Test
-      run: go test -v ./...
+      - name: Google Cloud Login
+        run: gcloud auth login --brief --cred-file=${{steps.auth.outputs.credentials_file_path}}  --update-adc
 
-    - name: Update Metadata
-      run: ./build.sh
+      - name: Go Test
+        run: go test -v ./...
 
+      - name: Update Metadata
+        run: ./build.sh
