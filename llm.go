@@ -57,13 +57,17 @@ func init() {
 		log.Fatal().Err(err).Msg("failed to create llm client")
 	}
 	llmClient = client
-	log.Debug().Err(err).Msg("llm client initialized")
+	log.Debug().Msg("llm client initialized")
 
 	llmModel, err = llmClient.NewLLM("gemini-pro-experimental", &llm.Config{
 		Temperature:           Ptr(float32(0.7)),
 		MaxOutputTokens:       Ptr(8192),
 		SafetyFilterThreshold: llm.BlockOnlyHigh,
 	})
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create llm model")
+	}
+	log.Debug().Msg("llm model initialized")
 }
 
 func Ptr[T any](t T) *T {
