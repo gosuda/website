@@ -58,7 +58,7 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		log.Debug().Str("path", path).Msgf("generating description for document %s", path)
 		desc, err := description.GenerateDescription(context.Background(), llmModel, doc.Markdown)
 		if err != nil {
-			log.Error().Str("path", path).Msgf("failed to generate description for document %s", path)
+			log.Error().Str("path", path).Err(err).Msgf("failed to generate description for document %s", path)
 		}
 		doc.Metadata.Description = desc
 		log.Debug().Str("path", path).Str("description", doc.Metadata.Description).Msgf("generated description for document %s", path)

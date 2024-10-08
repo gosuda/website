@@ -21,8 +21,12 @@ var _ = func() struct{} {
 //go:generate bun run build
 
 func main() {
-	defer llmClient.Close()
-	defer llmModel.Close()
+	if llmClient != nil {
+		defer llmClient.Close()
+	}
+	if llmModel != nil {
+		defer llmModel.Close()
+	}
 
 	ds, err := initializeDatabase(dbFile)
 	if err != nil {
