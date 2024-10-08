@@ -33,9 +33,9 @@ jobs:
       id: auth
       uses: 'google-github-actions/auth@v2'
       with:
-        project_id: ${{ secrets.project_id }}
-        workload_identity_provider: ${{ secrets.workload_identity_provider }}
-        service_account: ${{ secrets.service_account }}
+        project_id: ${{ secrets.PROJECT_ID }}
+        workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+        service_account: ${{ secrets.SERVICE_ACCOUNT }}
 
     - name: Google Cloud Login
       run: gcloud auth login --cred-file=${{steps.auth.outputs.credentials_file_path}}
