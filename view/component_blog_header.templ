@@ -1,8 +1,12 @@
 package view
 
-templ BlogHeader() {
+templ BlogHeader(m *Metadata) {
 	<header class="flex justify-between items-center p-4 border-2 border-black rounded-lg mb-6">
-		<a class="text-2xl font-bold" href="/">GoSuda</a>
+		if m.Language != "en" {
+			<a class="text-2xl font-bold" href={templ.SafeURL("/"+m.Language+"/")}>GoSuda</a>
+		} else {
+			<a class="text-2xl font-bold" href="/">GoSuda</a>
+		}
 		<nav class="flex items-center">
 			<button onclick="openCommandPalette()" class="mr-4 flex items-center">
 				<svg class="w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>

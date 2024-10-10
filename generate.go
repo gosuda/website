@@ -109,10 +109,13 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			}
 		}
 
-		path := post.Path
-		if lang != types.LangEnglish {
-			path = "/" + lang + path
+		languages := make([]string, 0, len(post.Translated))
+		for lang := range post.Translated {
+			languages = append(languages, lang)
 		}
+		sort.Strings(languages)
+
+		path := "/" + lang + post.Path
 
 		log.Debug().Str("path", post.Path).Msgf("generating post page %s", path)
 
@@ -122,13 +125,6 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			return err
 		}
 
-		if lang == types.LangEnglish {
-			err := os.MkdirAll(filepath.Dir(filepath.Join(distDir, post.Path)), 0755)
-			if err != nil {
-				return err
-			}
-		}
-
 		ogImagePath := filepath.Join(distDir, "assets", post.ID+"_"+lang+".png")
 		err = os.MkdirAll(filepath.Dir(ogImagePath), 0755)
 		if err != nil {
@@ -136,9 +132,6 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 		}
 
 		url := baseURL + "/" + lang + post.Path
-		if lang == types.LangEnglish {
-			url = baseURL + post.Path
-		}
 
 		meta := &view.Metadata{
 			Language:    lang,
@@ -151,6 +144,27 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			BaseURL:     baseURL,
 			CreatedAt:   post.CreatedAt,
 			UpdatedAt:   post.UpdatedAt,
+		}
+
+		alt := &view.Alternate{}
+		for _, lang := range languages {
+			if lang == types.LangEnglish {
+				alt.Versions = append(alt.Versions, view.KV{
+					Key:   lang,
+					Value: baseURL + post.Path,
+				})
+				continue
+			}
+			alt.Versions = append(alt.Versions, view.KV{
+				Key:   lang,
+				Value: baseURL + "/" + lang + post.Path,
+			})
+		}
+		meta.Alternate = alt
+
+		if lang == types.LangEnglish {
+			meta.URL = baseURL + post.Path
+			meta.Canonical = meta.URL
 		}
 
 		if post.Main.Metadata.Canonical != "" {
@@ -180,6 +194,11 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 		}
 
 		if lang == types.LangEnglish {
+			err := os.MkdirAll(filepath.Dir(filepath.Join(distDir, post.Path)), 0755)
+			if err != nil {
+				return err
+			}
+
 			fp = filepath.Join(distDir, post.Path)
 			if strings.HasSuffix(fp, "/") {
 				err = os.WriteFile(fp+"index.html", b.Bytes(), 0644)
@@ -246,6 +265,22 @@ func generateIndex(gc *GenerationContext, lang types.Lang) error {
 		meta.URL = baseURL + "/" + lang + "/"
 		meta.Canonical = baseURL + "/" + lang + "/"
 	}
+
+	alt := &view.Alternate{}
+	for _, lang := range types.SupportedLanguages {
+		if lang == types.LangEnglish {
+			alt.Versions = append(alt.Versions, view.KV{
+				Key:   lang,
+				Value: baseURL + "/",
+			})
+			continue
+		}
+		alt.Versions = append(alt.Versions, view.KV{
+			Key:   lang,
+			Value: baseURL + "/" + lang + "/",
+		})
+	}
+	meta.Alternate = alt
 
 	var posts []*types.Post
 	for _, post := range gc.DataStore.Posts {

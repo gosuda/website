@@ -1,7 +1,7 @@
 ---
 id: 960bcc31b5c245d20cef3d01a5b81f7f
 author: Lemon Mint
-title: Go is the ideal language for AI applications
+title: Go is the ideal language for AI apps
 description: Go is ideal for AI development due to its efficiency, concurrency, and seamless integration with AI APIs & cloud-native tools.
 language: en
 date: 2024-10-06T05:32:18.576117Z
