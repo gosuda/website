@@ -57,16 +57,6 @@ func generate(gc *GenerationContext) error {
 		log.Debug().Str("path", path).Msgf("processed file %s", path)
 	}
 
-	err = generatePostPages(gc)
-	if err != nil {
-		return err
-	}
-
-	err = minifyDir(distDir)
-	if err != nil {
-		return err
-	}
-
 	// Remove unused posts
 	for id := range gc.DataStore.Posts {
 		if _, ok := gc.UsedPosts[id]; !ok {
@@ -80,13 +70,22 @@ func generate(gc *GenerationContext) error {
 		if err != nil {
 			return err
 		}
+		err = generatePostPages(gc, lang)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = minifyDir(distDir)
+	if err != nil {
+		return err
 	}
 
 	log.Debug().Msg("done generating website")
 	return nil
 }
 
-func generatePostPages(gc *GenerationContext) error {
+func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 	log.Debug().Msg("start generating post pages")
 	postList := make([]*types.Post, 0, len(gc.DataStore.Posts))
 	for _, post := range gc.DataStore.Posts {
@@ -101,28 +100,55 @@ func generatePostPages(gc *GenerationContext) error {
 	ctx := context.Background()
 
 	for _, post := range postList {
-		log.Debug().Str("path", post.Path).Msgf("generating post page %s", post.Path)
-		fp := filepath.Join(distDir, post.Path)
+		pm := post.Main.Metadata
+		if lang != pm.Language {
+			if _, ok := post.Translated[lang]; ok {
+				pm = post.Translated[lang].Metadata
+			} else {
+				continue
+			}
+		}
+
+		path := post.Path
+		if lang != types.LangEnglish {
+			path = "/" + lang + path
+		}
+
+		log.Debug().Str("path", post.Path).Msgf("generating post page %s", path)
+
+		fp := filepath.Join(distDir, path)
 		err := os.MkdirAll(filepath.Dir(fp), 0755)
 		if err != nil {
 			return err
 		}
 
-		ogImagePath := filepath.Join(distDir, "assets", post.ID+"_"+post.Main.Metadata.Language+".png")
+		if lang == types.LangEnglish {
+			err := os.MkdirAll(filepath.Dir(filepath.Join(distDir, post.Path)), 0755)
+			if err != nil {
+				return err
+			}
+		}
+
+		ogImagePath := filepath.Join(distDir, "assets", post.ID+"_"+lang+".png")
 		err = os.MkdirAll(filepath.Dir(ogImagePath), 0755)
 		if err != nil {
 			return err
 		}
 
+		url := baseURL + "/" + lang + post.Path
+		if lang == types.LangEnglish {
+			url = baseURL + post.Path
+		}
+
 		meta := &view.Metadata{
-			Language:    post.Main.Metadata.Language,
-			Title:       post.Main.Metadata.Title,
-			Description: post.Main.Metadata.Description,
-			Author:      post.Main.Metadata.Author,
-			Image:       baseURL + "/assets/" + post.ID + "_" + post.Main.Metadata.Language + ".png",
-			URL:         baseURL + post.Path,
+			Language:    lang,
+			Title:       pm.Title,
+			Description: pm.Description,
+			Author:      pm.Author,
+			Image:       baseURL + "/assets/" + post.ID + "_" + lang + ".png",
+			URL:         url,
+			Canonical:   url,
 			BaseURL:     baseURL,
-			Canonical:   baseURL + post.Path,
 			CreatedAt:   post.CreatedAt,
 			UpdatedAt:   post.UpdatedAt,
 		}
@@ -142,17 +168,33 @@ func generatePostPages(gc *GenerationContext) error {
 		}
 
 		if strings.HasSuffix(fp, "/") {
-			fp += "index.html"
+			err = os.WriteFile(fp+"index.html", b.Bytes(), 0644)
+			if err != nil {
+				return err
+			}
 		} else {
-			fp += ".html"
+			err = os.WriteFile(fp+".html", b.Bytes(), 0644)
+			if err != nil {
+				return err
+			}
 		}
 
-		err = os.WriteFile(fp, b.Bytes(), 0644)
-		if err != nil {
-			return err
+		if lang == types.LangEnglish {
+			fp = filepath.Join(distDir, post.Path)
+			if strings.HasSuffix(fp, "/") {
+				err = os.WriteFile(fp+"index.html", b.Bytes(), 0644)
+				if err != nil {
+					return err
+				}
+			} else {
+				err = os.WriteFile(fp+".html", b.Bytes(), 0644)
+				if err != nil {
+					return err
+				}
+			}
 		}
 
-		img := ogimage.GenerateImage("GoSuda", post.Main.Metadata.Title, post.Main.Metadata.Date)
+		img := ogimage.GenerateImage("GoSuda", pm.Title, pm.Date)
 		f, err := os.Create(ogImagePath)
 		if err != nil {
 			return err
