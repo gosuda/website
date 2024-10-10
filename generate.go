@@ -109,10 +109,7 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			}
 		}
 
-		path := post.Path
-		if lang != types.LangEnglish {
-			path = "/" + lang + path
-		}
+		path := "/" + lang + post.Path
 
 		log.Debug().Str("path", post.Path).Msgf("generating post page %s", path)
 
@@ -122,13 +119,6 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			return err
 		}
 
-		if lang == types.LangEnglish {
-			err := os.MkdirAll(filepath.Dir(filepath.Join(distDir, post.Path)), 0755)
-			if err != nil {
-				return err
-			}
-		}
-
 		ogImagePath := filepath.Join(distDir, "assets", post.ID+"_"+lang+".png")
 		err = os.MkdirAll(filepath.Dir(ogImagePath), 0755)
 		if err != nil {
@@ -136,9 +126,6 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 		}
 
 		url := baseURL + "/" + lang + post.Path
-		if lang == types.LangEnglish {
-			url = baseURL + post.Path
-		}
 
 		meta := &view.Metadata{
 			Language:    lang,
@@ -151,6 +138,11 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			BaseURL:     baseURL,
 			CreatedAt:   post.CreatedAt,
 			UpdatedAt:   post.UpdatedAt,
+		}
+
+		if lang == types.LangEnglish {
+			meta.URL = baseURL + post.Path
+			meta.Canonical = meta.URL
 		}
 
 		if post.Main.Metadata.Canonical != "" {
@@ -180,6 +172,11 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 		}
 
 		if lang == types.LangEnglish {
+			err := os.MkdirAll(filepath.Dir(filepath.Join(distDir, post.Path)), 0755)
+			if err != nil {
+				return err
+			}
+
 			fp = filepath.Join(distDir, post.Path)
 			if strings.HasSuffix(fp, "/") {
 				err = os.WriteFile(fp+"index.html", b.Bytes(), 0644)
