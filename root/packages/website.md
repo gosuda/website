@@ -2,7 +2,6 @@
 id: 59e3e88bb92819fc8c0c4cec50a028d4
 author: Lemon Mint
 title: The GoSuda Website
-description: 'GoSuda: Build, prototype, & deploy applications easily with our open-source tools & vibrant community.'
 language: en
 date: 2024-10-01T13:50:10.962996Z
 path: /website
