@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-templ GosudaBlogPost(doc *types.Document, post *types.Post) {
+templ GosudaBlogPost(m *Metadata, doc *types.Document, post *types.Post) {
 	<div class="max-w-6xl mx-auto p-4 min-h-screen flex flex-col">
-		@BlogHeader()
+		@BlogHeader(m)
 		<article class="flex-grow">
 			<header class="mb-8">
 				<h1 class="text-4xl font-bold mb-4">{ doc.Metadata.Title }</h1>

@@ -33,7 +33,7 @@ func IndexPageBody(m *Metadata, blogPosts []*BlogPostPreview, featuredPosts []Fe
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = GosudaBlogIndex(blogPosts, featuredPosts).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = GosudaBlogIndex(m, blogPosts, featuredPosts).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

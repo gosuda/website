@@ -4,6 +4,6 @@ import "gosuda.org/website/internal/types"
 
 templ PostPageBody(m *Metadata, doc *types.Document, post *types.Post) {
 	<body>
-		@GosudaBlogPost(doc, post)
+		@GosudaBlogPost(m, doc, post)
 	</body>
 }

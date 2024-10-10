@@ -35,7 +35,7 @@ func PostPageBody(m *Metadata, doc *types.Document, post *types.Post) templ.Comp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = GosudaBlogPost(doc, post).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = GosudaBlogPost(m, doc, post).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
