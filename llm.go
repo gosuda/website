@@ -35,6 +35,7 @@ func init() {
 		lingua.Indonesian,
 		lingua.Portuguese,
 		lingua.Swedish,
+		lingua.Czech,
 	}
 
 	languageDetector = lingua.NewLanguageDetectorBuilder().

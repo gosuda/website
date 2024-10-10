@@ -75,9 +75,11 @@ func generate(gc *GenerationContext) error {
 		}
 	}
 
-	err = generateIndex(gc)
-	if err != nil {
-		return err
+	for _, lang := range types.SupportedLanguages {
+		err = generateIndex(gc, lang)
+		if err != nil {
+			return err
+		}
 	}
 
 	log.Debug().Msg("done generating website")
@@ -175,22 +177,32 @@ func generatePostPages(gc *GenerationContext) error {
 	return nil
 }
 
-func generateIndex(gc *GenerationContext) error {
+func generateIndex(gc *GenerationContext, lang types.Lang) error {
 	log.Debug().Msg("start generating index")
 	var b bytes.Buffer
 	ctx := context.Background()
 
+	err := os.MkdirAll(filepath.Join(distDir, lang), 0755)
+	if err != nil {
+		return err
+	}
+
 	meta := &view.Metadata{
-		Language:    "en",
+		Language:    lang,
 		Title:       "GoSuda | Home",
 		Description: "GoSuda is an industry-leading open source working group enabling developers to easily build, prototype, and deploy applications. Our comprehensive suite of tools and frameworks empowers developers to create robust, scalable solutions across various domains.",
 		Author:      "GoSuda",
 		Image:       baseURL + "/assets/images/ogp_placeholder.png",
 		URL:         baseURL + "/",
-		BaseURL:     baseURL + "/",
 		Canonical:   baseURL + "/",
+		BaseURL:     baseURL,
 		CreatedAt:   time.Date(2024, 10, 07, 0, 0, 0, 0, time.UTC),
 		UpdatedAt:   time.Now().UTC(),
+	}
+
+	if lang != "en" {
+		meta.URL = baseURL + "/" + lang + "/"
+		meta.Canonical = baseURL + "/" + lang + "/"
 	}
 
 	var posts []*types.Post
@@ -210,25 +222,47 @@ func generateIndex(gc *GenerationContext) error {
 
 	var previews []*view.BlogPostPreview
 	for _, post := range posts {
+		pm := post.Main.Metadata
+		if lang != pm.Language {
+			if _, ok := post.Translated[lang]; ok {
+				pm = post.Translated[lang].Metadata
+			} else {
+				continue
+			}
+		}
+
+		postPath := post.Path
+
+		if lang != "en" {
+			postPath = "/" + lang + post.Path
+		}
+
 		previews = append(previews, &view.BlogPostPreview{
-			Title:       post.Main.Metadata.Title,
-			Author:      post.Main.Metadata.Author,
-			Description: post.Main.Metadata.Description,
-			Date:        post.Main.Metadata.Date,
-			URL:         post.Path,
+			Title:       pm.Title,
+			Author:      pm.Author,
+			Description: pm.Description,
+			Date:        pm.Date,
+			URL:         postPath,
 		})
 	}
 
 	var featuredPosts []view.FeaturedPost
 
-	err := view.IndexPage(meta, previews, featuredPosts).Render(ctx, &b)
+	err = view.IndexPage(meta, previews, featuredPosts).Render(ctx, &b)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(filepath.Join(distDir, "index.html"), b.Bytes(), 0644)
+	err = os.WriteFile(filepath.Join(distDir, lang, "index.html"), b.Bytes(), 0644)
 	if err != nil {
 		return err
+	}
+
+	if lang == "en" {
+		err = os.WriteFile(filepath.Join(distDir, "index.html"), b.Bytes(), 0644)
+		if err != nil {
+			return err
+		}
 	}
 
 	log.Debug().Msg("done generating index")
