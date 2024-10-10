@@ -6,6 +6,7 @@ templ Head(m *Metadata) {
 	<head>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link rel="stylesheet" href="/main.css"/>
 		if m.Title != "" {
 			<title>{ m.Title }</title>
 			<meta property="og:title" content={ m.Title }/>
@@ -41,6 +42,14 @@ templ Head(m *Metadata) {
 		if m.CustomHead != "" {
 			@templ.Raw(m.CustomHead)
 		}
-		<link rel="stylesheet" href="/main.css"/>
+
+		if m.Alternate != nil {
+			for _, v := range m.Alternate.Versions {
+				<link rel="alternate" hreflang={ v.Key } href={ v.Value }/>
+			}
+			if m.Alternate.Default != "" {
+				<link rel="alternate" hreflang="x-default" href={ m.Alternate.Default }/>
+			}
+		}
 	</head>
 }

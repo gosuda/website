@@ -109,6 +109,12 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			}
 		}
 
+		languages := make([]string, 0, len(post.Translated))
+		for lang := range post.Translated {
+			languages = append(languages, lang)
+		}
+		sort.Strings(languages)
+
 		path := "/" + lang + post.Path
 
 		log.Debug().Str("path", post.Path).Msgf("generating post page %s", path)
@@ -139,6 +145,22 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			CreatedAt:   post.CreatedAt,
 			UpdatedAt:   post.UpdatedAt,
 		}
+
+		alt := &view.Alternate{}
+		for _, lang := range languages {
+			if lang == types.LangEnglish {
+				alt.Versions = append(alt.Versions, view.KV{
+					Key:   lang,
+					Value: baseURL + post.Path,
+				})
+				continue
+			}
+			alt.Versions = append(alt.Versions, view.KV{
+				Key:   lang,
+				Value: baseURL + "/" + lang + post.Path,
+			})
+		}
+		meta.Alternate = alt
 
 		if lang == types.LangEnglish {
 			meta.URL = baseURL + post.Path
@@ -243,6 +265,22 @@ func generateIndex(gc *GenerationContext, lang types.Lang) error {
 		meta.URL = baseURL + "/" + lang + "/"
 		meta.Canonical = baseURL + "/" + lang + "/"
 	}
+
+	alt := &view.Alternate{}
+	for _, lang := range types.SupportedLanguages {
+		if lang == types.LangEnglish {
+			alt.Versions = append(alt.Versions, view.KV{
+				Key:   lang,
+				Value: baseURL + "/",
+			})
+			continue
+		}
+		alt.Versions = append(alt.Versions, view.KV{
+			Key:   lang,
+			Value: baseURL + "/" + lang + "/",
+		})
+	}
+	meta.Alternate = alt
 
 	var posts []*types.Post
 	for _, post := range gc.DataStore.Posts {

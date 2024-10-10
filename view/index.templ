@@ -16,6 +16,18 @@ type Metadata struct {
 	UpdatedAt   time.Time
 	GoImport    string
 	CustomHead  string
+
+	Alternate *Alternate
+}
+
+type Alternate struct {
+	Default string
+	Versions   []KV
+}
+
+type KV struct {
+	Key   string
+	Value string
 }
 
 templ IndexPage(m *Metadata, blogPosts []*BlogPostPreview, featuredPosts []FeaturedPost) {
