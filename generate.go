@@ -162,7 +162,7 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 		}
 
 		b.Reset()
-		err = view.PostPage(meta, post.Main, post).Render(ctx, &b)
+		err = view.PostPage(meta, post.Translated[lang], post).Render(ctx, &b)
 		if err != nil {
 			return err
 		}

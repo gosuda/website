@@ -35,3 +35,38 @@ var SupportedLanguages = []Lang{
 	LangSwedish,
 	LangCzech,
 }
+
+func FullLangName(lang Lang) string {
+	switch lang {
+	case LangEnglish:
+		return "English"
+	case LangSpanish:
+		return "Spanish"
+	case LangChinese:
+		return "Chinese"
+	case LangKorean:
+		return "Korean"
+	case LangJapanese:
+		return "Japanese"
+	case LangGerman:
+		return "German"
+	case LangRussian:
+		return "Russian"
+	case LangFrench:
+		return "French"
+	case LangDutch:
+		return "Dutch"
+	case LangItalian:
+		return "Italian"
+	case LangIndonesian:
+		return "Indonesian"
+	case LangPortuguese:
+		return "Portuguese"
+	case LangSwedish:
+		return "Swedish"
+	case LangCzech:
+		return "Czech"
+	default:
+		return "Unknown"
+	}
+}
