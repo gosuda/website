@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/lemon-mint/coord"
 	"github.com/lemon-mint/coord/llm"
@@ -14,6 +15,7 @@ import (
 	_ "github.com/lemon-mint/coord/provider/vertexai"
 	"github.com/pemistahl/lingua-go"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/time/rate"
 )
 
 var llmClient provider.LLMClient
@@ -35,6 +37,7 @@ func init() {
 		lingua.Indonesian,
 		lingua.Portuguese,
 		lingua.Swedish,
+		lingua.Czech,
 	}
 
 	languageDetector = lingua.NewLanguageDetectorBuilder().
@@ -67,9 +70,39 @@ func init() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create llm model")
 	}
+
+	llmModel = newRateLimitModel(llmModel, rate.Every(time.Minute/9))
 	log.Debug().Msg("llm model initialized")
 }
 
 func Ptr[T any](t T) *T {
 	return &t
+}
+
+type rateLimitModel struct {
+	llm.Model
+	limit   rate.Limit
+	limiter *rate.Limiter
+}
+
+func newRateLimitModel(model llm.Model, limit rate.Limit) *rateLimitModel {
+	return &rateLimitModel{
+		Model:   model,
+		limit:   limit,
+		limiter: rate.NewLimiter(limit, 1),
+	}
+}
+
+func (r *rateLimitModel) GenerateStream(ctx context.Context, chat *llm.ChatContext, input *llm.Content) *llm.StreamContent {
+	if err := r.limiter.Wait(ctx); err != nil {
+		ch := make(chan llm.Segment)
+		close(ch)
+		return &llm.StreamContent{
+			Err:          err,
+			Content:      &llm.Content{},
+			FinishReason: llm.FinishReasonError,
+			Stream:       ch,
+		}
+	}
+	return r.Model.GenerateStream(ctx, chat, input)
 }

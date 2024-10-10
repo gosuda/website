@@ -101,6 +101,10 @@ func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
 			if s, ok := value.(string); ok {
 				m.Path = s
 			}
+		case "no_translate":
+			if b, ok := value.(bool); ok {
+				m.NoTranslate = b
+			}
 		}
 	}
 

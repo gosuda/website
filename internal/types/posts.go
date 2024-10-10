@@ -87,6 +87,8 @@ type Metadata struct {
 	Canonical string `json:"canonical,omitempty" yaml:"canonical,omitempty"`
 	// Hidden indicates whether the post should be listed on the front page.
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty"`
+	// NoTranslate indicates whether the post should be translated.
+	NoTranslate bool `json:"no_translate,omitempty" yaml:"no_translate,omitempty"`
 }
 
 func (g *Metadata) Hash() string {

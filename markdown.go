@@ -127,9 +127,18 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 	post.FilePath = path
 	post.Path = doc.Metadata.Path
 	post.Main = doc
+	if post.Translated == nil {
+		post.Translated = make(map[string]*types.Document)
+	}
+	post.Translated[doc.Metadata.Language] = doc
+
 	if post.Hash != hash {
 		post.Hash = hash
 		post.UpdatedAt = now
+		err = translatePost(gc, post, true, doc.Metadata.Language)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if gc.UsedPosts == nil {

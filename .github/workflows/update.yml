@@ -36,7 +36,6 @@ jobs:
         with:
           project_id: ${{ secrets.PROJECT_ID }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.SERVICE_ACCOUNT }}
           create_credentials_file: true
 
       - name: Go Test
@@ -51,6 +50,6 @@ jobs:
       - name: Commit Changes
         uses: EndBug/add-and-commit@v9
         with:
-          message: Show GitHub logo
+          message: "feat(blog): Update blog metadata"
           committer_name: GitHub Actions
           committer_email: 41898282+github-actions[bot]@users.noreply.github.com

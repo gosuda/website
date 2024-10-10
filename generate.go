@@ -57,16 +57,6 @@ func generate(gc *GenerationContext) error {
 		log.Debug().Str("path", path).Msgf("processed file %s", path)
 	}
 
-	err = generatePostPages(gc)
-	if err != nil {
-		return err
-	}
-
-	err = minifyDir(distDir)
-	if err != nil {
-		return err
-	}
-
 	// Remove unused posts
 	for id := range gc.DataStore.Posts {
 		if _, ok := gc.UsedPosts[id]; !ok {
@@ -75,7 +65,18 @@ func generate(gc *GenerationContext) error {
 		}
 	}
 
-	err = generateIndex(gc)
+	for _, lang := range types.SupportedLanguages {
+		err = generateIndex(gc, lang)
+		if err != nil {
+			return err
+		}
+		err = generatePostPages(gc, lang)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = minifyDir(distDir)
 	if err != nil {
 		return err
 	}
@@ -84,7 +85,7 @@ func generate(gc *GenerationContext) error {
 	return nil
 }
 
-func generatePostPages(gc *GenerationContext) error {
+func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 	log.Debug().Msg("start generating post pages")
 	postList := make([]*types.Post, 0, len(gc.DataStore.Posts))
 	for _, post := range gc.DataStore.Posts {
@@ -99,28 +100,55 @@ func generatePostPages(gc *GenerationContext) error {
 	ctx := context.Background()
 
 	for _, post := range postList {
-		log.Debug().Str("path", post.Path).Msgf("generating post page %s", post.Path)
-		fp := filepath.Join(distDir, post.Path)
+		pm := post.Main.Metadata
+		if lang != pm.Language {
+			if _, ok := post.Translated[lang]; ok {
+				pm = post.Translated[lang].Metadata
+			} else {
+				continue
+			}
+		}
+
+		path := post.Path
+		if lang != types.LangEnglish {
+			path = "/" + lang + path
+		}
+
+		log.Debug().Str("path", post.Path).Msgf("generating post page %s", path)
+
+		fp := filepath.Join(distDir, path)
 		err := os.MkdirAll(filepath.Dir(fp), 0755)
 		if err != nil {
 			return err
 		}
 
-		ogImagePath := filepath.Join(distDir, "assets", post.ID+"_"+post.Main.Metadata.Language+".png")
+		if lang == types.LangEnglish {
+			err := os.MkdirAll(filepath.Dir(filepath.Join(distDir, post.Path)), 0755)
+			if err != nil {
+				return err
+			}
+		}
+
+		ogImagePath := filepath.Join(distDir, "assets", post.ID+"_"+lang+".png")
 		err = os.MkdirAll(filepath.Dir(ogImagePath), 0755)
 		if err != nil {
 			return err
 		}
 
+		url := baseURL + "/" + lang + post.Path
+		if lang == types.LangEnglish {
+			url = baseURL + post.Path
+		}
+
 		meta := &view.Metadata{
-			Language:    post.Main.Metadata.Language,
-			Title:       post.Main.Metadata.Title,
-			Description: post.Main.Metadata.Description,
-			Author:      post.Main.Metadata.Author,
-			Image:       baseURL + "/assets/" + post.ID + "_" + post.Main.Metadata.Language + ".png",
-			URL:         baseURL + post.Path,
+			Language:    lang,
+			Title:       pm.Title,
+			Description: pm.Description,
+			Author:      pm.Author,
+			Image:       baseURL + "/assets/" + post.ID + "_" + lang + ".png",
+			URL:         url,
+			Canonical:   url,
 			BaseURL:     baseURL,
-			Canonical:   baseURL + post.Path,
 			CreatedAt:   post.CreatedAt,
 			UpdatedAt:   post.UpdatedAt,
 		}
@@ -134,23 +162,39 @@ func generatePostPages(gc *GenerationContext) error {
 		}
 
 		b.Reset()
-		err = view.PostPage(meta, post.Main, post).Render(ctx, &b)
+		err = view.PostPage(meta, post.Translated[lang], post).Render(ctx, &b)
 		if err != nil {
 			return err
 		}
 
 		if strings.HasSuffix(fp, "/") {
-			fp += "index.html"
+			err = os.WriteFile(fp+"index.html", b.Bytes(), 0644)
+			if err != nil {
+				return err
+			}
 		} else {
-			fp += ".html"
+			err = os.WriteFile(fp+".html", b.Bytes(), 0644)
+			if err != nil {
+				return err
+			}
 		}
 
-		err = os.WriteFile(fp, b.Bytes(), 0644)
-		if err != nil {
-			return err
+		if lang == types.LangEnglish {
+			fp = filepath.Join(distDir, post.Path)
+			if strings.HasSuffix(fp, "/") {
+				err = os.WriteFile(fp+"index.html", b.Bytes(), 0644)
+				if err != nil {
+					return err
+				}
+			} else {
+				err = os.WriteFile(fp+".html", b.Bytes(), 0644)
+				if err != nil {
+					return err
+				}
+			}
 		}
 
-		img := ogimage.GenerateImage("GoSuda", post.Main.Metadata.Title, post.Main.Metadata.Date)
+		img := ogimage.GenerateImage("GoSuda", pm.Title, pm.Date)
 		f, err := os.Create(ogImagePath)
 		if err != nil {
 			return err
@@ -175,22 +219,32 @@ func generatePostPages(gc *GenerationContext) error {
 	return nil
 }
 
-func generateIndex(gc *GenerationContext) error {
+func generateIndex(gc *GenerationContext, lang types.Lang) error {
 	log.Debug().Msg("start generating index")
 	var b bytes.Buffer
 	ctx := context.Background()
 
+	err := os.MkdirAll(filepath.Join(distDir, lang), 0755)
+	if err != nil {
+		return err
+	}
+
 	meta := &view.Metadata{
-		Language:    "en",
+		Language:    lang,
 		Title:       "GoSuda | Home",
 		Description: "GoSuda is an industry-leading open source working group enabling developers to easily build, prototype, and deploy applications. Our comprehensive suite of tools and frameworks empowers developers to create robust, scalable solutions across various domains.",
 		Author:      "GoSuda",
 		Image:       baseURL + "/assets/images/ogp_placeholder.png",
 		URL:         baseURL + "/",
-		BaseURL:     baseURL + "/",
 		Canonical:   baseURL + "/",
+		BaseURL:     baseURL,
 		CreatedAt:   time.Date(2024, 10, 07, 0, 0, 0, 0, time.UTC),
 		UpdatedAt:   time.Now().UTC(),
+	}
+
+	if lang != "en" {
+		meta.URL = baseURL + "/" + lang + "/"
+		meta.Canonical = baseURL + "/" + lang + "/"
 	}
 
 	var posts []*types.Post
@@ -210,25 +264,47 @@ func generateIndex(gc *GenerationContext) error {
 
 	var previews []*view.BlogPostPreview
 	for _, post := range posts {
+		pm := post.Main.Metadata
+		if lang != pm.Language {
+			if _, ok := post.Translated[lang]; ok {
+				pm = post.Translated[lang].Metadata
+			} else {
+				continue
+			}
+		}
+
+		postPath := post.Path
+
+		if lang != "en" {
+			postPath = "/" + lang + post.Path
+		}
+
 		previews = append(previews, &view.BlogPostPreview{
-			Title:       post.Main.Metadata.Title,
-			Author:      post.Main.Metadata.Author,
-			Description: post.Main.Metadata.Description,
-			Date:        post.Main.Metadata.Date,
-			URL:         post.Path,
+			Title:       pm.Title,
+			Author:      pm.Author,
+			Description: pm.Description,
+			Date:        pm.Date,
+			URL:         postPath,
 		})
 	}
 
 	var featuredPosts []view.FeaturedPost
 
-	err := view.IndexPage(meta, previews, featuredPosts).Render(ctx, &b)
+	err = view.IndexPage(meta, previews, featuredPosts).Render(ctx, &b)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(filepath.Join(distDir, "index.html"), b.Bytes(), 0644)
+	err = os.WriteFile(filepath.Join(distDir, lang, "index.html"), b.Bytes(), 0644)
 	if err != nil {
 		return err
+	}
+
+	if lang == "en" {
+		err = os.WriteFile(filepath.Join(distDir, "index.html"), b.Bytes(), 0644)
+		if err != nil {
+			return err
+		}
 	}
 
 	log.Debug().Msg("done generating index")
