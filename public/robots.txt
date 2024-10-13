@@ -30,8 +30,9 @@ User-agent: Bytespider
 Disallow: /
 
 User-agent: Baiduspider
+Allow: /zh/
+Allow: /$
 Disallow: /
-Allow: /zn/
 
 User-agent: AwarioRssBot
 User-agent: AwarioSmartBot
