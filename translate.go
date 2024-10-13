@@ -36,7 +36,7 @@ func translatePost(_ *GenerationContext, post *types.Post, retranslate bool, ign
 	ctx := context.Background()
 
 	var langs []types.Lang
-	if retranslate {
+	if !retranslate {
 		// only retranslate the missing languages
 		for _, lang := range types.SupportedLanguages {
 			if _, ok := post.Translated[string(lang)]; !ok && !slices.Contains(ignoreLangs, lang) {
