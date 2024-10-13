@@ -76,6 +76,21 @@ func generate(gc *GenerationContext) error {
 		}
 	}
 
+	err = generateGlobalRSSFeed(gc)
+	if err != nil {
+		return err
+	}
+
+	for _, lang := range types.SupportedLanguages {
+		if lang == "en" {
+			continue
+		}
+		err = generateLocalRSSFeed(gc, lang)
+		if err != nil {
+			return err
+		}
+	}
+
 	err = minifyDir(distDir)
 	if err != nil {
 		return err

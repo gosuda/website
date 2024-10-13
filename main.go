@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -50,11 +48,4 @@ func main() {
 	}
 
 	log.Info().Msgf("website generated")
-
-	// print database as JSON
-	jsonData, err := json.MarshalIndent(&gc, "", "  ")
-	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to marshal database file %s", dbFile)
-	}
-	fmt.Println(string(jsonData))
 }
