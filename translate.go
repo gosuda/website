@@ -21,6 +21,18 @@ func translatePost(_ *GenerationContext, post *types.Post, retranslate bool, ign
 		return nil
 	}
 
+	if len(post.Main.Metadata.IgnoreLangs) > 0 {
+		ignoreLangs = append([]string(nil), ignoreLangs...)
+		ignoreLangs = append(ignoreLangs, post.Main.Metadata.IgnoreLangs...)
+	}
+
+	for _, lang := range post.Main.Metadata.IgnoreLangs {
+		if lang == post.Main.Metadata.Language {
+			continue
+		}
+		delete(post.Translated, lang)
+	}
+
 	ctx := context.Background()
 
 	var langs []types.Lang

@@ -22,4 +22,5 @@ Go’s prevalence in key infrastructure components like API gateways, reverse pr
 
 ## Enhancing Go for the Future of AI
 
-Our commitment is to make Go even more powerful for AI development. We are actively developing a ergonomic AI interface designed to streamline and simplify integrating AI functionalities into Go applications. This will help developers utilize Go to create innovative AI-driven solutions.
+Our commitment is to make Go even more powerful for AI development.
+We are actively developing a ergonomic AI interface designed to streamline and simplify integrating AI functionalities into Go applications. This will help developers utilize Go to create innovative AI-driven solutions.
