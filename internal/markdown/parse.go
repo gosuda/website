@@ -3,8 +3,6 @@ package markdown
 import (
 	"bytes"
 	"errors"
-	"strings"
-	"time"
 
 	chtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/yuin/goldmark"
@@ -12,6 +10,7 @@ import (
 	meta "github.com/yuin/goldmark-meta"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
+	"gopkg.in/yaml.v3"
 	"gosuda.org/website/internal/types"
 	"mvdan.cc/xurls/v2"
 )
@@ -39,73 +38,14 @@ var gMark = goldmark.New(
 
 func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
 	m := &doc.Metadata
-	for key, value := range metadata {
-		switch strings.ToLower(key) {
-		case "id":
-			if s, ok := value.(string); ok {
-				m.ID = s
-			}
-		case "author":
-			if s, ok := value.(string); ok {
-				m.Author = s
-			}
-		case "title":
-			if s, ok := value.(string); ok {
-				m.Title = s
-			}
-		case "description":
-			if s, ok := value.(string); ok {
-				m.Description = s
-			}
-		case "language":
-			if s, ok := value.(string); ok {
-				m.Language = s
-			}
-		case "date":
-			if t, ok := value.(time.Time); ok {
-				m.Date = t
-			}
 
-			if s, ok := value.(string); ok {
-				t, err := time.Parse(time.RFC3339, s)
-				if err != nil {
-					return err
-				}
-				m.Date = t
-			}
-
-			if s, ok := value.(string); ok {
-				t, err := time.Parse(time.RFC3339Nano, s)
-				if err != nil {
-					return err
-				}
-				m.Date = t
-			}
-		case "go_package":
-			if s, ok := value.(string); ok {
-				m.GoPackage = s
-			}
-		case "go_repourl", "go_repo":
-			if s, ok := value.(string); ok {
-				m.GoRepoURL = s
-			}
-		case "canonical":
-			if s, ok := value.(string); ok {
-				m.Canonical = s
-			}
-		case "hidden":
-			if b, ok := value.(bool); ok {
-				m.Hidden = b
-			}
-		case "path":
-			if s, ok := value.(string); ok {
-				m.Path = s
-			}
-		case "no_translate":
-			if b, ok := value.(bool); ok {
-				m.NoTranslate = b
-			}
-		}
+	yamlData, err := yaml.Marshal(metadata)
+	if err != nil {
+		return err
+	}
+	err = yaml.Unmarshal(yamlData, m)
+	if err != nil {
+		return err
 	}
 
 	// If ID is not set in metadata, generate a random one

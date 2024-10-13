@@ -8,6 +8,7 @@ require (
 	github.com/alecthomas/chroma/v2 v2.14.0
 	github.com/fogleman/gg v1.3.0
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/feeds v1.2.0
 	github.com/klauspost/compress v1.17.10
 	github.com/lemon-mint/coord v0.0.0-20240828063213-3a5371b67000
 	github.com/lemon-mint/vbox v1.3.2

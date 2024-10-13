@@ -89,6 +89,8 @@ type Metadata struct {
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty"`
 	// NoTranslate indicates whether the post should be translated.
 	NoTranslate bool `json:"no_translate,omitempty" yaml:"no_translate,omitempty"`
+	// IgnoreLangs is a list of languages to ignore when translating the post.
+	IgnoreLangs []string `json:"ignore_langs,omitempty" yaml:"ignore_langs,omitempty"`
 }
 
 func (g *Metadata) Hash() string {
