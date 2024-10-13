@@ -70,7 +70,7 @@ func generateGlobalRSSFeed(gc *GenerationContext) error {
 		return err
 	}
 
-	err = os.WriteFile(distDir+"/feed_en.rss", []byte(rss), 0644)
+	err = os.WriteFile(distDir+"/en/feed.rss", []byte(rss), 0644)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func generateLocalRSSFeed(gc *GenerationContext, lang types.Lang) error {
 		return err
 	}
 
-	err = os.WriteFile(distDir+"/feed_"+lang+".rss", []byte(rss), 0644)
+	err = os.WriteFile(distDir+"/"+lang+"/feed.rss", []byte(rss), 0644)
 	if err != nil {
 		return err
 	}
