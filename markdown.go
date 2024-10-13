@@ -139,6 +139,11 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		err = translatePost(gc, post, false, doc.Metadata.Language)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if gc.UsedPosts == nil {

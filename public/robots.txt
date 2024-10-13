@@ -60,3 +60,25 @@ User-agent: PerplexityBot
 User-agent: Timpibot
 Allow: /$
 Disallow: /
+
+Sitemap: https://gosuda.org/feed.rss
+Sitemap: https://gosuda.org/es/feed.rss
+Sitemap: https://gosuda.org/zh/feed.rss
+Sitemap: https://gosuda.org/ko/feed.rss
+Sitemap: https://gosuda.org/ja/feed.rss
+Sitemap: https://gosuda.org/de/feed.rss
+Sitemap: https://gosuda.org/ru/feed.rss
+Sitemap: https://gosuda.org/fr/feed.rss
+Sitemap: https://gosuda.org/nl/feed.rss
+Sitemap: https://gosuda.org/it/feed.rss
+Sitemap: https://gosuda.org/id/feed.rss
+Sitemap: https://gosuda.org/pt/feed.rss
+Sitemap: https://gosuda.org/sv/feed.rss
+Sitemap: https://gosuda.org/cs/feed.rss
+Sitemap: https://gosuda.org/sk/feed.rss
+Sitemap: https://gosuda.org/pl/feed.rss
+Sitemap: https://gosuda.org/ro/feed.rss
+Sitemap: https://gosuda.org/hu/feed.rss
+Sitemap: https://gosuda.org/fi/feed.rss
+Sitemap: https://gosuda.org/tr/feed.rss
+Sitemap: https://gosuda.org/hi/feed.rss
