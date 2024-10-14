@@ -1,0 +1,4 @@
+Contact: mailto:webmaster@gosuda.org
+Expires: 2028-01-01T01:00:00Z
+Encryption: https://gist.github.com/lemon-mint/5fafb94ec5b1ccb84eec081431e522fb
+Canonical: https://gosuda.org/security.txt
