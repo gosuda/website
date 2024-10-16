@@ -186,6 +186,11 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			meta.Canonical = post.Main.Metadata.Canonical
 		}
 
+		if post.Main.Metadata.LangCanonical != nil &&
+			post.Main.Metadata.LangCanonical[lang] != "" {
+			meta.Canonical = post.Main.Metadata.LangCanonical[lang]
+		}
+
 		if post.Main.Metadata.GoPackage != "" {
 			meta.GoImport = fmt.Sprintf("%s git %s", post.Main.Metadata.GoPackage, post.Main.Metadata.GoRepoURL)
 		}

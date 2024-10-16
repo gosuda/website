@@ -6,6 +6,8 @@ description: Go는 왜 try-catch를 지원하지 않고 panic-recover를 사용�
 language: ko
 date: 2024-10-16T07:06:25.186989697Z
 path: /blog/posts/why-doesn-t-go-have-try-catch-zeb312147
+lang_canonical:
+    ko: https://blog.naver.com/sjc02183/222927597790
 ---
 
 go는 의도적으로 try-catch 를 지원하지 않고, panic-recover 문법만 지원한다. 이는 try-catch 를 이용한 에러처리에 익숙한 수많은 개발자들의 원성을 사고 있다. 그렇다면 try-catch 를 넣지 않는 이유는 무엇일까? 그것은 try-catch 가 여러 문제점을 가지고 있기 때문이다.
