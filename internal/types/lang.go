@@ -23,7 +23,6 @@ const (
 	LangHungarian  Lang = "hu"
 	LangFinnish    Lang = "fi"
 	LangTurkish    Lang = "tr"
-	LangHindi      Lang = "hi"
 )
 
 var SupportedLanguages = []Lang{
@@ -47,7 +46,6 @@ var SupportedLanguages = []Lang{
 	LangHungarian,
 	LangFinnish,
 	LangTurkish,
-	LangHindi,
 }
 
 func FullLangName(lang Lang) string {

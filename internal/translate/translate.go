@@ -29,6 +29,8 @@ Translate the following text into <TARGET_LANGUAGE>, adhering to these guideline
   i. Consider each text segment as independent, without reference to previous context.
   j. Ensure completeness and accuracy, omitting no content from the source text.
   k. Do not translate code, URLs, or any other non-textual elements.
+	l. Retain the start token and the end token.
+	m. Never use word "delve", "deepen", "elara", "symphony" and "lyra".
 
 Do not include any additional commentary or explanations.
 Begin your translation now, translate the following text into <TARGET_LANGUAGE>.

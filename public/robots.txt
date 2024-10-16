@@ -82,4 +82,3 @@ Sitemap: https://gosuda.org/ro/feed.rss
 Sitemap: https://gosuda.org/hu/feed.rss
 Sitemap: https://gosuda.org/fi/feed.rss
 Sitemap: https://gosuda.org/tr/feed.rss
-Sitemap: https://gosuda.org/hi/feed.rss
