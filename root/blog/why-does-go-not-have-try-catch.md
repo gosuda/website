@@ -1,6 +1,6 @@
 ---
-author: Rabbitprincess
-title: Why doesn`t Go have try-catch?
+author: Rabbit Princess
+title: Why doesn't Go have try-catch?
 ---
 
 ## try-catch-finally
@@ -18,7 +18,8 @@ go는 의도적으로 try-catch 를 지원하지 않고, panic-recover 문법만
 
 ## try-catch 의 책임 전가
 try-catch 는, 한마디로 말해서, 에러를 터뜨린 주체가 에러 발생에 대한 책임(뒤처리)을 누군가에게 미루는 방법이다. 그 미루는 대상은 catch 구문일수도, 자신의 부모 메소드일수도, 자신의 부모의 부모의 부모의 부모의.. 누군가일수도 있다. 다시 말해, 에러 처리가 많아지고 복잡해지는 세상에서, try-catch 가 택한 방법은 바로 '누군가 해주겠지' 인 것이다. 아래 코드를 보자.
-```
+
+```javascript
 try {
     data = readFile("hello.txt");
     structuredData = parseData(data);
@@ -28,6 +29,7 @@ try {
     e.printStackTrace();
 }
 ```
+
 위 코드의 문제점은 printStackTrace 를 처리하는 주체가 무엇인지도 명확치 않고, 어떤 코드에서 에러가 났는지도 알 수 없게 된다는 점이다. 심지어 try 명령문 안에 더 많은 로직이 생길 수록 문제는 더더욱 끔찍해진다. 하지만 역설적이게도, 개발이 복잡해지면 복잡해질수록 개발자들은 책임을 전가하는 트라이캐치 구문에 중독되었고, 에러 처리에 대한 고민을 하지 않고, 책임의식 또한 옅어졌으며, 결국에는 에러와 예외 처리의 본질에 대해 잊게 되었다. 그렇다면 golang 은 어떻게 이 문제를 해결했을까?
 
 ## panic, recover
