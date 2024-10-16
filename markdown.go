@@ -137,12 +137,12 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		post.UpdatedAt = now
 		err = translatePost(gc, post, true, doc.Metadata.Language)
 		if err != nil {
-			log.Error().Str("path", path).Err("error", err).Msg("failed to translate")
+			log.Error().Str("path", path).Err(err).Msg("failed to translate")
 		}
 	} else {
 		err = translatePost(gc, post, false, doc.Metadata.Language)
 		if err != nil {
-			log.Error().Str("path", path).Err("error", err).Msg("failed to translate")
+			log.Error().Str("path", path).Err(err).Msg("failed to translate")
 		}
 	}
 
