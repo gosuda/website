@@ -1,6 +1,11 @@
 ---
+id: c145512ecce1101e7061cd4eaf386379
 author: Rabbit Princess
 title: Why doesn't Go have try-catch?
+description: Go는 왜 try-catch를 지원하지 않고 panic-recover를 사용하는지, 에러 처리에 대한 책임과 관련하여 알아봅니다.
+language: ko
+date: 2024-10-16T05:45:40.155674871Z
+path: /blog/posts/why-doesn-t-go-have-try-catch?-zeb312147
 ---
 
 ## try-catch-finally
