@@ -1,10 +1,8 @@
 ---
-id: c145512ecce1101e7061cd4eaf386379
 author: Rabbit Princess
 title: Go에는 왜 Try-Catch가 없을까?
 description: Go는 왜 try-catch를 지원하지 않고 panic-recover를 사용하는지, 에러 처리에 대한 책임과 관련하여 알아봅니다.
 language: ko
-date: 2024-10-16T05:45:40.155674871Z
 path: /blog/posts/why-doesn-t-go-have-try-catch-zeb312147
 ---
 
@@ -26,7 +24,7 @@ go는 의도적으로 try-catch 를 지원하지 않고, panic-recover 문법만
 
 try-catch 는, 한마디로 말해서, 에러를 터뜨린 주체가 에러 발생에 대한 책임(뒤처리)을 누군가에게 미루는 방법이다. 그 미루는 대상은 catch 구문일수도, 자신의 부모 메소드일수도, 자신의 부모의 부모의 부모의 부모의.. 누군가일수도 있다. 다시 말해, 에러 처리가 많아지고 복잡해지는 세상에서, try-catch 가 택한 방법은 바로 '누군가 해주겠지' 인 것이다. 아래 코드를 보자.
 
-```javascript
+```java
 try {
     data = readFile("hello.txt");
     structuredData = parseData(data);
