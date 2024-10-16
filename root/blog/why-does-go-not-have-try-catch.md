@@ -1,20 +1,18 @@
 ---
 id: c145512ecce1101e7061cd4eaf386379
 author: Rabbit Princess
-title: Why doesn't Go have try-catch?
+title: Go에는 왜 Try-Catch가 없을까?
 description: Go는 왜 try-catch를 지원하지 않고 panic-recover를 사용하는지, 에러 처리에 대한 책임과 관련하여 알아봅니다.
 language: ko
 date: 2024-10-16T05:45:40.155674871Z
-path: /blog/posts/why-doesn-t-go-have-try-catch?-zeb312147
+path: /blog/posts/why-doesn-t-go-have-try-catch-zeb312147
 ---
+
+go는 의도적으로 try-catch 를 지원하지 않고, panic-recover 문법만 지원한다. 이는 try-catch 를 이용한 에러처리에 익숙한 수많은 개발자들의 원성을 사고 있다. 그렇다면 try-catch 를 넣지 않는 이유는 무엇일까? 그것은 try-catch 가 여러 문제점을 가지고 있기 때문이다.
 
 ## try-catch-finally
 
 트라이캐치 (try-catch) 구문은 프로그램 실행 도중(런타임) 발생할 수 있는 에러 상황과 예외 상황을 처리하기 위한 구문이다. 또한 finally 구문은 예외발생 여부와 상관없이 무조건 실행되어야 할 코드를 적는다.
-
-## golang 의 에러와 예외 처리
-
-go는 의도적으로 try-catch 를 지원하지 않고, panic-recover 문법만 지원한다. 이는 try-catch 를 이용한 에러처리에 익숙한 수많은 개발자들의 원성을 사고 있다. 그렇다면 try-catch 를 넣지 않는 이유는 무엇일까? 그것은 try-catch 가 여러 문제점을 가지고 있기 때문이다.
 
 ## 에러 처리와 책임
 
