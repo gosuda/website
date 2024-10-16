@@ -18,14 +18,7 @@ var _ = func() struct{} {
 //go:generate templ generate
 //go:generate bun run build
 
-func main() {
-	if llmClient != nil {
-		defer llmClient.Close()
-	}
-	if llmModel != nil {
-		defer llmModel.Close()
-	}
-
+func generate_main() {
 	ds, err := initializeDatabase(dbFile)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to initialize database file %s", dbFile)
@@ -48,4 +41,38 @@ func main() {
 	}
 
 	log.Info().Msgf("website generated")
+}
+
+func remove_lang_main() {
+	ds, err := initializeDatabase(dbFile)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to initialize database file %s", dbFile)
+	}
+
+	post_id := os.Args[2]
+	delete(ds.Posts[post_id].Translated, os.Args[3])
+
+	err = updateDatabase(dbFile, ds)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to update database file %s", dbFile)
+	}
+}
+
+func main() {
+	if llmClient != nil {
+		defer llmClient.Close()
+	}
+	if llmModel != nil {
+		defer llmModel.Close()
+	}
+
+	if len(os.Args) == 1 {
+		generate_main()
+		return
+	}
+
+	switch os.Args[1] {
+	case "remove_lang":
+		remove_lang_main() // remove lang from db
+	}
 }

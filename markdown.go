@@ -137,12 +137,12 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		post.UpdatedAt = now
 		err = translatePost(gc, post, true, doc.Metadata.Language)
 		if err != nil {
-			return nil, err
+			log.Error().Str("path", path).Err(err).Msg("failed to translate")
 		}
 	} else {
 		err = translatePost(gc, post, false, doc.Metadata.Language)
 		if err != nil {
-			return nil, err
+			log.Error().Str("path", path).Err(err).Msg("failed to translate")
 		}
 	}
 
@@ -182,6 +182,9 @@ func generatePath(title string) string {
 	fp = strings.ReplaceAll(fp, "`", "-")
 	fp = strings.ReplaceAll(fp, ",", "-")
 	fp = strings.ReplaceAll(fp, ".", "-")
+	fp = strings.ReplaceAll(fp, "?", "-")
+	fp = strings.ReplaceAll(fp, "&", "-")
+	fp = strings.ReplaceAll(fp, "=", "-")
 
 	fp = strings.ReplaceAll(fp, `----`, "-")
 	fp = strings.ReplaceAll(fp, `---`, "-")
