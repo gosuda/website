@@ -1,6 +1,6 @@
 ---
 author: Rabbit Princess
-title: Why doesn't Go have try-catch?
+title: "Why doesn't Go have try-catch?"
 ---
 
 ## try-catch-finally
