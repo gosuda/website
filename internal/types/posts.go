@@ -91,6 +91,8 @@ type Metadata struct {
 	NoTranslate bool `json:"no_translate,omitempty" yaml:"no_translate,omitempty"`
 	// IgnoreLangs is a list of languages to ignore when translating the post.
 	IgnoreLangs []string `json:"ignore_langs,omitempty" yaml:"ignore_langs,omitempty"`
+	// LangCanonical is the canonical URL for the post in a specific language.
+	LangCanonical map[string]string `json:"lang_canonical,omitempty" yaml:"lang_canonical,omitempty"`
 }
 
 func (g *Metadata) Hash() string {
