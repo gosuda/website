@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
+	"gosuda.org/website/internal/evaluate"
 	"gosuda.org/website/internal/markdown"
 	"gosuda.org/website/internal/translate"
 	"gosuda.org/website/internal/types"
@@ -57,54 +60,86 @@ func translatePost(_ *GenerationContext, post *types.Post, retranslate bool, ign
 	}
 
 	for _, lang := range langs {
-		log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post")
-		original := post.Main.Markdown
-		original = strings.TrimPrefix(original, "---\n")
-		_, origDocument, ok := strings.Cut(original, "---\n")
-		if !ok {
-			return ErrInvalidMarkdown
+		var retry int
+		for retry < 2 {
+			retry++
+			if retry > 1 {
+				log.Debug().Int("retry", retry).Str("path", post.FilePath).Str("lang", string(lang)).Msg("retrying translation")
+				time.Sleep(time.Second * 3)
+			}
+
+			err := translateLang(ctx, post, lang)
+			if err != nil {
+				log.Error().Err(err).Str("path", post.FilePath).Str("lang", string(lang)).Msg("failed to translate, retrying")
+				continue
+			}
+			break
 		}
-
-		fullLangName := types.FullLangName(lang)
-
-		meta := post.Main.Metadata
-		meta.Language = lang
-
-		log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post title")
-		newTitle, err := translate.Translate(ctx, llmModel, post.Main.Metadata.Title, fullLangName)
-		if err != nil {
-			return err
-		}
-		meta.Title = newTitle
-		log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Str("title", newTitle).Msg("translated post title")
-
-		log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post description")
-		newDescription, err := translate.Translate(ctx, llmModel, post.Main.Metadata.Description, fullLangName)
-		if err != nil {
-			return err
-		}
-		meta.Description = newDescription
-		log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Str("description", newDescription).Msg("translated post description")
-
-		log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post content")
-		tranDocument, err := translate.Translate(ctx, llmModel, origDocument, fullLangName)
-		if err != nil {
-			return err
-		}
-		log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translated post content")
-
-		newMeta, err := yaml.Marshal(&meta)
-		if err != nil {
-			return err
-		}
-		newDocument := "---\n" + string(newMeta) + "---\n" + tranDocument
-
-		doc, err := markdown.ParseMarkdown(newDocument)
-		if err != nil {
-			return err
-		}
-		post.Translated[string(lang)] = doc
 	}
+
+	return nil
+}
+
+var ErrLowQualityTranslation = errors.New("low quality translation")
+
+func translateLang(ctx context.Context, post *types.Post, lang types.Lang) error {
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post")
+	original := post.Main.Markdown
+	original = strings.TrimPrefix(original, "---\n")
+	_, origDocument, ok := strings.Cut(original, "---\n")
+	if !ok {
+		return ErrInvalidMarkdown
+	}
+
+	fullLangName := types.FullLangName(lang)
+
+	meta := post.Main.Metadata
+	meta.Language = lang
+
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post title")
+	newTitle, err := translate.Translate(ctx, llmModel, post.Main.Metadata.Title, fullLangName)
+	if err != nil {
+		return err
+	}
+	meta.Title = newTitle
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Str("title", newTitle).Msg("translated post title")
+
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post description")
+	newDescription, err := translate.Translate(ctx, llmModel, post.Main.Metadata.Description, fullLangName)
+	if err != nil {
+		return err
+	}
+	meta.Description = newDescription
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Str("description", newDescription).Msg("translated post description")
+
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post content")
+	tranDocument, err := translate.Translate(ctx, llmModel, origDocument, fullLangName)
+	if err != nil {
+		return err
+	}
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translated post content")
+
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("evaluating translated post content")
+	score, err := evaluate.EvaluateTranslation(ctx, llmModel, post.Main.Metadata.Language, lang, origDocument, tranDocument)
+	if err != nil {
+		return err
+	}
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Float64("score", score).Msg("evaluated translation")
+	if score < 0.7 {
+		return ErrLowQualityTranslation
+	}
+
+	newMeta, err := yaml.Marshal(&meta)
+	if err != nil {
+		return err
+	}
+	newDocument := "---\n" + string(newMeta) + "---\n" + tranDocument
+
+	doc, err := markdown.ParseMarkdown(newDocument)
+	if err != nil {
+		return err
+	}
+	post.Translated[string(lang)] = doc
 
 	return nil
 }
