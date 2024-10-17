@@ -76,7 +76,7 @@ func generate(gc *GenerationContext) error {
 		}
 	}
 
-	err = generateGlobalRSSFeed(gc)
+	err = generateGlobalFeed(gc)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func generate(gc *GenerationContext) error {
 		if lang == "en" {
 			continue
 		}
-		err = generateLocalRSSFeed(gc, lang)
+		err = generateLocalFeed(gc, lang)
 		if err != nil {
 			return err
 		}

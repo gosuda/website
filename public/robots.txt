@@ -62,6 +62,27 @@ User-agent: Timpibot
 Allow: /$
 Disallow: /
 
+Sitemap: https://gosuda.org/sitemap.xml
+Sitemap: https://gosuda.org/es/sitemap.xml
+Sitemap: https://gosuda.org/zh/sitemap.xml
+Sitemap: https://gosuda.org/ko/sitemap.xml
+Sitemap: https://gosuda.org/ja/sitemap.xml
+Sitemap: https://gosuda.org/de/sitemap.xml
+Sitemap: https://gosuda.org/ru/sitemap.xml
+Sitemap: https://gosuda.org/fr/sitemap.xml
+Sitemap: https://gosuda.org/nl/sitemap.xml
+Sitemap: https://gosuda.org/it/sitemap.xml
+Sitemap: https://gosuda.org/id/sitemap.xml
+Sitemap: https://gosuda.org/pt/sitemap.xml
+Sitemap: https://gosuda.org/sv/sitemap.xml
+Sitemap: https://gosuda.org/cs/sitemap.xml
+Sitemap: https://gosuda.org/sk/sitemap.xml
+Sitemap: https://gosuda.org/pl/sitemap.xml
+Sitemap: https://gosuda.org/ro/sitemap.xml
+Sitemap: https://gosuda.org/hu/sitemap.xml
+Sitemap: https://gosuda.org/fi/sitemap.xml
+Sitemap: https://gosuda.org/tr/sitemap.xml
+
 Sitemap: https://gosuda.org/feed.rss
 Sitemap: https://gosuda.org/es/feed.rss
 Sitemap: https://gosuda.org/zh/feed.rss

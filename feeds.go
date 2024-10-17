@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"encoding/hex"
 	"os"
 	"time"
@@ -9,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/zeebo/blake3"
 	"gosuda.org/website/internal/types"
+	"gosuda.org/website/view"
 )
 
 func langFeedID(id string, lang types.Lang) string {
@@ -17,7 +20,7 @@ func langFeedID(id string, lang types.Lang) string {
 	return hex.EncodeToString(buf[:])
 }
 
-func generateGlobalRSSFeed(gc *GenerationContext) error {
+func generateGlobalFeed(gc *GenerationContext) error {
 	log.Debug().Msg("start generating global RSS feed")
 	globalFeed := &feeds.Feed{
 		Title:       "Gosuda Blog",
@@ -65,6 +68,11 @@ func generateGlobalRSSFeed(gc *GenerationContext) error {
 		return err
 	}
 
+	sitemap, err := encodeSiteMapXML(globalFeed)
+	if err != nil {
+		return err
+	}
+
 	err = os.WriteFile(distDir+"/feed.rss", []byte(rss), 0644)
 	if err != nil {
 		return err
@@ -75,11 +83,16 @@ func generateGlobalRSSFeed(gc *GenerationContext) error {
 		return err
 	}
 
+	err = os.WriteFile(distDir+"/sitemap.xml", []byte(sitemap), 0644)
+	if err != nil {
+		return err
+	}
+
 	log.Debug().Msg("done generating global RSS feed")
 	return nil
 }
 
-func generateLocalRSSFeed(gc *GenerationContext, lang types.Lang) error {
+func generateLocalFeed(gc *GenerationContext, lang types.Lang) error {
 	log.Debug().Str("lang", string(lang)).Msg("start generating local RSS feed")
 
 	feed := &feeds.Feed{
@@ -124,11 +137,32 @@ func generateLocalRSSFeed(gc *GenerationContext, lang types.Lang) error {
 		return err
 	}
 
+	sitemap, err := encodeSiteMapXML(feed)
+	if err != nil {
+		return err
+	}
+
 	err = os.WriteFile(distDir+"/"+lang+"/feed.rss", []byte(rss), 0644)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(distDir+"/"+lang+"/sitemap.xml", sitemap, 0644)
 	if err != nil {
 		return err
 	}
 
 	log.Debug().Str("lang", string(lang)).Msg("done generating local RSS feed")
 	return nil
+}
+
+const xmlHeader = `<?xml version="1.0" encoding="UTF-8"?>` + "\n"
+
+func encodeSiteMapXML(feed *feeds.Feed) ([]byte, error) {
+	var b bytes.Buffer
+	err := view.Sitemap(feed).Render(context.Background(), &b)
+	if err != nil {
+		return nil, err
+	}
+	return append([]byte(xmlHeader), b.Bytes()...), nil
 }

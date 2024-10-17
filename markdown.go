@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"fmt"
@@ -33,6 +34,7 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 	if err != nil {
 		return nil, err
 	}
+	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n")) // normalize line endings
 	log.Debug().Str("path", path).Int("size", len(data)).Msgf("read markdown file %s", path)
 
 	doc, err := parseMarkdown(path, data)
