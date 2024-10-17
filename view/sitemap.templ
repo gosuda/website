@@ -1,0 +1,17 @@
+package view
+
+import (
+	"github.com/gorilla/feeds"
+	"time"
+)
+
+templ Sitemap(feed *feeds.Feed) {
+	<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+		for i := range feed.Items {
+			<url>
+				<loc>{ feed.Items[i].Link.Href }</loc>
+				<lastmod>{ feed.Items[i].Updated.UTC().Format(time.RFC3339) }</lastmod>
+			</url>
+		}
+	</urlset>
+}
