@@ -188,6 +188,7 @@ func generatePath(title string) string {
 		}
 	}
 
+	title = strings.TrimSpace(title)
 	fp := strings.TrimPrefix(title, rootDir)
 	for strings.HasPrefix(fp, "/") {
 		fp = strings.TrimPrefix(fp, "/")
