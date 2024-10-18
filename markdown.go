@@ -9,10 +9,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pemistahl/lingua-go"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 	"gosuda.org/website/internal/description"
 	"gosuda.org/website/internal/markdown"
+	"gosuda.org/website/internal/translate"
 	"gosuda.org/website/internal/types"
 )
 
@@ -163,6 +165,29 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 }
 
 func generatePath(title string) string {
+	lang, ok := languageDetector.DetectLanguageOf(title)
+	if !ok {
+		lang = lingua.English
+	}
+	langCode := mapDetectedLanguage(lang)
+	log.Debug().Str("title", title).Str("lang", langCode).Msgf("detected language of title %s", title)
+
+	if langCode != "en" {
+		var retries int
+		for retries < 3 {
+			retries++
+			translatedTitle, err := translate.Translate(context.Background(), llmModel, title, types.FullLangName("en"))
+			if err != nil {
+				log.Error().Err(err).Str("title", title).Msg("failed to translate title")
+				time.Sleep(time.Second * 2)
+				continue
+			}
+			log.Debug().Str("title", title).Str("lang", langCode).Str("translatedTitle", translatedTitle).Msgf("translated title %q", title)
+			title = translatedTitle
+			break
+		}
+	}
+
 	fp := strings.TrimPrefix(title, rootDir)
 	for strings.HasPrefix(fp, "/") {
 		fp = strings.TrimPrefix(fp, "/")
