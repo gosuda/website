@@ -1,7 +1,11 @@
 ---
+id: 01933e13f963942e4c9bc8c3c89fbc2b
 author: snowmerak
 title: Go 동시성 스타터팩
+description: Go 동시성 관리를 위한 고루틴, 채널, 뮤텍스 등 다양한 도구와 기법을 소개합니다.
 language: ko
+date: 2024-10-18T05:51:30.010680581Z
+path: /blog/posts/go-concurrency-starter-pack-z221a3399
 ---
 
 ## 개요

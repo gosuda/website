@@ -1,7 +1,11 @@
 ---
+id: e10df2108115b462a5ac2a289080a901
 author: iwanhae
 title: Go 그리고 OpenAPI 생태계
+description: Go 언어로 OpenAPI 기반 API 개발 시 사용할 수 있는 라이브러리와 전략을 소개합니다.
 language: ko
+date: 2024-10-18T06:07:43.092628696Z
+path: /blog/posts/go-and-the-openapi-ecosystem-zd5a8e472
 ---
 
 ### 서론
