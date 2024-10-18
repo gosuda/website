@@ -124,7 +124,47 @@ func chunkMarkdown(input string) []string {
 		chunks = append(chunks, currentChunk.String())
 	}
 
-	return chunks
+	grouped := groupChunks(chunks, 4096)
+
+	var finalChunks []string
+	for _, group := range grouped {
+		chunk := strings.Join(group, "")
+		finalChunks = append(finalChunks, chunk)
+	}
+
+	return finalChunks
+}
+
+func groupChunks(chunks []string, maxTokens int) [][]string {
+	var groupedChunks [][]string
+	var currentGroup []string
+
+	currentTokens := 0
+	tok, err := tokenizer.New("gemini-1.5-flash")
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create tokenizer")
+	}
+
+	for _, chunk := range chunks {
+		chunkTokens, err := tok.CountTokens(genai.Text(chunk))
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to count tokens")
+		}
+		if currentTokens+int(chunkTokens.TotalTokens) > maxTokens {
+			groupedChunks = append(groupedChunks, currentGroup)
+			currentGroup = []string{chunk}
+			currentTokens = int(chunkTokens.TotalTokens)
+		} else {
+			currentGroup = append(currentGroup, chunk)
+			currentTokens += int(chunkTokens.TotalTokens)
+		}
+	}
+
+	if len(currentGroup) > 0 {
+		groupedChunks = append(groupedChunks, currentGroup)
+	}
+
+	return groupedChunks
 }
 
 var (
