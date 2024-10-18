@@ -1,6 +1,6 @@
 ---
 author: snowmerak
-title: 고 동시성 스타터팩
+title: Go 동시성 스타터팩
 language: ko
 ---
 
