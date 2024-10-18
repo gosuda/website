@@ -61,7 +61,7 @@ func translatePost(_ *GenerationContext, post *types.Post, retranslate bool, ign
 
 	for _, lang := range langs {
 		var retry int
-		for retry < 2 {
+		for retry < 3 {
 			retry++
 			if retry > 1 {
 				log.Debug().Int("retry", retry).Str("path", post.FilePath).Str("lang", string(lang)).Msg("retrying translation")
@@ -103,12 +103,31 @@ func translateLang(ctx context.Context, post *types.Post, lang types.Lang) error
 	}
 	meta.Title = newTitle
 	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Str("title", newTitle).Msg("translated post title")
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("evaluating translated title")
+	score, err := evaluate.EvaluateTranslation(ctx, llmModel, post.Main.Metadata.Language, lang, post.Main.Metadata.Title, newTitle)
+	if err != nil {
+		return err
+	}
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Float64("score", score).Msg("evaluated translation")
+	if score < 0.7 {
+		return ErrLowQualityTranslation
+	}
 
 	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post description")
 	newDescription, err := translate.Translate(ctx, llmModel, post.Main.Metadata.Description, fullLangName)
 	if err != nil {
 		return err
 	}
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("evaluating translated description")
+	score, err = evaluate.EvaluateTranslation(ctx, llmModel, post.Main.Metadata.Language, lang, post.Main.Metadata.Description, newDescription)
+	if err != nil {
+		return err
+	}
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Float64("score", score).Msg("evaluated translation")
+	if score < 0.7 {
+		return ErrLowQualityTranslation
+	}
+
 	meta.Description = newDescription
 	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Str("description", newDescription).Msg("translated post description")
 
@@ -120,7 +139,7 @@ func translateLang(ctx context.Context, post *types.Post, lang types.Lang) error
 	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translated post content")
 
 	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("evaluating translated post content")
-	score, err := evaluate.EvaluateTranslation(ctx, llmModel, post.Main.Metadata.Language, lang, origDocument, tranDocument)
+	score, err = evaluate.EvaluateTranslation(ctx, llmModel, post.Main.Metadata.Language, lang, origDocument, tranDocument)
 	if err != nil {
 		return err
 	}
