@@ -1,10 +1,10 @@
 ---
-id: 448c02f1efb1042bc9e1d256fcd2acad
+id: 448c02f1efb1042bc9e1d256fcd2acae
 author: Yunjin Lee
 title: [Go TK] Hello, World ~ SVG,ICO,PNG 레이블
 description: Go 언어로 Tcl/Tk 앱을 만들어 봅시다.
 language: ko
-date: 2024-10-16T07:06:25.186989697Z
+date: 2024-10-22T18:34:25.186989697Z
 path: /blog/posts/gotk-helloworld-svg-etc
 lang_canonical:
     ko: https://blog.naver.com/bugaku/223629101405 
