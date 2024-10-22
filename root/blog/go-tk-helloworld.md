@@ -5,6 +5,7 @@ title: Go에서 Tk로 GUI 만들기
 description: Go 언어로 Tcl/Tk를 이용해 간단하고 효과적인 GUI 애플리케이션을 만드는 방법과 SVG, PNG, ICO 이미지 처리 기법을 배우세요.
 language: ko
 date: 2024-10-22T11:51:27.614782351Z
+path: /blog/posts/creating-a-gui-with-tk-in-go-z004dd008
 lang_canonical:
     ko: https://blog.naver.com/bugaku/223629101405
 ---
