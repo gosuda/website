@@ -1,72 +1,52 @@
 ---
-id: g9Sgsoh88j9snwi51f3rAB09RQLcL7Jd
 author: Yunjin Lee
-title: \[Go TK\] Hello, World ~ SVG,ICO,PNG 레이블
-description: Go 언어로 Tcl/Tk 앱을 만들어 봅시다.
-language: ko
-date: 2024-10-22T18:34:00.000000000Z
-path: /blog/posts/gotk-helloworld-svg-etc
+title: "Go에서 Tcl/Tk로 GUI 만들기"
 lang_canonical:
-    ko: https://blog.naver.com/bugaku/223629101405 
+  ko: https://blog.naver.com/bugaku/223629101405
 ---
 
-파이썬에서는 Tkinter와 같은 기본 GUI 라이브러리가 내장되어 있다. Go에서도 Tcl/Tk는 역시 존재하는데, 그 기초를 간단하게 연습해보자.
+파이썬에는 Tkinter 와 같은 GUI 라이브러리가 기본적으로 내장되어 있습니다.
+최근에 Go 언어에서도 Tcl/Tk를 사용할 수 있도록 [CGo-Free, Cross Platform Tk 라이브러리](https://pkg.go.dev/modernc.org/tk9.0)가 개발되었습니다. 오늘은 그 기초적인 사용법을 살펴보겠습니다.
 
-## Hello, Tk!
-먼저 간단한 Hello, TK!를 만들어보자.
+## Hello, Tk 만들기
+
+먼저 간단한 'Hello, TK!' 예제로 시작해보겠습니다.
+
 ```go
 package main
 
 import tk "modernc.org/tk9.0"
 
 func main() {
-	tk.Pack(
-		tk.TButton(
-			tk.Txt("Hello, TK!"),
-			tk.Command(func() {
-				tk.Destroy(tk.App)
-			})),
-		tk.Ipadx(10), tk.Ipady(5), tk.Padx(15), tk.Pady(10),
-	)
-	tk.App.Wait()
+    tk.Pack(
+        tk.TButton(
+            tk.Txt("Hello, TK!"),
+            tk.Command(func() {
+                tk.Destroy(tk.App)
+            })),
+        tk.Ipadx(10), tk.Ipady(5), tk.Padx(15), tk.Pady(10),
+    )
+    tk.App.Wait()
 }
 ```
 
-![hello-tk](./imgs/go-tk-helloworld-svg-etc/go-tk-hello.png)
-<span style="font-size:80%;color:darkslategray"> 실행결과 </span>
+![hello-tk 실행 결과](/assets/images/go-tk-helloworld-svg-etc/go-tk-hello.png)
 
---------
+---
 
-먼저 제시된 예제 코드와 실행결과를 보자.
+위 예제 코드와 실행 결과를 자세히 살펴보겠습니다.
 
-파이썬 TK를 접해본 코딩 입문자라면,
+파이썬의 Tk를 사용해본 경험이 있는 분이라면, 창 안에 위젯이 패킹되거나 창 하위에 직접 위젯이 패킹되는 구조를 이해하실 것입니다. 위젯의 종류에 따라 라벨 등이 그 안에 포함됩니다.
 
-창 안에 패킹을 위한 위젯이 있거나, 바로 창 하위로 위젯이 패킹되고
+*Ipadx와 Ipady는 Internal padding의 약자로, 내부 위젯들의 여백을 조절합니다. 이 예제에서는 버튼의 여백이 조정됩니다.*
 
-    => 그 위젯의 종류에 따라 라벨 등이 또 그 안에 들어가는 것을 알고 있을 것이다.
+이 라이브러리에는 Window 구조체가 있으며, App이라는 변수가 최상위 창을 관리합니다. 이는 라이브러리 내부에 미리 정의되어 있습니다. 따라서 tk.App.Wait()를 종료하는 tk.App.Destroy() 함수가 최상위 창을 닫는 역할을 합니다.
 
-<span style="font-size:80%;color:darkslategray">Ipadx,Ipady는 Internal padding의 줄임말로, 이것은 내부 위젯들의 패딩을 늘린다.  여기서는 Button의 패딩을 늘리게 된다. </span>
+이제 GitLab의 _examples 폴더에 있는 몇 가지 예제를 살펴보겠습니다.
 
+## SVG 파일 처리하기
 
-일단 이 라이브러리에는 창 구조체(struct Window)가 있고,
-
-App이라는 변수가 최상위창을 담당하고, 라이브러리 내에 미리 선언되어 있다.
-
-따라서 tk.App.Wait()를 끊어주는 것이 tk.App.Destroy()가 되고, 최상위 창을 닫아주는 동작이다.
-
-
-이제 기본적인 틀을 알아보자.
-
-GitLab에 있는 예제 몇 가지를 다뤄 보겠다.
-
-예제는 \_examples 폴더에 있다.
-
-
-
-## SVG 다루기: svg.go
-
-이것은 SVG 파일을 라벨 위젯에 넣어 띄우는 예제이다.
-
+다음은 SVG 파일을 라벨 위젯에 표시하는 예제입니다.
 
 ```go
 package main
@@ -79,37 +59,35 @@ const svg = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="391" height="391" viewBox="-70.5 -70.5 391 391" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <rect fill="#fff" stroke="#000" x="-70" y="-70" width="390" height="390"/>
 <g opacity="0.8">
-	<rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink" />
-	<circle cx="125" cy="125" r="75" fill="orange" />
-	<polyline points="50,150 50,200 200,200 200,100" stroke="red" stroke-width="4" fill="none" />
-	<line x1="50" y1="50" x2="200" y2="200" stroke="blue" stroke-width="4" />
+    <rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink" />
+    <circle cx="125" cy="125" r="75" fill="orange" />
+    <polyline points="50,150 50,200 200,200 200,100" stroke="red" stroke-width="4" fill="none" />
+    <line x1="50" y1="50" x2="200" y2="200" stroke="blue" stroke-width="4" />
 </g>
 </svg>`
 
 func main() {
-	Pack(Label(Image(NewPhoto(Data(svg)))), //이 부분을 아래에서 설명
-		TExit(), //Exit 버튼
-		Padx("1m"), Pady("2m"), Ipadx("1m"), Ipady("1m"))
-	App.Center().Wait()
+    Pack(Label(Image(NewPhoto(Data(svg)))),
+        TExit(),
+        Padx("1m"), Pady("2m"), Ipadx("1m"), Ipady("1m"))
+    App.Center().Wait()
 }
 ```
 
-![go-tk-svg](imgs/go-tk-helloworld-svg-etc/go-tk-svg.png)
-<span style="font-size:80%;color:darkslategray"> 실행결과 </span>
+![go-tk-svg 실행 결과](/assets/images/go-tk-helloworld-svg-etc/go-tk-svg.png)
 
-이 라이브러리에서 SVG를 다루는 방법은
-1. SVG 파일의 내용을 스트링으로 읽어둔다(혹은 위의 예시처럼 내장한다).
-2. 이 내용을 Data 함수에 넘긴다. 이를 통해 입력받은 자료를 옵션이 포함된 스트링으로 변환한다.( -data 옵션)
-3. 이 bytes 값이 NewPhoto 함수에 전달된다. NewPhoto는 Tck/Tk 이미지를 표현하는 Img 구조체 포인터를 반환한다.
-4. Image 함수를 지나면 Img 구조체 포인터는 -Image 옵션을 앞에 둔 채로 스트링으로 변환된다.
-5. 구조체 RAW 값을 담은 스트링을 전달한 이유는 Label 위젯으로 만들기 위함으로 보인다.
+이 라이브러리에서 SVG를 처리하는 방법은 다음과 같습니다:
 
-또한 구현된 코드를 보면 ico, png도 유사한 방식으로 처리된다. (아래에 언급)
+1. SVG 파일의 내용을 문자열로 읽어들입니다(또는 위 예시처럼 직접 포함시킵니다).
+2. 이 내용을 Data 함수에 전달하여 옵션이 포함된 문자열로 변환합니다(-data 옵션).
+3. 변환된 바이트값은 NewPhoto 함수로 전달되어 Tcl/Tk 이미지를 표현하는 Img 구조체 포인터를 반환합니다.
+4. Image 함수를 통과하면서 Img 구조체 포인터는 -Image 옵션이 추가된 문자열로 변환됩니다.
+5. 구조체 RAW 값을 담은 문자열로 변환하는 이유는 Label 위젯 생성을 위해서입니다.
 
-## PNG 처리: photo.go
+ICO와 PNG 파일도 비슷한 방식으로 처리됩니다.
 
-![go-tk-png](imgs/go-tk-helloworld-svg-etc/go-tk-png.png)
-<span style="font-size:80%;color:darkslategray"> 실행결과 </span>
+## PNG 파일 처리하기
+
 ```go
 package main
 
@@ -120,67 +98,78 @@ import . "modernc.org/tk9.0"
 var gopher []byte
 
 func main() {
-	Pack(Label(Image(NewPhoto(Data(gopher)))),
-		TExit(),
-		Padx("1m"), Pady("2m"), Ipadx("1m"), Ipady("1m"))
-	App.Center().Wait()
+    Pack(Label(Image(NewPhoto(Data(gopher)))),
+        TExit(),
+        Padx("1m"), Pady("2m"), Ipadx("1m"), Ipady("1m"))
+    App.Center().Wait()
 }
 ```
-1. 임베딩된 gopher.png를 마찬가지로 옵션이 포함된 스트링 타입으로 변환한다.
-2. NewPhoto 함수로 \*Img 타입으로 변환한다.
-3. Image 함수를 지나 RAW 스트링으로 변환, 이것을 라벨 위젯으로 만들어 줌
 
-<b><span style="font-size=90%"> *.ico도 동일 </span></b>
-결국 SVG 포맷과 달라진 부분이라면 Data 함수 내에서 실제 일어나는 일 뿐이다.
+![go-tk-png 실행결과](/assets/images/go-tk-helloworld-svg-etc/go-tk-png.png)
 
-그런데 이 때, "옵션이 포함된 스트링"은 무엇일까?
+PNG 파일 처리 과정은 다음과 같습니다:
+
+1. 임베딩된 gopher.png를 옵션이 포함된 문자열 타입으로 변환합니다.
+2. NewPhoto 함수를 통해 *Img 타입으로 변환합니다.
+3. Image 함수를 거쳐 RAW 문자열로 변환된 후, 라벨 위젯으로 생성됩니다.
+
+ICO 파일도 동일한 방식으로 처리되며, SVG 포맷과의 차이점은 Data 함수 내부 처리 방식뿐입니다.
+
+여기서 "옵션이 포함된 문자열"의 정체를 살펴보겠습니다:
 
 ```go
 type rawOption string
 ```
 
-앞서 말한 옵션이 포함된 스트링은 그저 포매팅된 스트링일 뿐이다.
+앞서 언급한 옵션이 포함된 문자열은 단순히 포맷팅된 문자열에 불과합니다.
 
 ```go
 func (w *Window) optionString(_ *Window) string {
-	return w.String()
+    return w.String()
 }
 ```
 
+optionString 메서드는 Window 포인터에 대한 메서드로, 문자열을 반환합니다.
 
-optionString 메서드 함수의 반환값도 스트링이다.
-이 때 optionString은 창(Window) 포인터에 대한 메서드 함수이다.
-
-이제 Data 함수 내부를 간략하게 살펴보자.
+마지막으로 Data 함수의 내부 구조를 간단히 살펴보겠습니다:
 
 ```go
 func Data(val any) Opt {
-	switch x := val.(type) {
-	case []byte:
-		switch {
-		case bytes.HasPrefix(x, pngSig):
-			// ok
-		case bytes.HasPrefix(x, icoSig):
-			b := bytes.NewBuffer(x)
-			img, err := ico.Decode(bytes.NewReader(x))
-			if err != nil {
-				fail(err)
-				return rawOption("")
-			}
+    switch x := val.(type) {
+    case []byte:
+        switch {
+        case bytes.HasPrefix(x, pngSig):
+            // ok
+        case bytes.HasPrefix(x, icoSig):
+            b := bytes.NewBuffer(x)
+            img, err := ico.Decode(bytes.NewReader(x))
+            if err != nil {
+                fail(err)
+                return rawOption("")
+            }
 
-			b.Reset()
-			if err := png.Encode(b, img); err != nil {
-				fail(err)
-				return rawOption("")
-			}
+            b.Reset()
+            if err := png.Encode(b, img); err != nil {
+                fail(err)
+                return rawOption("")
+            }
 
-			val = b.Bytes()
-		}
-	}
-	return rawOption(fmt.Sprintf(`-data %s`, optionString(val)))
+            val = b.Bytes()
+        }
+    }
+    return rawOption(fmt.Sprintf(`-data %s`, optionString(val)))
 }
 ```
 
-코드를 확인해 보니, ico 혹은 png일 경우에는 인코딩/디코딩이 있다. ico나 png가 아닐 시에는 특별한 인코딩/디코딩 작업을 거치지 않고 바로 bytes형으로 변환된 스트링을 -data 옵션만 붙여서 Data 함수의 산물이라는 것을 밝힐 뿐이다.
+코드를 보면 ICO나 PNG 파일의 경우 인코딩/디코딩 과정이 필요합니다. 그 외의 경우에는 특별한 변환 없이 바이트형으로 변환된 문자열에 -data 옵션만 추가하여 Data 함수의 결과물임을 표시합니다.
 
+## 정리
 
+이번 글에서는 Go 언어의 Tcl/Tk 라이브러리를 사용하여 다음과 같은 내용을 살펴보았습니다:
+
+1. 기본적인 GUI 애플리케이션 생성 방법
+2. 다양한 이미지 포맷(SVG, PNG, ICO) 처리 방법
+3. 위젯 패킹과 레이아웃 관리 기법
+4. 이미지 데이터 처리를 위한 내부 구조
+
+Go 언어에서 Tcl/Tk를 활용하면 간단하면서도 효과적인 GUI 애플리케이션을 만들 수 있습니다. 이러한 기초를 바탕으로 더 복잡한 GUI 애플리케이션 개발에 도전해보시기 바랍니다.
