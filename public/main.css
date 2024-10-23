@@ -1149,6 +1149,10 @@ video {
   position: static;
 }
 
+.fixed {
+  position: fixed;
+}
+
 .relative {
   position: relative;
 }
@@ -1296,6 +1300,10 @@ video {
 
 .rounded-lg {
   border-radius: 0.5rem;
+}
+
+.border {
+  border-width: 1px;
 }
 
 .border-2 {
