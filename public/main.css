@@ -1149,10 +1149,6 @@ video {
   position: static;
 }
 
-.fixed {
-  position: fixed;
-}
-
 .relative {
   position: relative;
 }
