@@ -23,10 +23,7 @@ async function displayAlt() {
     tr: "Turkish"
   };
 
-  const supportedLanguages = [
-    "en", "es", "zh", "ko", "ja", "de", "ru", "fr", "nl", "it",
-    "id", "pt", "sv", "cs", "sk", "pl", "ro", "hu", "fi", "tr"
-  ];
+  const supportedLanguages = Object.keys(languageMap);
   
   const browserLang = navigator.language.slice(0, 2);
   const pageLang = document.documentElement.lang || 'en';
