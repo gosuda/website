@@ -1,4 +1,12 @@
+function isCrawler() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const crawlerPattern = "(bot|crawler|spider|crawl|agent|fetcher|facebookexternalhit|facebookexternalhit|facebookcatalog|googlebot|baidu|msn|ecosia|instagram|ia_archiver|slack|bing|yeti|yahoo|duckduckgo|linkedin|mediapartners|adsbot)"
+  return new RegExp(crawlerPattern, "i").test(userAgent);
+}
+
 async function displayAlt() {
+  if (isCrawler()) return;
+
   // Language mapping
   const languageMap = {
     en: "English",
@@ -68,6 +76,7 @@ async function displayAlt() {
         text-decoration: none;
         font-weight: 500;
       ">View in ${languageName}</a>
+      <link rel="prerender" href="${targetUrl}" />
       <button onclick="this.parentElement.remove()" aria-label="Close Language Selector" style="
         background: none;
         border: none;
