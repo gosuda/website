@@ -206,8 +206,8 @@ func main() {
 }
 ```
 
-![go-tk-메뉴바-실행결과](./assets/images/go-tk-helloworld-svg-etc/go-tk-menu-bar.png)
-![go-tk-다이얼로그](./assets/images/go-tk-helloworld-svg-etc/go-tk-dialogue.png)
+![go-tk-메뉴바-실행결과](/assets/images/go-tk-helloworld-svg-etc/go-tk-menu-bar.png)
+![go-tk-다이얼로그](/assets/images/go-tk-helloworld-svg-etc/go-tk-dialogue.png)
 
 이 예제에서는 메뉴 바/메뉴 생성, 글자 강조, Command 옵션, 단축키 바인딩, 그리고 애플리케이션 창의 초기 크기를 설정해 보았습니다.
 이제, 단순히 GetOpenFile로 지정되어 있는 Command 함수의 인자를 따로 정의하여 이미지를 불러와서 표시하는 프로그램을 만들어 보겠습니다.
@@ -290,7 +290,7 @@ func main() {
 
 그렇다면, 이제 코드를 컴파일해서 프로그램을 실행해 보겠습니다.
 
-![go-tk-이미지-불러오기-실행결과](./assets/images/go-tk-helloworld-svg-etc/go-tk-image-open.png)
+![go-tk-이미지-불러오기-실행결과](/assets/images/go-tk-helloworld-svg-etc/go-tk-image-open.png)
 
 이와 같이 이미지가 잘 불러와지는 것을 볼 수 있습니다.
 
