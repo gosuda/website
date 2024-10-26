@@ -27,9 +27,6 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Set up Google Cloud SDK
-        uses: "google-github-actions/setup-gcloud@v2"
-
       - name: Workload Identity Federation
         id: auth
         uses: "google-github-actions/auth@v2"
