@@ -202,7 +202,6 @@ func main() {
 }
 ```
 
-
 ![go-tk-메뉴바-실행결과](https://cdn.gosuda.org/go-tk-helloworld-svg-etc/go-tk-menu-bar.png)
 
 이 예제에서는 메뉴 바와 메뉴 생성, 글자 강조, Command 옵션, 단축키 바인딩, 그리고 애플리케이션 창의 초기 크기를 설정해보았습니다.
