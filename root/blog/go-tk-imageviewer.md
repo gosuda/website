@@ -157,7 +157,7 @@ func main() {
     App.Wait()
 }
 ```
-![색상 적용 결과](/assets/images/go-tk-imageviewer/listbox-color.png)
+![색상 적용 결과](https://cdn.gosuda.org/go-tk-imageviewer/listbox-color.png)
 
 위의 코드에서 작성한 대로, 높이가 늘어났습니다.
 또한, 색상이 잘 적용된 것을 볼 수 있습니다.

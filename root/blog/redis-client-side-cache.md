@@ -38,9 +38,9 @@ language: ko
 - 그럼 갱신 시에 메시지를 전송하는 로직을 만들어야 합니다.
 - PubSub으로 인한 추가 동작이 들어가기에 성능에 영향을 줍니다.
 
-![pubsub-write](/assets/images/redis-client-side-cache/01-pubsub-write.png)
+![pubsub-write](https://cdn.gosuda.org/redis-client-side-cache/01-pubsub-write.png)
 
-![pubsub-read](/assets/images/redis-client-side-cache/01-pubsub-read.png)
+![pubsub-read](https://cdn.gosuda.org/redis-client-side-cache/01-pubsub-read.png)
 
 ### 그럼 Redis가 변경을 감지한다면?
 
@@ -68,7 +68,7 @@ Invalidation Messages는 Redis 6.0부터 추가된 Server Assisted Client-Side C
 3. Redis는 변경을 감지하고 ClientB에 Invalidation Message를 발행해서 ClientB에 캐시를 지우라고 알립니다.
 4. ClientB는 해당 메시지를 받아서 적절한 조치를 취합니다.
 
-![invalidation-message](/assets/images/redis-client-side-cache/02-invalidation-message.png)
+![invalidation-message](https://cdn.gosuda.org/redis-client-side-cache/02-invalidation-message.png)
 
 ### 어떻게 쓰는 거지
 
@@ -432,7 +432,7 @@ rueidis에는 client side cache를 사용하기 위해 그저 `DoCache`만 하�
 - 미리 준비할 수 있는 데이터라면 이 구조를 통해 레디스에 대한 쿼리 및 트래픽을 최소화하며 항상 최신 데이터를 제공할 수 있을 것입니다.
 - 이를 통해 일종의 CQRS 구조를 만들어서 읽기 성능을 비약적으로 올릴 수 있습니다.
 
-![cqrs](/assets/images/redis-client-side-cache/03-cqrs.jpg)
+![cqrs](https://cdn.gosuda.org/redis-client-side-cache/003-cqrs.jpg)
 
 ### 얼마나 더 섹시해졌는지?
 
