@@ -1,8 +1,11 @@
 ---
+id: 1c72ae6efee059c2c727ea53b56bf6c5
 author: snowmerak
 title: 레디스 클라이언트 사이드 캐시로 반응성 향상 시키기
 description: Redis Server Assisted Client Side Cache를 이용한 API 반응성 향상
 language: ko
+date: 2024-11-28T17:25:37.395065988Z
+path: /blog/posts/improving-responsiveness-with-redis-client-side-caching-zb711e502
 ---
 
 ## What is Redis?
