@@ -1,13 +1,11 @@
 ---
-id: 974f36e12dfcece861bfda1af9303980
+id: e55cbf5b5116abf3a5fc62c1af99e19b
 author: Yunjin Lee
 title: Go에서 Tk로 파일 목록이 추가된 이미지 뷰어 만들기
 description: Go 언어로 Tcl/Tk를 이용해 간단한 이미지 뷰어를 만들어 보세요.
 language: ko
 date: 2024-11-19T11:51:05.279238471Z
 path: /blog/posts/creating-a-image-viewer-with-tk-in-go-z279238471Z
-lang_canonical:
-    ko: https://blog.naver.com/bugaku/223629101405
 ---
 
 지난 게시물에서는 CGo-Free Tcl/Tk 라이브러리에 대해 간단하게 살펴 봤습니다.
