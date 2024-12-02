@@ -13,13 +13,13 @@ path: /blog/posts/creating-a-image-viewer-with-tk-in-go-z279238471Z
 
 ## 이미지 뷰어 계획
 
-1 .지난 시간의 이미지 표시기는 이미지 삭제 기능이 없어 여러 이미지들을 불러올 수록
+1. 지난 시간의 이미지 표시기는 이미지 삭제 기능이 없어 여러 이미지들을 불러올 수록
 창의 크기가 모자랐습니다.
 사용하지 않는 라벨을 삭제해 줍시다.
 2. 이미지 표시기에 여러 이미지를 목록화할 것이라면 리스트를 만들어 줍시다.
 3. 한 번에 여러 이미지를 불러오는 것이 좋습니다.
-3. 보지 않을 이미지를 목록에서 빼는 것도 구현해 줍니다.
-4. 다중 이미지 중 특정 이미지를 선택해서 보는 기능을 만들어 줍시다.
+4. 보지 않을 이미지를 목록에서 빼는 것도 구현해 줍니다.
+5. 다중 이미지 중 특정 이미지를 선택해서 보는 기능을 만들어 줍시다.
 
 
 ## 수정된 Tcl/Tk 9.0 라이브러리
@@ -155,7 +155,8 @@ func main() {
     App.Wait()
 }
 ```
-![색상 적용 결과](https://cdn.gosuda.org/go-tk-imageviewer/listbox-color.png)
+
+![색상 적용 결과](https://cdn.gosuda.org/go-tk-imageviewer/listbox_color.png)
 
 위의 코드에서 작성한 대로, 높이가 늘어났습니다.
 또한, 색상이 잘 적용된 것을 볼 수 있습니다.
@@ -170,7 +171,6 @@ func main() {
 
 그럼 앞서 배운 위젯을 이용해서 이미지 뷰어를 만들어 보도록 하겠습니다.
 예제 프로그램은 다음과 같습니다.
-
 
 ```go
 package main
@@ -361,8 +361,7 @@ func main() {
 
 ```
 
-![이미지 뷰어 실행 결과](assets/images/go-tk-imageviewer/imageviewer.png)
-
+![이미지 뷰어 실행 결과](https://cdn.gosuda.org/go-tk-imageviewer/imageviewer.png)
 
 이 예제에서는 구현을 간단하게 하기 위해 모든 이미지 위젯을 불러올 때 미리 만들어 두며,
 중복 파일을 확인하지 않습니다.
