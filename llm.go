@@ -49,15 +49,30 @@ func init() {
 		return
 	}
 
-	log.Debug().Str("location", os.Getenv("LOCATION")).Str("project_id", os.Getenv("PROJECT_ID")).Msg("initializing llm client")
-	client, err := coord.NewLLMClient(
-		context.Background(),
-		"vertexai",
-		pconf.WithLocation(os.Getenv("LOCATION")),
-		pconf.WithProjectID(os.Getenv("PROJECT_ID")),
-	)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to create llm client")
+	var err error
+	var client provider.LLMClient
+
+	if os.Getenv("PROVIDER") == "aistudio" {
+		log.Debug().Msg("initializing llm client")
+		client, err = coord.NewLLMClient(
+			context.Background(),
+			"aistudio",
+			pconf.WithAPIKey(os.Getenv("AI_STUDIO_API_KEY")),
+		)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create llm client")
+		}
+	} else {
+		log.Debug().Str("location", os.Getenv("LOCATION")).Str("project_id", os.Getenv("PROJECT_ID")).Msg("initializing llm client")
+		client, err = coord.NewLLMClient(
+			context.Background(),
+			"vertexai",
+			pconf.WithLocation(os.Getenv("LOCATION")),
+			pconf.WithProjectID(os.Getenv("PROJECT_ID")),
+		)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create llm client")
+		}
 	}
 	llmClient = client
 	log.Debug().Msg("llm client initialized")
