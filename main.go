@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -128,6 +129,52 @@ func eval_all_main() {
 	}
 }
 
+func edit_db_main() {
+	ds, err := initializeDatabase(dbFile)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to initialize database file %s", dbFile)
+	}
+
+	// write to tmp file
+	tmpFile, err := os.Create(dbFile + ".edit")
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to create tmp file")
+	}
+	defer os.Remove(dbFile + ".edit")
+
+	e := json.NewEncoder(tmpFile)
+	e.SetIndent("", "  ")
+	err = e.Encode(ds)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to encode database")
+	}
+
+	err = tmpFile.Close()
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to close tmp file")
+	}
+
+	log.Info().Msgf("database edit mode enabled, press enter to save and exit")
+	fmt.Scanln()
+
+	f, err := os.Open(dbFile + ".edit")
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to close edit file")
+	}
+	log.Info().Msgf("database edit mode disabled")
+
+	err = json.NewDecoder(f).Decode(ds)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to decode database")
+	}
+
+	err = updateDatabase(dbFile, ds)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to update database file %s", dbFile)
+	}
+	log.Info().Msgf("database updated")
+}
+
 func main() {
 	if llmClient != nil {
 		defer llmClient.Close()
@@ -153,5 +200,7 @@ func main() {
 		return
 	case "eval_all":
 		eval_all_main() // eval all translations and remove if it is low quality.
+	case "edit_db":
+		edit_db_main() // edit db
 	}
 }
