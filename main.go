@@ -175,6 +175,27 @@ func edit_db_main() {
 	log.Info().Msgf("database updated")
 }
 
+func remove_lang_all_main() {
+	ds, err := initializeDatabase(dbFile)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to initialize database file %s", dbFile)
+	}
+
+	for _, post := range ds.Posts {
+		for lang := range post.Translated {
+			if lang == post.Main.Metadata.Language {
+				continue
+			}
+			delete(post.Translated, lang)
+		}
+	}
+
+	err = updateDatabase(dbFile, ds)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to update database file %s", dbFile)
+	}
+}
+
 func main() {
 	if llmClient != nil {
 		defer llmClient.Close()
@@ -192,6 +213,9 @@ func main() {
 	case "remove_lang":
 		remove_lang_main() // remove lang from db
 		return
+	case "remove_lang_all":
+		remove_lang_all_main() // remove lang from db
+		return
 	case "get_translation":
 		get_translation_main() // get translation from db
 		return
@@ -200,7 +224,9 @@ func main() {
 		return
 	case "eval_all":
 		eval_all_main() // eval all translations and remove if it is low quality.
+		return
 	case "edit_db":
 		edit_db_main() // edit db
+		return
 	}
 }

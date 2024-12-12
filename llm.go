@@ -77,7 +77,7 @@ func init() {
 	llmClient = client
 	log.Debug().Msg("llm client initialized")
 
-	llmModel, err = llmClient.NewLLM("gemini-1.5-flash-002", &llm.Config{
+	llmModel, err = llmClient.NewLLM("gemini-2.0-flash-exp", &llm.Config{
 		Temperature:           Ptr(float32(0.9)),
 		MaxOutputTokens:       Ptr(8192),
 		SafetyFilterThreshold: llm.BlockOff,
@@ -86,7 +86,7 @@ func init() {
 		log.Fatal().Err(err).Msg("failed to create llm model")
 	}
 
-	llmModel = newRateLimitModel(llmModel, rate.Every(time.Minute/5))
+	llmModel = newRateLimitModel(llmModel, rate.Every(time.Minute/9))
 	log.Debug().Msg("llm model initialized")
 }
 
