@@ -1,7 +1,11 @@
 ---
+id: 7ecf5f1e3335910ea27e6beb68f04ae7
 author: snowmerak
 title: dotnet aspire에서 확장 가능하게 Go 서버 실행해보기
+description: '닷넷 Aspire로 Go 서버를 확장 가능하게 실행하는 방법: YARP 리버스 프록시를 사용한 수평 확장 및 자동화 구성 예제.'
 language: ko
+date: 2025-01-05T05:04:22.744778105Z
+path: /blog/posts/exploring-the-scalable-execution-of-go-servers-in-net-aspire-z42f3b6ee
 ---
 
 ## dotnet aspire?
