@@ -1,6 +1,6 @@
 ---
 author: snowmerak
-title: MCP host 서빙하기
+title: MCP host 조금 이해해보기
 language: ko
 ---
 
