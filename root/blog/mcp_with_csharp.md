@@ -1,7 +1,11 @@
 ---
+id: a1fad13de24c90924cfa9e25e9f986cb
 author: snowmerak
 title: MCP host 조금 이해해보기
+description: Anthropic의 MCP 프로토콜과 Go로 구현된 MCP 호스트(mcphost)에 대한 이해를 돕는 글입니다.
 language: ko
+date: 2025-04-08T00:59:42.416582136Z
+path: /blog/posts/a-little-understanding-of-mcp-host-zb952aae0
 ---
 
 ## MCP가 무엇입니까
