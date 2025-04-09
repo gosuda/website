@@ -23,6 +23,9 @@ const (
 	LangHungarian  Lang = "hu"
 	LangFinnish    Lang = "fi"
 	LangTurkish    Lang = "tr"
+	LangDanish     Lang = "da"
+	LangNorwegian  Lang = "no"
+	LangBulgarian  Lang = "bg"
 )
 
 var SupportedLanguages = []Lang{
@@ -46,6 +49,9 @@ var SupportedLanguages = []Lang{
 	LangHungarian,
 	LangFinnish,
 	LangTurkish,
+	LangDanish,
+	LangNorwegian,
+	LangBulgarian,
 }
 
 func FullLangName(lang Lang) string {
@@ -90,6 +96,12 @@ func FullLangName(lang Lang) string {
 		return "Finnish"
 	case LangTurkish:
 		return "Turkish"
+	case LangDanish:
+		return "Danish"
+	case LangNorwegian:
+		return "Norwegian"
+	case LangBulgarian:
+		return "Bulgarian"
 	default:
 		return "Unknown"
 	}
