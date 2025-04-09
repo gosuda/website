@@ -1,5 +1,4 @@
 ---
-id: ffffffffffffffffffffffffffffffff
 author: iwanhae
 title: 'Cilium 이야기: 작은 코드 변경이 만들어낸 놀라운 네트워크 안정성 향상'
 description: Cilium 프로젝트의 작은 코드 변경 하나가 어떻게 LRU 기반 NAT 연결 관리의 안정성을 획기적으로 향상시켰는지 자세히 알아봅니다.
