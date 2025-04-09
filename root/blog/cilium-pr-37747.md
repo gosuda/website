@@ -1,8 +1,7 @@
 ---
-id: ffffffffffffffffffffffffffffffff
 author: iwanhae
 title: 'Cilium 이야기: 작은 코드 변경이 만들어낸 놀라운 네트워크 안정성 향상'
-description: 쿠버네티스 네트워킹의 핵심 기술인 NAT, 그리고 차세대 CNI Cilium. 이번 글에서는 Cilium 프로젝트의 작은 코드 변경 하나가 어떻게 LRU 기반 NAT 연결 관리의 안정성을 획기적으로 향상시켰는지 자세히 알아봅니다. 네트워크 전문가가 아니어도 쉽게 이해할 수 있도록 흥미로운 사례와 함께 설명합니다.
+description: Cilium 프로젝트의 작은 코드 변경 하나가 어떻게 LRU 기반 NAT 연결 관리의 안정성을 획기적으로 향상시켰는지 자세히 알아봅니다.
 language: ko
 date: 2025-04-10T06:07:43.092628696Z
 path: /blog/posts/cilium-story-small-but-effective-improvement-zd5a8e472
