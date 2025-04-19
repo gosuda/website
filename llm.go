@@ -77,11 +77,15 @@ func init() {
 	llmClient = client
 	log.Debug().Msg("llm client initialized")
 
-	llmModel, err = llmClient.NewLLM("gemini-2.0-flash-001", &llm.Config{
-		Temperature:           Ptr(float32(0.9)),
-		MaxOutputTokens:       Ptr(8192),
+	llmModel, err = llmClient.NewLLM("gemini-2.5-flash-preview-04-17", &llm.Config{
+		Temperature:           Ptr(float32(0.7)),
+		MaxOutputTokens:       Ptr(65536),
 		SafetyFilterThreshold: llm.BlockOff,
+		ThinkingConfig: &llm.ThinkingConfig{
+			ThinkingBudget: pconf.Ptrify(0),
+		},
 	})
+
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create llm model")
 	}

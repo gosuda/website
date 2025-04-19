@@ -41,6 +41,8 @@ INPUT_TEXT:
 
 `
 
+const CHUNK_SIZE = 24576
+
 // chunkMarkdown splits the input text into smaller chunks, ensuring that each chunk does not exceed the token limit.
 // It handles code blocks and tries to split paragraphs at natural breakpoints (e.g., periods) to preserve the original formatting.
 // The resulting chunks are returned as a slice of strings.
@@ -70,7 +72,7 @@ func chunkMarkdown(input string) []string {
 		}
 
 		// If adding this paragraph would exceed the token limit or it's a code block
-		if currentTokens+int(paragraphTokens.TotalTokens) > 4096 || inCodeBlock {
+		if currentTokens+int(paragraphTokens.TotalTokens) > CHUNK_SIZE || inCodeBlock {
 			// If the current chunk is not empty, add it to chunks
 			if currentChunk.Len() > 0 {
 				chunks = append(chunks, currentChunk.String())
@@ -78,20 +80,20 @@ func chunkMarkdown(input string) []string {
 				currentTokens = 0
 			}
 
-			// If this paragraph itself exceeds 4096 tokens, split it
-			if int(paragraphTokens.TotalTokens) > 4096 {
+			// If this paragraph itself exceeds CHUNK_SIZE tokens, split it
+			if int(paragraphTokens.TotalTokens) > CHUNK_SIZE {
 				lines := strings.SplitAfter(paragraph, "\n")
 				for _, line := range lines {
 					lineTokens, _ := tok.CountTokens(genai.Text(line))
-					if int(lineTokens.TotalTokens) > 4096 {
+					if int(lineTokens.TotalTokens) > CHUNK_SIZE {
 						// Split by rune count or "."
 						runes := []rune(line)
 						for len(runes) > 0 {
-							splitIndex := 4096
+							splitIndex := CHUNK_SIZE
 							if splitIndex > len(runes) {
 								splitIndex = len(runes)
 							}
-							// Try to split at the last period before 4096 runes
+							// Try to split at the last period before CHUNK_SIZE runes
 							lastPeriod := strings.LastIndex(string(runes[:splitIndex]), ".")
 							if lastPeriod > 0 {
 								splitIndex = lastPeriod + 1
@@ -100,7 +102,7 @@ func chunkMarkdown(input string) []string {
 							runes = runes[splitIndex:]
 						}
 					} else {
-						if currentTokens+int(lineTokens.TotalTokens) > 4096 {
+						if currentTokens+int(lineTokens.TotalTokens) > CHUNK_SIZE {
 							chunks = append(chunks, currentChunk.String())
 							currentChunk.Reset()
 							currentTokens = 0
@@ -125,7 +127,7 @@ func chunkMarkdown(input string) []string {
 		chunks = append(chunks, currentChunk.String())
 	}
 
-	grouped := groupChunks(chunks, 4096)
+	grouped := groupChunks(chunks, CHUNK_SIZE)
 
 	var finalChunks []string
 	for _, group := range grouped {
@@ -202,14 +204,24 @@ func translateChunk(ctx context.Context, l llm.Model, chunk string, targetLangua
 
 func Translate(ctx context.Context, l llm.Model, input, targetLanguage string) (string, error) {
 	chunks := chunkMarkdown(input)
+	log.Debug().Msgf("chunked input into %d chunks", len(chunks))
 	translatedChunks := make([]string, len(chunks))
 
+	retryCount := 0
 	for i, chunk := range chunks {
+	RETRY:
+		log.Debug().Msgf("translating chunk %d/%d", i+1, len(chunks))
 		translatedChunk, err := translateChunk(ctx, l, chunk, targetLanguage)
 		if err != nil {
+			if retryCount < 3 {
+				retryCount++
+				log.Debug().Int("retry", retryCount).Msgf("retrying chunk %d/%d", i+1, len(chunks))
+				goto RETRY
+			}
 			return "", err
 		}
 		translatedChunks[i] = translatedChunk
+		log.Debug().Msgf("translated chunk %d/%d", i+1, len(chunks))
 	}
 
 	// Join the translated chunks back into a single string
