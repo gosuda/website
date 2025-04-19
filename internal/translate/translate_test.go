@@ -55,7 +55,7 @@ Another paragraph after the code block.
 
 > This is a blockquote.
 
-Final paragraph with a [link](https://example.com).`, 4000),
+Final paragraph with a [link](https://example.com).`, 16000),
 		},
 		{
 			name: "Long paragraphs and multiple code blocks",
@@ -154,8 +154,8 @@ Final paragraph to conclude the headers and tables test.`,
 		},
 		{
 			name: "Very long content",
-			input: strings.Repeat("This is a long sentence that will be repeated many times to create a very large content. ", 500) +
-				"\n\n" + strings.Repeat("Another long sentence with different words to increase variety in the content. ", 500),
+			input: strings.Repeat("This is a long sentence that will be repeated many times to create a very large content. ", 2000) +
+				"\n\n" + strings.Repeat("Another long sentence with different words to increase variety in the content. ", 2000),
 		},
 	}
 
