@@ -79,7 +79,7 @@ func init() {
 
 	llmModel, err = llmClient.NewLLM("gemini-2.5-flash-preview-04-17", &llm.Config{
 		Temperature:           Ptr(float32(0.7)),
-		MaxOutputTokens:       Ptr(65536),
+		MaxOutputTokens:       Ptr(65535),
 		SafetyFilterThreshold: llm.BlockOff,
 		ThinkingConfig: &llm.ThinkingConfig{
 			ThinkingBudget: pconf.Ptrify(0),
