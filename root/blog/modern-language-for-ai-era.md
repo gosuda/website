@@ -1,6 +1,11 @@
 ---
+id: 2ceff210f0c200f8a3416690cac45bb5
 author: Rabbit Princess
 title: AI 시대의 모던 언어
+description: AI 시대, 기존 모던 언어의 특징이 오히려 단점? Go 언어가 왜 AI 개발에 더 적합한 언어인지 알아봅니다.
+language: ko
+date: 2025-05-18T04:44:19.742674221Z
+path: /blog/posts/modern-language-of-the-ai-era-z2d7204f1
 lang_canonical:
     ko: https://blog.naver.com/sjc02183/223844938175
 ---
