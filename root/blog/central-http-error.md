@@ -1,7 +1,11 @@
 ---
+id: 982178b2b9c8c091685bdc7fbf942c43
 author: snowmerak
 title: 더욱 덜 귀찮게 HTTP 에러를 처리하기 + RFC7807
+description: Go API 에러 처리가 귀찮으신가요? RFC7807로 더 간편하고 명확하게 처리해보세요.
 language: ko
+date: 2025-05-19T20:56:37.945722346Z
+path: /blog/posts/handling-http-errors-more-conveniently-+-rfc7807-z862df968
 ---
 
 ## 개요
