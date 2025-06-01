@@ -1,6 +1,11 @@
 ---
+id: 1872edeaa3c5fc09a1eba338cf2b01b1
 author: wHoIsDReAmer
 title: Go의 Compile-Time Variable Injection
+description: Go 빌드 시 `ldflags -X`를 활용하여 컴파일 타임에 변수 값을 주입하는 방법을 알아보세요.
+language: ko
+date: 2025-06-01T15:56:46.352281271Z
+path: /blog/posts/compile-time-variable-injection-of-go-z5420556c
 ---
 
 ## 배경
