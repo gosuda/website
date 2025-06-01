@@ -1,13 +1,6 @@
 ---
-id: 7a1e3b2c9f8d4e1aab3c5d6e7f8a9b0c
 author: wHoIsDReAmer
 title: Go의 Compile-Time Variable Injection
-description: Go에서 .env 파일 없이 컴파일 타임에 변수를 주입하는 방법에 대해 알아봅니다.
-language: ko
-date: 2025-05-27T00:00:00.000000000Z
-path: /blog/posts/go-compile-time-variable-injection
-lang_canonical:
-    ko: https://blog.naver.com/sjc02183/222927597790
 ---
 
 ## 배경
