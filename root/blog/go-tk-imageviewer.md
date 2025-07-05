@@ -30,7 +30,7 @@ path: /blog/posts/creating-a-image-viewer-with-tk-in-go-z279238471Z
 Git CLI가 설치되어 있지 않다면 tarball이나 zip 파일로 다운로드받아도 좋습니다.
 
 ```bash
-git clone https://github.com/yoonjin67/tk9.0
+git clone https://github.com/gg582/tk9.0
 ```
 
 먼저 추가된 기능들의 몇 가지를 살펴 봅시다.
