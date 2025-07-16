@@ -1,7 +1,11 @@
 ---
+id: a5d668f7af98fc92ee33094885d591a3
 author: snowmerak
 title: Go 컴파일러가 뺏어갈 녹차 한 잔의 여유, GreenTea GC
+description: Go의 새로운 GreenTea GC는 메모리 스팬 기반으로 작은 객체 GC 효율을 높여 성능을 개선합니다. 기존 GC 문제점과 GreenTea GC 이점을 알아봅니다.
 language: ko
+date: 2025-07-16T11:02:04.831022221Z
+path: /blog/posts/greentea-gc:-the-respite-of-a-cup-of-green-tea-seized-by-the-go-compiler-z72acc3f7
 ---
 
 ## 왜 또 새로운 GC가 나오나
