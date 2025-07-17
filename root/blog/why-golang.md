@@ -1,7 +1,11 @@
 ---
+id: 9c37eb84639db83d3a69282adfcbbc84
 author: Rabbit Princess
 title: 왜 Go 언어인가?
+description: 'Go 언어를 선택해야 하는 5가지 이유: 성능, 생산성, 동시성, 안정성, 그리고 귀여운 Gopher까지! Go가 개발자의 성장을 돕는 이유를 알아보세요.'
 language: ko
+date: 2025-07-17T03:02:30.365542012Z
+path: /blog/posts/why-the-go-language-zdb70b280
 ---
 
 ## 서론
