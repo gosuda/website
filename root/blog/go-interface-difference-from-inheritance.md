@@ -1,11 +1,6 @@
 ---
-id: 878336e12df38n3d61bfddjwu238292d
 author: Yunjin Lee
 title: Go 인터페이스는 상속이 아니다
-description: Go에서 상속과 인터페이스를 헷갈리지 말자
-language: ko
-date: 2025-06-17T16:33:27.613381951Z
-path: /blog/posts/creating-a-gui-with-tk-in-go-z394ev328
 ---
 
 # 개요
