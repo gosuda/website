@@ -49,8 +49,8 @@ Go 팀은 하위 호환성을 철저히 유지하며, 새로운 기능을 도입
 
 ## 5. Gopher 가 귀엽습니다.
 
-![Gopher1](https://cdn.gosuda.org/redis-client-side-cache/gopher1.png)
+![Gopher1](/assets/images/why-golang/gopher1.png)
 
-![Gopher2](https://cdn.gosuda.org/redis-client-side-cache/gopher2.png)
+![Gopher2](/assets/images/why-golang/gopher2.png)
 
-![Gopher3](https://cdn.gosuda.org/redis-client-side-cache/gopher3.png)
+![Gopher3](/assets/images/why-golang/gopher3.webp)

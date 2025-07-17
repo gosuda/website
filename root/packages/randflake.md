@@ -143,7 +143,7 @@ This procedure is important to protect the uniqueness of generated IDs when the 
 
 ### Uniformity of ID distribution
 
-![Histogram of ID distribution](https://cdn.gosuda.org/randflake/histogram.png)
+![Histogram of ID distribution](/assets/images/randflake/histogram.png)
 
 Based on the histogram above, we can see that the distribution of generated Randflake IDs is very uniform. This suggests that the ID distribution can be used directly as a sharding key.
 

@@ -68,4 +68,4 @@ New `testing.B.Loop` method for faster, less error-prone benchmarks. The benchma
 
 Go 1.24 is shaping up to be a significant release, offering substantial improvements in various aspects of the language and its ecosystem.
 
-![Overview of Go 1.24](https://cdn.gosuda.org/whats-new-in-go1.24/overview.webp)
+![Overview of Go 1.24](/assets/images/whats-new-in-go1.24/overview.webp)
