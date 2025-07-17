@@ -1,18 +1,21 @@
 package markdown
 
 import (
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+
 	"bytes"
 	"errors"
 	"fmt"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	_ "golang.org/x/image/webp"
 
 	chtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/rs/zerolog/log"

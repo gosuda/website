@@ -16,7 +16,7 @@ path: /blog/posts/a-little-understanding-of-mcp-host-zb952aae0
 
 내부 동작에 대해 설명하기 앞서, [Gemini Function Calling](https://ai.google.dev/gemini-api/docs/function-calling)에 대해 짚고 넘어 가겠습니다. Gemini Function Calling도 MCP와 동일하게 LLM이 주도적으로 외부 동작을 호출할 수 있도록 합니다. 그럼 왜 Function Calling을 굳이 가져왔는가 의문이 들 것입니다. 굳이 가져온 이유는 Function Calling이 MCP보다 먼저 나오기도 했고, 동일하게 OpenAPI 스키마를 이용한다는 점에서 호환이 되어, 상호 간의 동작이 유사할 것으로 추측했습니다. 그렇다보니 비교적 Gemini Function Calling의 설명이 더욱 상세하기에 도움이 될 것으로 보여 가져왔습니다.
 
-![FunctionCalling](https://cdn.gosuda.org/mcp_with_csharp/function-calling-overview.png)
+![FunctionCalling](/assets/images/mcp_with_csharp/function-calling-overview.png)
 
 전체적인 흐름은 이렇습니다.
 

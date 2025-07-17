@@ -228,7 +228,7 @@ https://github.com/cilium/cilium/issues/31643
 
 이는 매우 단순한 접근 방식이고 간단한 아이디어처럼 보일 수 있지만 이러한 접근방식을 통해 응답 패킷에 대한 NAT 정보가 먼저 만료되어 연결이 끊어지는 문제를 효과적으로 해결하고 시스템의 안정성을 크게 향상시킬 수 있게 되었습니다. 또 네트워크 안정성 측면에서 다음과 같은 성과를 이루어낸 중요한 개선이라고 할 수 있습니다.
 
-![benchmark](https://cdn.gosuda.org/cilium-pr-37747/benchmark.png)
+![benchmark](/assets/images/cilium-pr-37747/benchmark.png)
 
 ## 결론
 
@@ -236,7 +236,7 @@ https://github.com/cilium/cilium/issues/31643
 
 아, 물론 복잡한 시스템의 사례를 이번 글에서 직접적으로 보여드리진 않았습니다. 하지만 이 PR 을 제대로 이해하기위해 저는 `DeepSeek V3 0324` 에게 `Please` 라는 단어까지 붙이면서 3시간 가까이 구걸을 했고, 그 결과 Cilium 에 대한 지식 +1 과 아래와 같은 그림을 하나 얻을 수 있게 되었습니다. 😇
 
-![diagram](https://cdn.gosuda.org/cilium-pr-37747/diagram.svg)
+![diagram](/assets/images/cilium-pr-37747/diagram.svg)
 
 그리고 이슈들과 PR 을 읽어보면서 제가 예전에 만들어둔 무언가 때문에 이슈가 발생했을 것 같은 불길한 예감들에 대한 보상심리로 이러한 글을 작성해 봅니다.
 
