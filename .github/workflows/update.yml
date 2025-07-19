@@ -3,6 +3,7 @@ name: Update Blog Metadata
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   update:
