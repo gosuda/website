@@ -3,6 +3,7 @@ name: Update Blog Metadata
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   update:
@@ -41,8 +42,10 @@ jobs:
       - name: Update Metadata
         run: ./build.sh
         env:
-          PROJECT_ID: '${{ secrets.PROJECT_ID }}'
-          LOCATION: us-central1
+          AI_STUDIO_API_KEY: ${{ secrets.AI_STUDIO_API_KEY }}
+          PROVIDER: aistudio
+          #PROJECT_ID: '${{ secrets.PROJECT_ID }}'
+          #LOCATION: us-central1
 
       - name: Commit Changes
         uses: EndBug/add-and-commit@v9
