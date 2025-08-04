@@ -1,7 +1,11 @@
 ---
+id: 8f79af5c6af89b748112aa8b77b348ab
 author: prravda
 title: How embedded NATS communicate with go application?
+description: Go 애플리케이션에 임베드된 NATS가 어떻게 통신하는지, 공식 문서의 예시와 올바른 설정, 그리고 Go의 consumer-defined interface를 통해 자세히 알아봅니다.
 language: ko
+date: 2025-08-04T01:05:22.150350794Z
+path: /blog/posts/how-embedded-nats-communicate-with-go-application-z36089af0
 ---
 
 # Getting started
