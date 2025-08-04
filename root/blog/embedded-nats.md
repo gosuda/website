@@ -202,30 +202,7 @@ Every 2.0s: netstat -an | grep 127.0.0.1         pravdalaptop-home.local: 02:37:
 
 ## TL;DR
 
-```mermaid
-sequenceDiagram
-    participant App as Application Main()
-    participant Server as Embedded *server.Server
-    participant Client as nats.go Client
-
-    App->>Server: 1. server.NewServer(&server.Options{DontListen: true})
-    Note right of App: Application creates an embedded server<br/>configured to not open network listeners.
-    App->>Server: 2. go server.Start()
-    Note right of App: Server's main loop starts in a new goroutine.
-    App->>Client: 3. nats.Connect("", nats.InProcessServer(srv))
-    Note right of App: Application requests a client connection,<br/>passing the server instance as the provider.
-    Client->>Server: 4. Calls srv.InProcessConn()
-    activate Server
-    Note left of Server: Client library invokes the contract to get<br/>an in-memory connection.
-    Server-->>Server: 5. Creates net.Pipe() pair
-    Server-->>Server: 6. Accepts its end of the pipe for internal processing
-    Server-->>Client: 7. Returns client-end of pipe (as net.Conn)
-    deactivate Server
-    Note over Client,Server: 8. Bi-directional communication is now established<br/>via the in-memory pipe. No TCP/IP is involved.
-    Client->>Server: PUB subject "hello"
-    Server->>Client: MSG subject "hello"
-
-```
+![diagram1](/assets/images/embedded-nats/seq1.svg)
 
 - 해당 코드를 `main.go` 에서 실행시켰을 때, 내부적으로 어떠한 함수들이 어떻게 작동되는지를 나타낸 sequence diagram 이며, 골자를 설명하자면 아래와 같다.
     - `DontListen: true` 를 통해 서버는 `AcceptLoop` 라는 client listening phase 를 생략한다.
