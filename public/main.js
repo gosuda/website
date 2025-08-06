@@ -28,7 +28,10 @@ async function displayAlt() {
     ro: "Romanian",
     hu: "Hungarian",
     fi: "Finnish",
-    tr: "Turkish"
+    tr: "Turkish",
+    da: "Danish",
+    no: "Norwegian",
+    bg: "Bulgarian",
   };
 
   const supportedLanguages = Object.keys(languageMap);
