@@ -19,7 +19,7 @@ var _ = func() struct{} {
 	return struct{}{}
 }()
 
-//go:generate templ generate
+//go:generate go tool templ generate
 //go:generate bun run build
 
 func generate_main() {
