@@ -14,6 +14,14 @@ templ GosudaBlogPost(m *Metadata, doc *types.Document, post *types.Post) {
 				<div class="flex items-center text-gray-600">
 					<span class="mr-4">By { doc.Metadata.Author }</span>
 					<time datetime={ doc.Metadata.Date.Format(time.RFC3339) } class="inline-block text-gray-600 italic">{ doc.Metadata.Date.Format("January 2, 2006") }</time>
+					<div class="ml-4 flex items-center text-sm text-gray-500 gap-4">
+						<!-- Placeholder: will hydrate on client to actual view count -->
+						<span data-view-count data-url={ templ.SafeURL(doc.Metadata.Canonical) } aria-label="View count">views ....</span>
+						<!-- Placeholder like button: inner span will hydrate with like count -->
+						<button type="button" data-like-button data-url={ templ.SafeURL(doc.Metadata.Canonical) } class="text-sm text-gray-500" aria-label="Like this post">
+							<span data-like-count>liked ....</span>
+						</button>
+					</div>
 				</div>
 			</header>
 			<div class="max-w-none prose">

@@ -573,7 +573,10 @@ async function telemetry() {
 
     // Record a view for the current page after client and fingerprint are handled.
     try {
-        await recordView();
+        // Prefer canonical URL if present (server-rendered), otherwise use current location.
+        const canonicalEl = document.querySelector('link[rel="canonical"]');
+        const pageUrl = (canonicalEl && canonicalEl.href) ? canonicalEl.href : window.location.href;
+        await recordView(pageUrl);
     } catch (error) {
         console.error("Failed to record page view:", error);
     }
@@ -592,6 +595,74 @@ async function initTelemetry() {
 
 // Auto-initialize when the script loads
 initTelemetry();
+
+// Hydrate view and like placeholders inserted server-side.
+async function hydrateCounts() {
+    if (isCrawler()) return;
+
+    // Views
+    const viewEls = document.querySelectorAll('[data-view-count]');
+    for (const el of viewEls) {
+        const url = el.getAttribute('data-url') || window.location.href;
+        // keep placeholder until hydrated
+        el.textContent = 'views ....';
+        try {
+            const data = await getViewCount(url);
+            if (data && typeof data.count !== 'undefined') {
+                el.textContent = `views ${data.count}`;
+            } else {
+                el.textContent = 'views 0';
+            }
+        } catch (e) {
+            el.textContent = 'views 0';
+        }
+    }
+
+    // Likes
+    const likeButtons = document.querySelectorAll('[data-like-button]');
+    for (const btn of likeButtons) {
+        const url = btn.getAttribute('data-url') || window.location.href;
+        const span = btn.querySelector('[data-like-count]');
+        if (span) span.textContent = 'liked ....';
+        try {
+            const data = await getLikeCount(url);
+            const count = data && typeof data.count !== 'undefined' ? data.count : 0;
+            if (span) span.textContent = `liked ${count}`;
+        } catch (e) {
+            if (span) span.textContent = 'liked 0';
+        }
+
+        // Attach click handler to record a like and update UI optimistically
+        btn.addEventListener('click', async (ev) => {
+            ev.preventDefault();
+            if (!span) return;
+            const numeric = parseInt((span.textContent || '').replace(/\D/g, ''), 10) || 0;
+            // optimistic update
+            span.textContent = `liked ${numeric + 1}`;
+            try {
+                const ok = await recordLike(url);
+                if (!ok) {
+                    // revert on failure
+                    span.textContent = `liked ${numeric}`;
+                    return;
+                }
+                // confirm with server
+                const fresh = await getLikeCount(url);
+                if (fresh && typeof fresh.count !== 'undefined') {
+                    span.textContent = `liked ${fresh.count}`;
+                }
+            } catch (e) {
+                span.textContent = `liked ${numeric}`;
+            }
+        });
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hydrateCounts);
+} else {
+    hydrateCounts();
+}
 
 // Make functions available globally for manual use
 window.recordView = recordView;
