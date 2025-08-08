@@ -90,7 +90,7 @@ func init() {
 		log.Fatal().Err(err).Msg("failed to create llm model")
 	}
 
-	llmModel = newRateLimitModel(llmModel, rate.Every(time.Minute/9))
+	//llmModel = newRateLimitModel(llmModel, rate.Every(time.Minute/9))
 	log.Debug().Msg("llm model initialized")
 }
 
