@@ -571,14 +571,24 @@ async function telemetry() {
         console.log("Fingerprint is unchanged.");
     }
 
-    // Record a view for the current page after client and fingerprint are handled.
+    // Record views only for pages that have view-count placeholders (data-view-count).
     try {
-        // Prefer canonical URL if present (server-rendered), otherwise use current location.
-        const canonicalEl = document.querySelector('link[rel="canonical"]');
-        const pageUrl = (canonicalEl && canonicalEl.href) ? canonicalEl.href : window.location.href;
-        await recordView(pageUrl);
+        const viewEls = document.querySelectorAll('[data-view-count]');
+        if (viewEls.length > 0) {
+            // Prefer canonical URL if present (server-rendered), otherwise use current location as default.
+            const canonicalEl = document.querySelector('link[rel="canonical"]');
+            const defaultUrl = (canonicalEl && canonicalEl.href) ? canonicalEl.href : window.location.href;
+            const urls = Array.from(viewEls)
+                .map(el => el.getAttribute('data-url') || defaultUrl)
+                .filter(Boolean);
+            // Deduplicate URLs and record views for each
+            const uniqueUrls = [...new Set(urls)];
+            await Promise.all(uniqueUrls.map(u => recordView(u)));
+        } else {
+            // No view placeholders on this page; skip recording.
+        }
     } catch (error) {
-        console.error("Failed to record page view:", error);
+        console.error("Failed to record page view(s):", error);
     }
 }
 
@@ -590,6 +600,13 @@ async function initTelemetry() {
         await telemetry();
     } catch (error) {
         console.error("Telemetry initialization failed:", error);
+    }
+    // Ensure hydrateCounts runs after telemetry (and its recordView calls) finish,
+    // and only once the DOM is ready.
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hydrateCounts, { once: true });
+    } else {
+        hydrateCounts();
     }
 }
 
@@ -658,11 +675,6 @@ async function hydrateCounts() {
     }
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', hydrateCounts);
-} else {
-    hydrateCounts();
-}
 
 // Make functions available globally for manual use
 window.recordView = recordView;
