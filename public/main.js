@@ -621,7 +621,7 @@ async function hydrateCounts() {
         const url = el.getAttribute('data-url');
         if (!url) continue;
         // keep placeholder until hydrated
-        el.textContent = 'views ....';
+        el.textContent = 'views ...';
         try {
             const data = await getViewCount(url);
             if (data && typeof data.count !== 'undefined') {
@@ -640,13 +640,13 @@ async function hydrateCounts() {
         const url = btn.getAttribute('data-url');
         if (!url) continue;
         const span = btn.querySelector('[data-like-count]');
-        if (span) span.textContent = 'like ...';
+        if (span) span.textContent = 'likes ...';
         try {
             const data = await getLikeCount(url);
             const count = data && typeof data.count !== 'undefined' ? data.count : 0;
-            if (span) span.textContent = `like ${count}`;
+            if (span) span.textContent = `likes ${count}`;
         } catch (e) {
-            if (span) span.textContent = 'like 0';
+            if (span) span.textContent = 'likes 0';
         }
 
         // Attach click handler to record a like and update UI optimistically
@@ -655,21 +655,21 @@ async function hydrateCounts() {
             if (!span) return;
             const numeric = parseInt((span.textContent || '').replace(/\D/g, ''), 10) || 0;
             // optimistic update
-            span.textContent = `like ${numeric + 1}`;
+            span.textContent = `likes ${numeric + 1}`;
             try {
                 const ok = await recordLike(url);
                 if (!ok) {
                     // revert on failure
-                    span.textContent = `like ${numeric}`;
+                    span.textContent = `likes ${numeric}`;
                     return;
                 }
                 // confirm with server
                 const fresh = await getLikeCount(url);
                 if (fresh && typeof fresh.count !== 'undefined') {
-                    span.textContent = `like ${fresh.count}`;
+                    span.textContent = `likes ${fresh.count}`;
                 }
             } catch (e) {
-                span.textContent = `like ${numeric}`;
+                span.textContent = `likes ${numeric}`;
             }
         });
     }
