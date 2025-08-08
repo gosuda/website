@@ -5,12 +5,12 @@ package view
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import (
-	"time"
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
 
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
+import (
 	"gosuda.org/website/internal/types"
+	"time"
 )
 
 func GosudaBlogPost(m *Metadata, doc *types.Document, post *types.Post) templ.Component {
