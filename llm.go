@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"os"
-	"time"
 
 	"github.com/lemon-mint/coord"
 	"github.com/lemon-mint/coord/llm"
