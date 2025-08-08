@@ -5,12 +5,12 @@ package view
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
-import "github.com/a-h/templ"
-import templruntime "github.com/a-h/templ/runtime"
-
 import (
-	"gosuda.org/website/internal/types"
 	"time"
+
+	"github.com/a-h/templ"
+	templruntime "github.com/a-h/templ/runtime"
+	"gosuda.org/website/internal/types"
 )
 
 func GosudaBlogPost(m *Metadata, doc *types.Document, post *types.Post) templ.Component {
@@ -120,7 +120,7 @@ func GosudaBlogPost(m *Metadata, doc *types.Document, post *types.Post) templ.Co
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"text-sm text-gray-500\" aria-label=\"Like this post\"><span data-like-count>liked ....</span></button></div></div></header><div class=\"max-w-none prose\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"text-sm text-gray-500\" aria-label=\"Like this post\"><span data-like-count>like ...</span></button></div></div></header><div class=\"max-w-none prose\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

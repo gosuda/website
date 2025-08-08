@@ -19,7 +19,7 @@ templ GosudaBlogPost(m *Metadata, doc *types.Document, post *types.Post) {
 						<span data-view-count data-url={ templ.SafeURL(doc.Metadata.Canonical) } aria-label="View count">views ....</span>
 						<!-- Placeholder like button: inner span will hydrate with like count -->
 						<button type="button" data-like-button data-url={ templ.SafeURL(doc.Metadata.Canonical) } class="text-sm text-gray-500" aria-label="Like this post">
-							<span data-like-count>liked ....</span>
+							<span data-like-count>like ...</span>
 						</button>
 					</div>
 				</div>

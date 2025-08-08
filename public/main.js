@@ -623,13 +623,13 @@ async function hydrateCounts() {
     for (const btn of likeButtons) {
         const url = btn.getAttribute('data-url') || window.location.href;
         const span = btn.querySelector('[data-like-count]');
-        if (span) span.textContent = 'liked ....';
+        if (span) span.textContent = 'like ...';
         try {
             const data = await getLikeCount(url);
             const count = data && typeof data.count !== 'undefined' ? data.count : 0;
-            if (span) span.textContent = `liked ${count}`;
+            if (span) span.textContent = `like ${count}`;
         } catch (e) {
-            if (span) span.textContent = 'liked 0';
+            if (span) span.textContent = 'like 0';
         }
 
         // Attach click handler to record a like and update UI optimistically
@@ -638,21 +638,21 @@ async function hydrateCounts() {
             if (!span) return;
             const numeric = parseInt((span.textContent || '').replace(/\D/g, ''), 10) || 0;
             // optimistic update
-            span.textContent = `liked ${numeric + 1}`;
+            span.textContent = `like ${numeric + 1}`;
             try {
                 const ok = await recordLike(url);
                 if (!ok) {
                     // revert on failure
-                    span.textContent = `liked ${numeric}`;
+                    span.textContent = `like ${numeric}`;
                     return;
                 }
                 // confirm with server
                 const fresh = await getLikeCount(url);
                 if (fresh && typeof fresh.count !== 'undefined') {
-                    span.textContent = `liked ${fresh.count}`;
+                    span.textContent = `like ${fresh.count}`;
                 }
             } catch (e) {
-                span.textContent = `liked ${numeric}`;
+                span.textContent = `like ${numeric}`;
             }
         });
     }
