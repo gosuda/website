@@ -322,7 +322,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var17 templ.SafeURL
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinURLErrs(m.BaseURL + "/feed.rss")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 54, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 54, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -340,7 +340,7 @@ func Head(m *Metadata) templ.Component {
 			var templ_7745c5c3_Var18 templ.SafeURL
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(m.BaseURL + "/" + m.Language + "/feed.rss")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 56, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_head.templ`, Line: 56, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {

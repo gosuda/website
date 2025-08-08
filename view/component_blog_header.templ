@@ -3,7 +3,7 @@ package view
 templ BlogHeader(m *Metadata) {
 	<header class="flex justify-between items-center p-4 border-2 border-black rounded-lg mb-6">
 		if m.Language != "en" {
-			<a class="text-2xl font-bold" href={templ.SafeURL("/"+m.Language+"/")}>GoSuda</a>
+			<a class="text-2xl font-bold" href={ templ.SafeURL("/" + m.Language + "/") }>GoSuda</a>
 		} else {
 			<a class="text-2xl font-bold" href="/">GoSuda</a>
 		}

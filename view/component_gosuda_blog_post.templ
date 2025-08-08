@@ -6,15 +6,7 @@ import (
 )
 
 func PreferredCanonical(meta *types.Metadata) string {
-	if meta == nil {
-		return ""
-	}
-	if meta.LangCanonical != nil {
-		if v, ok := meta.LangCanonical["en"]; ok && v != "" {
-			return v
-		}
-	}
-	return meta.Canonical
+	return "https://gosuda.org" + meta.Path
 }
 
 templ GosudaBlogPost(m *Metadata, doc *types.Document, post *types.Post) {

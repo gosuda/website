@@ -575,11 +575,9 @@ async function telemetry() {
     try {
         const viewEls = document.querySelectorAll('[data-view-count]');
         if (viewEls.length > 0) {
-            // Prefer canonical URL if present (server-rendered), otherwise use current location as default.
-            const canonicalEl = document.querySelector('link[rel="canonical"]');
-            const defaultUrl = (canonicalEl && canonicalEl.href) ? canonicalEl.href : window.location.href;
+            // Use element's data-url only (do NOT fall back to canonical or current location).
             const urls = Array.from(viewEls)
-                .map(el => el.getAttribute('data-url') || defaultUrl)
+                .map(el => el.getAttribute('data-url'))
                 .filter(Boolean);
             // Deduplicate URLs and record views for each
             const uniqueUrls = [...new Set(urls)];
@@ -620,7 +618,8 @@ async function hydrateCounts() {
     // Views
     const viewEls = document.querySelectorAll('[data-view-count]');
     for (const el of viewEls) {
-        const url = el.getAttribute('data-url') || window.location.href;
+        const url = el.getAttribute('data-url');
+        if (!url) continue;
         // keep placeholder until hydrated
         el.textContent = 'views ....';
         try {
@@ -638,7 +637,8 @@ async function hydrateCounts() {
     // Likes
     const likeButtons = document.querySelectorAll('[data-like-button]');
     for (const btn of likeButtons) {
-        const url = btn.getAttribute('data-url') || window.location.href;
+        const url = btn.getAttribute('data-url');
+        if (!url) continue;
         const span = btn.querySelector('[data-like-count]');
         if (span) span.textContent = 'like ...';
         try {
