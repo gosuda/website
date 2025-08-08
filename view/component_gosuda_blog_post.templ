@@ -20,10 +20,10 @@ templ GosudaBlogPost(m *Metadata, doc *types.Document, post *types.Post) {
 					<time datetime={ doc.Metadata.Date.Format(time.RFC3339) } class="inline-block text-gray-600 italic">{ doc.Metadata.Date.Format("January 2, 2006") }</time>
 					<div class="ml-4 flex items-center text-sm text-gray-500 gap-4">
 						<!-- Placeholder: will hydrate on client to actual view count -->
-						<span data-view-count data-url={ templ.SafeURL(PreferredCanonical(&doc.Metadata)) } aria-label="View count">views ....</span>
+						<span data-view-count data-url={ templ.SafeURL(PreferredCanonical(&doc.Metadata)) } aria-label="View count">views ...</span>
 						<!-- Placeholder like button: inner span will hydrate with like count -->
 						<button type="button" data-like-button data-url={ templ.SafeURL(PreferredCanonical(&doc.Metadata)) } class="text-sm text-gray-500" aria-label="Like this post">
-							<span data-like-count>like ...</span>
+							<span data-like-count>likes ...</span>
 						</button>
 					</div>
 				</div>
