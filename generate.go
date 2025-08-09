@@ -340,6 +340,7 @@ func generateIndex(gc *GenerationContext, lang types.Lang) error {
 			Description: pm.Description,
 			Date:        pm.Date,
 			URL:         postPath,
+			Path:        post.Path,
 		})
 	}
 

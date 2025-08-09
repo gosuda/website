@@ -8,6 +8,7 @@ type BlogPostPreview struct {
 	Description string
 	Date        time.Time
 	URL         string
+	Path        string
 }
 
 templ BlogPostCard(post *BlogPostPreview) {
@@ -22,6 +23,11 @@ templ BlogPostCard(post *BlogPostPreview) {
 			</div>
 			<h2 class="text-xl font-bold mb-2">{ post.Title }</h2>
 			<p class="text-m font-weight-300">{ post.Description }</p>
+			<div class="mt-4 flex items-center text-sm text-gray-500 gap-4">
+				<!-- Summary placeholders for index list (separate from post page) -->
+				<span data-summary-view-count data-summary-url={ templ.SafeURL("https://gosuda.org" + post.Path) } aria-label="View count">views ...</span>
+				<span data-summary-like-count data-summary-url={ templ.SafeURL("https://gosuda.org" + post.Path) } aria-label="Like count">likes ...</span>
+			</div>
 		</div>
 	</a>
 }
