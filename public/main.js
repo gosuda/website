@@ -268,8 +268,8 @@ const FPID = (() => {
 
 //@@START_CONFIG@@
 const TELEMETRY_FP_VERSION = 1;
-const TELEMETRY_BASEURL = "https://telemetry.ex.gosuda.org";
-const CLIENT_VERSION = "20250807-V1ALPHA1";
+const TELEMETRY_BASEURL = "https://telemetry.gosuda.org";
+const CLIENT_VERSION = "20250810-V1BETA1";
 //@@END_CONFIG@@
 
 /**
