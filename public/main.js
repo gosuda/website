@@ -633,8 +633,6 @@ async function hydrateCounts() {
     for (const el of viewEls) {
         const url = el.getAttribute('data-url');
         if (!url) continue;
-        // keep placeholder until hydrated
-        el.textContent = 'views ...';
         try {
             const data = await getViewCount(url);
             if (data && typeof data.count !== 'undefined') {
@@ -653,7 +651,6 @@ async function hydrateCounts() {
         const url = btn.getAttribute('data-url');
         if (!url) continue;
         const span = btn.querySelector('[data-like-count]');
-        if (span) span.textContent = 'likes ...';
         try {
             const data = await getLikeCount(url);
             const count = data && typeof data.count !== 'undefined' ? data.count : 0;
@@ -703,13 +700,6 @@ async function hydrateSummaryCounts() {
         .map(el => el.getAttribute('data-summary-url'))
         .filter(Boolean);
     const uniqueUrls = [...new Set(urls)];
-    // Keep placeholders while fetching
-    for (const el of document.querySelectorAll('[data-summary-view-count]')) {
-        el.textContent = 'views ...';
-    }
-    for (const el of document.querySelectorAll('[data-summary-like-count]')) {
-        el.textContent = 'likes ...';
-    }
     try {
         const bulk = await getBulkCounts(uniqueUrls);
         if (!bulk || !bulk.map) return;
