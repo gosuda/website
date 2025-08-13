@@ -594,13 +594,6 @@ async function telemetry() {
  * Initialize telemetry and automatically record page views
  */
 async function initTelemetry() {
-    try {
-        await telemetry();
-    } catch (error) {
-        console.error("Telemetry initialization failed:", error);
-    }
-    // Ensure hydrateCounts and hydrateSummaryCounts run after telemetry (and its recordView calls) finish,
-    // and only once the DOM is ready.
     const runHydrations = () => {
         try {
             hydrateCounts();
@@ -609,6 +602,18 @@ async function initTelemetry() {
             hydrateSummaryCounts();
         } catch (e) { console.error("hydrateSummaryCounts failed:", e); }
     };
+
+    // pre-hydrate
+    runHydrations();
+
+    // run telemetry
+    try {
+        await telemetry();
+    } catch (error) {
+        console.error("Telemetry initialization failed:", error);
+    }
+
+    // post-hydrate
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', runHydrations, { once: true });
     } else {
@@ -788,3 +793,4 @@ window.recordViewAndGetCount = recordViewAndGetCount;
 window.recordLike = recordLike;
 window.getLikeCount = getLikeCount;
 window.getBulkCounts = getBulkCounts;
+window.hydrateSummaryCounts = hydrateSummaryCounts;
