@@ -313,10 +313,6 @@ func generateIndex(gc *GenerationContext, lang types.Lang) error {
 		return posts[i].Main.Metadata.Date.After(posts[j].Main.Metadata.Date)
 	})
 
-	if len(posts) > 16 {
-		posts = posts[:16]
-	}
-
 	var previews []*view.BlogPostPreview
 	for _, post := range posts {
 		pm := post.Main.Metadata
