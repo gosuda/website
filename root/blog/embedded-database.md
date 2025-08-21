@@ -1,6 +1,11 @@
 ---
+id: 2bc35fc657eb35eb5dbcb7286c1033ba
 author: gosunuts
 title: 데이터베이스 서버와 임베디드 데이터베이스
+description: 데이터베이스 서버와 임베디드 데이터베이스의 장단점을 비교하고, SSD, MSA 등 최신 기술 환경에서 임베디드 DB가 주목받는 이유를 설명합니다.
+language: ko
+date: 2025-08-21T12:11:23.268337247Z
+path: /blog/posts/database-servers-and-embedded-databases-zd4cb799f
 ---
 
 ## 데이터베이스 서버
