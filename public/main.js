@@ -56,45 +56,32 @@ async function displayAlt() {
     const languageName = languageMap[browserLang] || browserLang;
     
     const selector = document.createElement('div');
-    selector.style.cssText = `
-      margin: 20px auto;
-      max-width: 800px;
-      background: #fff;
-      padding: 15px 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    `;
+    selector.className =
+    "mx-auto my-5 max-w-3xl bg-[var(--surface)] " +
+    "p-4 rounded-lg shadow-md text-sm flex items-center gap-3 " +
+    "border border-[var(--border)]";
     
     selector.innerHTML = `
-      <span>This content is available in your language</span>
-      <a href="${targetUrl}" style="
-        background: #4A90E2;
-        color: white;
-        padding: 5px 15px;
-        border-radius: 4px;
-        text-decoration: none;
-        font-weight: 500;
-      ">View in ${languageName}</a>
-      <link rel="prerender" href="${targetUrl}" />
-      <button onclick="this.parentElement.remove()" aria-label="Close Language Selector" style="
-        background: none;
-        border: none;
-        padding: 5px;
-        cursor: pointer;
-        opacity: 0.5;
-        display: flex;
-        align-items: center;
-        transition: opacity 0.2s;
-      " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
+    <span class="text-[var(--link)]">This content is available in your language</span>
+
+    <a href="${targetUrl}"
+        class="inline-flex items-center rounded-md bg-blue-600 px-4 py-1.5
+                font-medium text-white no-underline hover:bg-blue-500
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+                focus:ring-offset-2 dark:focus:ring-offset-0">
+        View in ${languageName}
+    </a>
+
+    <button type="button" aria-label="Close Language Selector"
+            class="ml-auto inline-flex items-center p-1 opacity-50
+                    hover:opacity-100 focus:outline-none focus:ring-2
+                    focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-0">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
-      </button>
+    </button>
     `;
     
     const header = document.querySelector('header');
@@ -784,3 +771,43 @@ window.recordLike = recordLike;
 window.getLikeCount = getLikeCount;
 window.getBulkCounts = getBulkCounts;
 window.hydrateSummaryCounts = hydrateSummaryCounts;
+const THEME_KEY = "pref_theme"; // 'light' | 'dark' | 'system'
+function themePrefersDark(){ return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; }
+function themeGet(){ try { return localStorage.getItem(THEME_KEY) || "system"; } catch { return "system"; } }
+function themeApply(theme){
+  const dark = theme === "dark" || (theme === "system" && themePrefersDark());
+  const root = document.documentElement;
+  root.classList.toggle("dark", dark);
+  root.setAttribute("data-theme", dark ? "dark" : "light");
+  document.querySelectorAll("[data-theme-toggle]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(dark));
+    const icon = btn.querySelector("[data-theme-icon]");
+    if (icon) icon.textContent = dark ? "🌙" : "☀️";
+  });
+}
+function themeSet(theme){ try { localStorage.setItem(THEME_KEY, theme); } catch {} themeApply(theme); }
+function themeToggle(){
+  const cur = themeGet();
+  if (cur === "system") themeSet(themePrefersDark() ? "light" : "dark");
+  else themeSet(cur === "dark" ? "light" : "dark");
+}
+
+/* React to OS changes when user is on "system" */
+if (window.matchMedia) {
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener?.("change", () => { if (themeGet() === "system") themeApply("system"); });
+}
+
+/* Wire up the mounted button and apply current theme */
+function initTheme(){
+  themeApply(themeGet());
+  const btn = document.querySelector("[data-theme-toggle]");
+  if (btn) {
+    btn.addEventListener("click", (e) => { e.preventDefault(); themeToggle(); });
+  }
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initTheme, { once: true });
+} else {
+  initTheme();
+}
