@@ -4,6 +4,22 @@
 
 This repository contains the source code for the Gosuda static website and blog. All content is written in Markdown and automatically processed through CI/CD for **translation and deployment**.
 
+## 🖥️ Local Development
+
+### Prerequisites
+   - **golang** (1.25+)
+   - **bun**
+
+### Build & Translate
+   ```bash
+   make build
+   ```
+
+### Start local server
+   ```bash
+   make run
+   ```
+
 ## ✍️ Writing a new post
 
 ### 1. **Create a Markdown file in `/root/blog/`**  
