@@ -11,10 +11,11 @@
 
   /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
 
-  src:
-    local('IBM Plex Sans KR'),
-    url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.woff2') format('woff2'),
-    url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.ttf') format('truetype');
+  src: local('IBM Plex Sans KR'),
+    url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.woff2')
+      format('woff2'),
+    url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-300.ttf')
+      format('truetype');
 }
 
 /* ibm-plex-sans-kr-500 - korean_latin */
@@ -30,10 +31,12 @@
 
   /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
 
-  src:
-    local('IBM Plex Sans KR'),
-    url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.woff2') format('woff2'), /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-    url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.ttf') format('truetype');
+  src: local('IBM Plex Sans KR'),
+    url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.woff2')
+      format('woff2'),
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+      url('/assets/fonts/ibm-plex-sans-kr-v10-korean_latin-500.ttf')
+      format('truetype');
 
   /* Chrome 4+, Firefox 3.5+, IE 9+, Safari 3.1+, iOS 4.2+, Android Browser 2.2+ */
 }
@@ -619,7 +622,9 @@ body {
   color: var(--fg);
 }
 
-*, ::before, ::after {
+*,
+  ::before,
+  ::after {
   border-color: var(--border);
 }
 
@@ -632,27 +637,31 @@ a {
   color: var(--fg);
 }
 
-::selection, ::-moz-selection {
+::selection,
+  ::-moz-selection {
   background: var(--selection);
   color: var(--fg);
 }
 
-pre, code, kbd, samp {
+pre,
+  code,
+  kbd,
+  samp {
   font-weight: 400;
 }
 
 .dark pre {
   background: var(--code-bg);
   border: 1px solid var(--code-border);
-  border-radius: .5rem;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+  border-radius: 0.5rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 .dark :not(pre) > code {
   background: color-mix(in srgb, var(--code-bg) 92%, transparent);
   border: 1px solid var(--code-border);
-  border-radius: .35rem;
-  padding: .1rem .3rem;
+  border-radius: 0.35rem;
+  padding: 0.1rem 0.3rem;
   color: inherit;
 }
 
@@ -677,7 +686,7 @@ pre, code, kbd, samp {
   --tw-prose-td-borders: var(--border);
 }
 
-.dark .text-black   {
+.dark .text-black {
   color: var(--fg) !important;
 }
 
@@ -685,7 +694,7 @@ pre, code, kbd, samp {
   border-color: var(--fg) !important;
 }
 
-.dark .bg-gray-300  {
+.dark .bg-gray-300 {
   background-color: #1b2740 !important;
 }
 
@@ -1256,16 +1265,17 @@ pre, code, kbd, samp {
   margin-left: 12px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+      box-shadow 0.2s ease;
 }
 
 .theme-switch:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .theme-switch:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59,130,246,.45);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.45);
   /* focus ring */
 }
 
@@ -1286,14 +1296,14 @@ pre, code, kbd, samp {
   justify-content: center;
   line-height: 1;
   pointer-events: none;
-  opacity: .6;
+  opacity: 0.6;
   color: #334155;
   /* light 대비 */
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
-  transition: opacity .2s ease, color .2s ease;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
 
-.theme-switch [data-sun]  {
+.theme-switch [data-sun] {
   left: 8px;
 }
 
@@ -1325,7 +1335,8 @@ pre, code, kbd, samp {
   height: var(--ts-knob);
   border-radius: 9999px;
   background: var(--fg);
-  transition: transform .22s cubic-bezier(.4,0,.2,1), background-color .2s;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 0.2s;
   will-change: transform;
 }
 
@@ -1335,34 +1346,34 @@ pre, code, kbd, samp {
 
 /* state */
 
-.theme-switch[aria-pressed="true"]  [data-knob] {
+.theme-switch[aria-pressed='true'] [data-knob] {
   transform: translateX(var(--ts-shift));
 }
 
-.theme-switch[aria-pressed="true"]  [data-sun]  {
-  opacity: .3;
+.theme-switch[aria-pressed='true'] [data-sun] {
+  opacity: 0.3;
 }
 
-.theme-switch[aria-pressed="true"]  [data-moon] {
-  opacity: .95;
+.theme-switch[aria-pressed='true'] [data-moon] {
+  opacity: 0.95;
 }
 
-.theme-switch[aria-pressed="false"] [data-sun]  {
-  opacity: .95;
+.theme-switch[aria-pressed='false'] [data-sun] {
+  opacity: 0.95;
 }
 
-.theme-switch[aria-pressed="false"] [data-moon] {
-  opacity: .3;
+.theme-switch[aria-pressed='false'] [data-moon] {
+  opacity: 0.3;
 }
 
 /* press feedback */
 
 .theme-switch:active [data-knob] {
-  transform: translateX(0) scale(.96);
+  transform: translateX(0) scale(0.96);
 }
 
-.theme-switch[aria-pressed="true"]:active [data-knob] {
-  transform: translateX(var(--ts-shift)) scale(.96);
+.theme-switch[aria-pressed='true']:active [data-knob] {
+  transform: translateX(var(--ts-shift)) scale(0.96);
 }
 
 /* reduced motion */
@@ -1379,8 +1390,132 @@ pre, code, kbd, samp {
 /* screen-reader only */
 
 .sr-only {
-  clip:rect(0,0,0,0);
-  border:0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-button {
+  background-color: var(--bg);
+  font-size: 16px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 8px;
+  position: relative;
+  transition: all 0.3s ease;
+  color: var(--fg);
+  overflow: hidden;
+}
+
+.dropdown-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, var(--surface) 30%, transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.dropdown-button:hover {
+  border-color: #8b4513;
+  color: #8b4513;
+  box-shadow: 0 2px 8px rgba(var(--surface), 0.15);
+}
+
+.dropdown-button:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.dropdown-content {
+  position: absolute;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0px 8px 16px 0px rgba(var(--surface), 0.2);
+  z-index: 1;
+  border-radius: 4px;
+  margin-top: 4px;
+  padding: 0px;
+  width: -moz-fit-content;
+  width: fit-content;
+  min-width: 150px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.dropdown-item {
+  width: 100%;
+  text-align: left;
+  background-color: var(--surface);
+  color: var(--fg);
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.show .dropdown-item {
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: calc(var(--order, 0) * 0.05s);
+}
+
+.dropdown-item:hover {
+  background-color: var(--border);
+  border-radius: 4px;
+  transform: translateX(8px) !important;
+  width: calc(100% - 8px);
+  box-shadow: -4px 0 8px -4px rgba(var(--surface), 0.1);
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -1737,7 +1872,8 @@ pre, code, kbd, samp {
 
 html {
   font-weight: 300;
-  cursor: url('/assets/images/cursor.svg'), url('/assets/images/cursor.png'), auto;
+  cursor: url('/assets/images/cursor.svg'), url('/assets/images/cursor.png'),
+    auto;
 }
 
 pre {

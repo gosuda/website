@@ -9,6 +9,21 @@ This repository contains the source code for the Gosuda static website and blog.
 ### Prerequisites
    - **golang** (1.25+)
    - **bun**
+   - **LLM API Key** (for translation features)
+
+### LLM API Configuration
+```bash
+# Google Vertex AI (default)
+export LOCATION="us-central1"
+export PROJECT_ID="your-gcp-project-id"
+
+# Or Google AI Studio
+export PROVIDER="aistudio"
+export AI_STUDIO_API_KEY="your-key"
+
+# Disable translation
+export LLM_INIT="false"
+```
 
 ### Build & Translate
    ```bash
