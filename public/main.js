@@ -20,35 +20,35 @@ function getAlternateLinks() {
   }, {});
 }
 
+// Language mapping
+const languageMap = {
+  en: 'English',
+  es: 'Spanish',
+  zh: 'Chinese',
+  ko: 'Korean',
+  ja: 'Japanese',
+  de: 'German',
+  ru: 'Russian',
+  fr: 'French',
+  nl: 'Dutch',
+  it: 'Italian',
+  id: 'Indonesian',
+  pt: 'Portuguese',
+  sv: 'Swedish',
+  cs: 'Czech',
+  sk: 'Slovak',
+  pl: 'Polish',
+  ro: 'Romanian',
+  hu: 'Hungarian',
+  fi: 'Finnish',
+  tr: 'Turkish',
+  da: 'Danish',
+  no: 'Norwegian',
+  bg: 'Bulgarian',
+};
+
 async function displayAlt() {
   if (isCrawler()) return;
-
-  // Language mapping
-  const languageMap = {
-    en: 'English',
-    es: 'Spanish',
-    zh: 'Chinese',
-    ko: 'Korean',
-    ja: 'Japanese',
-    de: 'German',
-    ru: 'Russian',
-    fr: 'French',
-    nl: 'Dutch',
-    it: 'Italian',
-    id: 'Indonesian',
-    pt: 'Portuguese',
-    sv: 'Swedish',
-    cs: 'Czech',
-    sk: 'Slovak',
-    pl: 'Polish',
-    ro: 'Romanian',
-    hu: 'Hungarian',
-    fi: 'Finnish',
-    tr: 'Turkish',
-    da: 'Danish',
-    no: 'Norwegian',
-    bg: 'Bulgarian',
-  };
 
   const supportedLanguages = Object.keys(languageMap);
 
@@ -635,10 +635,10 @@ async function getViewCount(url = window.location.href) {
   try {
     const resp = await fetch(
       TELEMETRY_BASEURL +
-        '/view/count?' +
-        new URLSearchParams({
-          url: url,
-        }),
+      '/view/count?' +
+      new URLSearchParams({
+        url: url,
+      }),
       {
         method: 'GET',
         headers: {
@@ -738,10 +738,10 @@ async function getLikeCount(url = window.location.href) {
   try {
     const resp = await fetch(
       TELEMETRY_BASEURL +
-        '/like/count?' +
-        new URLSearchParams({
-          url: url,
-        }),
+      '/like/count?' +
+      new URLSearchParams({
+        url: url,
+      }),
       {
         method: 'GET',
         headers: {
@@ -1057,7 +1057,7 @@ function themeApply(theme) {
 function themeSet(theme) {
   try {
     localStorage.setItem(THEME_KEY, theme);
-  } catch {}
+  } catch { }
   themeApply(theme);
 }
 function themeToggle() {
@@ -1115,33 +1115,6 @@ const svg = {
   da: `/assets/images/flag/dk.svg`,
   no: `/assets/images/flag/no.svg`,
   bg: `/assets/images/flag/bg.svg`,
-};
-
-// Language mapping
-const languageMap = {
-  ko: 'Korean',
-  en: 'English',
-  es: 'Spanish',
-  zh: 'Chinese',
-  ja: 'Japanese',
-  de: 'German',
-  ru: 'Russian',
-  fr: 'French',
-  nl: 'Dutch',
-  it: 'Italian',
-  id: 'Indonesian',
-  pt: 'Portuguese',
-  sv: 'Swedish',
-  cs: 'Czech',
-  sk: 'Slovak',
-  pl: 'Polish',
-  ro: 'Romanian',
-  hu: 'Hungarian',
-  fi: 'Finnish',
-  tr: 'Turkish',
-  da: 'Danish',
-  no: 'Norwegian',
-  bg: 'Bulgarian',
 };
 
 document.addEventListener('DOMContentLoaded', function () {
