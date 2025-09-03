@@ -12,40 +12,18 @@ This repository contains the source code for the Gosuda static website and blog.
    - **LLM API Key** (for translation features)
 
 ### LLM API Configuration
-This project uses Google's Gemini model for automatic translation. Choose one of the following methods:
-
-#### Option 1: Google Vertex AI (Default)
-Use Gemini model through Google Cloud Platform's Vertex AI:
-
 ```bash
-# Set environment variables
-export LOCATION="us-central1"  # or your preferred GCP region
+# Google Vertex AI (default)
+export LOCATION="us-central1"
 export PROJECT_ID="your-gcp-project-id"
 
-# Set up Google Cloud authentication (requires gcloud CLI)
-gcloud auth application-default login
-```
-
-> **Note**: Vertex AI API must be enabled and you need appropriate permissions for the project.
-
-#### Option 2: Google AI Studio (Alternative)
-To use Google AI Studio API:
-
-```bash
-# Set environment variables
+# Or Google AI Studio
 export PROVIDER="aistudio"
-export AI_STUDIO_API_KEY="your-ai-studio-api-key"
-```
+export AI_STUDIO_API_KEY="your-key"
 
-Get your AI Studio API key from [Google AI Studio](https://aistudio.google.com/).
-
-#### Skip LLM Initialization
-To disable translation features:
-```bash
+# Disable translation
 export LLM_INIT="false"
 ```
-
-> **Important**: Never commit API keys or credentials to git!
 
 ### Build & Translate
    ```bash
