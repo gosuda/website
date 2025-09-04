@@ -1091,58 +1091,146 @@ if (document.readyState === 'loading') {
   initTheme();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  const dropdownButton = document.querySelector('.dropdown-button');
-  const dropdownContent = document.querySelector('.dropdown-content');
+// Helper function to get current language code from URL
+function getCurrentLanguageCode() {
+  const pathSegments = window.location.pathname.split('/');
+  return pathSegments[1] || 'en';
+}
 
-  const innerPathName =
-    location.pathname.split('/')[1].length === 0
-      ? 'en'
-      : location.pathname.split('/')[1];
+// Helper function to get stored language preference
+function getStoredLanguageCode() {
+  return localStorage.getItem('client_lang');
+}
 
-  dropdownButton.innerHTML = `${languageMap[innerPathName]} ▲`;
+// Helper function to update dropdown button text with arrow
+function updateDropdownButtonText(button, languageName, isOpen = false) {
+  const arrow = isOpen ? ' ▼' : ' ▲';
+  button.innerHTML = `${languageName}${arrow}`;
+}
 
-  Object.keys(languageMap)
-    .reverse()
-    .forEach((key, index) => {
-      const liBtn = document.createElement('button');
-      liBtn.className = 'dropdown-item';
-      liBtn.style.setProperty('--order', index);
-      liBtn.innerHTML = `${languageMap[key]}`;
+// Helper function to create dropdown item
+function createDropdownItem(
+  languageCode,
+  languageName,
+  href,
+  index,
+  isActive = false
+) {
+  const button = document.createElement('button');
+  button.className = 'dropdown-item';
+  button.href = href;
+  button.style.setProperty('--order', index);
+  button.innerHTML = languageName;
 
-      liBtn.addEventListener('click', function () {
-        dropdownButton.innerHTML = `${languageMap[key]}`;
-        window.location.href = `/${key}/`;
-        dropdownContent.classList.remove('show');
-      });
-      key === innerPathName && liBtn.classList.add('active');
+  if (isActive) {
+    button.classList.add('active');
+  }
 
-      dropdownContent.appendChild(liBtn);
-    });
+  return button;
+}
 
-  dropdownButton.addEventListener('click', function () {
+// Helper function to handle language selection
+function handleLanguageSelection(
+  languageCode,
+  languageName,
+  href,
+  dropdownButton,
+  dropdownContent
+) {
+  return function () {
+    updateDropdownButtonText(dropdownButton, languageName);
+    dropdownContent.classList.remove('show');
+    localStorage.setItem('client_lang', languageCode);
+    window.location.href = href;
+  };
+}
+
+// Helper function to handle dropdown toggle
+function handleDropdownToggle(dropdownButton, dropdownContent) {
+  return function (event) {
     dropdownContent.classList.toggle('show');
 
-    // 드롭다운 상태에 따라 화살표 변경
-    if (dropdownContent.classList.contains('show')) {
-      // 열린 상태: 아래쪽 화살표
-      const currentContent = dropdownButton.innerHTML.replace(/[▲▼]/g, '');
-      dropdownButton.innerHTML = currentContent + ' ▼';
-    } else {
-      // 닫힌 상태: 위쪽 화살표
-      const currentContent = dropdownButton.innerHTML.replace(/[▲▼]/g, '');
-      dropdownButton.innerHTML = currentContent + ' ▲';
-    }
+    // Update arrow direction
+    const isOpen = dropdownContent.classList.contains('show');
+    const currentLanguageName = dropdownButton.innerHTML
+      .replace(/[▲▼]/g, '')
+      .trim();
+    updateDropdownButtonText(dropdownButton, currentLanguageName, isOpen);
+  };
+}
+
+// Main function to initialize dropdown
+function initDropdown() {
+  const alternateLinks = getAlternateLinks();
+  const dropdownButton = document.querySelector('[dropdown-button]');
+  const dropdownContent = document.querySelector('[dropdown-content]');
+
+  if (!dropdownButton || !dropdownContent) return;
+
+  const storedLanguageCode = getStoredLanguageCode();
+  const currentLanguageCode = getCurrentLanguageCode();
+
+  // Determine which language code to use
+  const activeLanguageCode = storedLanguageCode || currentLanguageCode;
+
+  // Update stored language if it differs from current URL
+  if (
+    storedLanguageCode !== currentLanguageCode &&
+    alternateLinks[currentLanguageCode]
+  ) {
+    localStorage.setItem('client_lang', currentLanguageCode);
+    const languageName = languageMap[currentLanguageCode];
+    updateDropdownButtonText(dropdownButton, languageName);
+    return;
+  }
+
+  // Set initial button text
+  const languageName = languageMap[activeLanguageCode] || languageMap['en'];
+  updateDropdownButtonText(dropdownButton, languageName);
+
+  // Create dropdown items
+  Object.entries(alternateLinks).forEach(([languageCode, href], index) => {
+    const languageName = languageMap[languageCode];
+    if (!languageName) return;
+
+    const isActive = languageCode === activeLanguageCode;
+    const dropdownItem = createDropdownItem(
+      languageCode,
+      languageName,
+      href,
+      index,
+      isActive
+    );
+
+    // Add click handler
+    dropdownItem.addEventListener(
+      'click',
+      handleLanguageSelection(
+        languageCode,
+        languageName,
+        href,
+        dropdownButton,
+        dropdownContent
+      )
+    );
+
+    dropdownContent.appendChild(dropdownItem);
   });
 
-  window.addEventListener('click', function (event) {
-    if (!event.target.matches('.dropdown-button')) {
-      if (dropdownContent.classList.contains('show')) {
-        dropdownContent.classList.remove('show');
-        // 닫힌 상태로 화살표 변경
-        const currentContent = dropdownButton.innerHTML.replace(/[▲▼]/g, '');
-        dropdownButton.innerHTML = currentContent + ' ▲';
-      }
-    }
-  });
+  // Add dropdown toggle handler
+  dropdownButton.addEventListener(
+    'click',
+    handleDropdownToggle(dropdownButton, dropdownContent)
+  );
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.location.pathname === '/') {
+    localStorage.setItem('client_lang', 'en');
+  } else {
+    const clientLang = window.location.pathname.split('/')[1];
+
+    localStorage.setItem('client_lang', clientLang);
+  }
+  initDropdown();
 });
