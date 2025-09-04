@@ -635,10 +635,10 @@ async function getViewCount(url = window.location.href) {
   try {
     const resp = await fetch(
       TELEMETRY_BASEURL +
-      '/view/count?' +
-      new URLSearchParams({
-        url: url,
-      }),
+        '/view/count?' +
+        new URLSearchParams({
+          url: url,
+        }),
       {
         method: 'GET',
         headers: {
@@ -738,10 +738,10 @@ async function getLikeCount(url = window.location.href) {
   try {
     const resp = await fetch(
       TELEMETRY_BASEURL +
-      '/like/count?' +
-      new URLSearchParams({
-        url: url,
-      }),
+        '/like/count?' +
+        new URLSearchParams({
+          url: url,
+        }),
       {
         method: 'GET',
         headers: {
@@ -1057,7 +1057,7 @@ function themeApply(theme) {
 function themeSet(theme) {
   try {
     localStorage.setItem(THEME_KEY, theme);
-  } catch { }
+  } catch {}
   themeApply(theme);
 }
 function themeToggle() {
@@ -1091,85 +1091,123 @@ if (document.readyState === 'loading') {
   initTheme();
 }
 
-const svg = {
-  ko: `/assets/images/flag/kr.svg`,
-  en: `/assets/images/flag/gb.svg`,
-  ja: `/assets/images/flag/jp.svg`,
-  es: `/assets/images/flag/es.svg`,
-  zh: `/assets/images/flag/cn.svg`,
-  de: `/assets/images/flag/de.svg`,
-  ru: `/assets/images/flag/ru.svg`,
-  fr: `/assets/images/flag/fr.svg`,
-  nl: `/assets/images/flag/nl.svg`,
-  it: `/assets/images/flag/it.svg`,
-  id: `/assets/images/flag/id.svg`,
-  pt: `/assets/images/flag/pt.svg`,
-  sv: `/assets/images/flag/sv.svg`,
-  cs: `/assets/images/flag/cz.svg`,
-  sk: `/assets/images/flag/sk.svg`,
-  pl: `/assets/images/flag/pl.svg`,
-  ro: `/assets/images/flag/ro.svg`,
-  hu: `/assets/images/flag/hu.svg`,
-  fi: `/assets/images/flag/fi.svg`,
-  tr: `/assets/images/flag/tr.svg`,
-  da: `/assets/images/flag/dk.svg`,
-  no: `/assets/images/flag/no.svg`,
-  bg: `/assets/images/flag/bg.svg`,
-};
+// Helper function to update dropdown button text with arrow
+function updateDropdownButtonText(button, languageName, isOpen = false) {
+  const arrow = isOpen ? ' ▼' : ' ▲';
+  button.innerHTML = `${languageName}${arrow}`;
+}
 
-document.addEventListener('DOMContentLoaded', function () {
-  const dropdownButton = document.querySelector('.dropdown-button');
-  const dropdownContent = document.querySelector('.dropdown-content');
+// Helper function to create dropdown item
+function createDropdownItem(
+  languageCode,
+  languageName,
+  href,
+  index,
+  isActive = false
+) {
+  const button = document.createElement('button');
+  button.className = 'dropdown-item';
+  button.href = href;
+  button.style.setProperty('--order', index);
+  button.innerHTML = languageName;
 
-  const pageLang = document.documentElement.lang || 'en';
-  const currentLang = pageLang || 'en';
-  dropdownButton.innerHTML = `<img src="${svg[currentLang]}" alt="${languageMap[currentLang]} flag" width="32" height="32"> ${languageMap[currentLang]} ▲`;
+  if (isActive) {
+    button.classList.add('active');
+  }
 
-  // Get alternateLinks on page load
-  alternateLinks = getAlternateLinks();
+  return button;
+}
 
-  // Create dropdown items based on alternateLinks
-  Object.keys(alternateLinks).forEach((key, index) => {
-    // Only create dropdown item if we have the language mapping and svg
-    if (languageMap[key] && svg[key]) {
-      const liBtn = document.createElement('button');
-      liBtn.className = 'dropdown-item';
-      liBtn.style.setProperty('--order', index);
-      liBtn.innerHTML = `<img id="${key}" src="${svg[key]}" alt="${languageMap[key]} flag" width="32" height="32"> ${languageMap[key]}`;
+// Helper function to handle language selection
+function handleLanguageSelection(
+  languageCode,
+  languageName,
+  href,
+  dropdownButton,
+  dropdownContent
+) {
+  return function () {
+    updateDropdownButtonText(dropdownButton, languageName);
+    dropdownContent.classList.remove('show');
+    window.location.href = href;
+  };
+}
 
-      liBtn.addEventListener('click', function () {
-        dropdownButton.innerHTML = `<img src="${svg[key]}" alt="${languageMap[key]} flag" width="32" height="32"> ${languageMap[key]}`;
-        window.location.href = alternateLinks[key];
-        dropdownContent.classList.remove('show');
-      });
-
-      dropdownContent.appendChild(liBtn);
-    }
-  });
-
-  dropdownButton.addEventListener('click', function () {
+// Helper function to handle dropdown toggle
+function handleDropdownToggle(dropdownButton, dropdownContent) {
+  return function (event) {
     dropdownContent.classList.toggle('show');
 
-    // 드롭다운 상태에 따라 화살표 변경
-    if (dropdownContent.classList.contains('show')) {
-      // 열린 상태: 아래쪽 화살표
-      const currentContent = dropdownButton.innerHTML.replace(/[▲▼]/g, '');
-      dropdownButton.innerHTML = currentContent + ' ▼';
-    } else {
-      // 닫힌 상태: 위쪽 화살표
-      const currentContent = dropdownButton.innerHTML.replace(/[▲▼]/g, '');
-      dropdownButton.innerHTML = currentContent + ' ▲';
-    }
+    // Update arrow direction
+    const isOpen = dropdownContent.classList.contains('show');
+    const currentLanguageName = dropdownButton.innerHTML
+      .replace(/[▲▼]/g, '')
+      .trim();
+    updateDropdownButtonText(dropdownButton, currentLanguageName, isOpen);
+  };
+}
+
+// Main function to initialize dropdown
+function initDropdown() {
+  const alternateLinks = getAlternateLinks();
+  const dropdownButton = document.querySelector('[dropdown-button]');
+  const dropdownContent = document.querySelector('[dropdown-content]');
+
+  if (!dropdownButton || !dropdownContent) return;
+
+  // Determine which language code to use
+  const activeLanguageCode = document.documentElement.lang || 'en';
+
+  // Update stored language if it differs from current URL
+  if (
+    document.documentElement.lang !== activeLanguageCode &&
+    alternateLinks[activeLanguageCode]
+  ) {
+    const languageName = languageMap[activeLanguageCode];
+    updateDropdownButtonText(dropdownButton, languageName);
+    return;
+  }
+
+  // Set initial button text
+  const languageName = languageMap[activeLanguageCode] || languageMap['en'];
+  updateDropdownButtonText(dropdownButton, languageName);
+
+  // Create dropdown items
+  Object.entries(alternateLinks).forEach(([languageCode, href], index) => {
+    const languageName = languageMap[languageCode];
+    if (!languageName) return;
+
+    const isActive = languageCode === activeLanguageCode;
+    const dropdownItem = createDropdownItem(
+      languageCode,
+      languageName,
+      href,
+      index,
+      isActive
+    );
+
+    // Add click handler
+    dropdownItem.addEventListener(
+      'click',
+      handleLanguageSelection(
+        languageCode,
+        languageName,
+        href,
+        dropdownButton,
+        dropdownContent
+      )
+    );
+
+    dropdownContent.appendChild(dropdownItem);
   });
 
-  window.addEventListener('click', function (event) {
-    if (!event.target.matches('.dropdown-button')) {
-      if (dropdownContent.classList.contains('show')) {
-        dropdownContent.classList.remove('show');
-        // 닫힌 상태로 화살표 변경
-        const currentContent = dropdownButton.innerHTML.replace(/[▲▼]/g, '');
-        dropdownButton.innerHTML = currentContent + ' ▲';
-      }
-    }
-  });
+  // Add dropdown toggle handler
+  dropdownButton.addEventListener(
+    'click',
+    handleDropdownToggle(dropdownButton, dropdownContent)
+  );
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  initDropdown();
 });

@@ -83,4 +83,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-tool github.com/a-h/templ/cmd/templ
+tool (
+	github.com/a-h/templ/cmd/templ
+	golang.org/x/tools/cmd/stringer
+)

@@ -42,7 +42,7 @@ type Post struct {
 
 // DocumentType represents the type of a document (e.g., Markdown, HTML).
 //
-//go:generate stringer -type=DocumentType -output=post_types.go -linecomment
+//go:generate go tool stringer -type=DocumentType -output=post_types.go -linecomment
 type DocumentType uint16
 
 const (
