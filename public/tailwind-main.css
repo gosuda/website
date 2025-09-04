@@ -280,7 +280,7 @@ pre {
 
   .dropdown-button {
     background-color: var(--bg);
-    font-size: 16px;
+    font-size: 14px;
     border: 1px solid var(--border);
     cursor: pointer;
     border-radius: 4px;
@@ -322,24 +322,27 @@ pre {
     position: absolute;
     background-color: var(--surface);
     border: 1px solid var(--border);
-    box-shadow: 0px 8px 16px 0px rgba(var(--surface), 0.2);
+    box-shadow: 0px -8px 16px 0px rgba(var(--surface), 0.2);
     z-index: 1;
     border-radius: 4px;
-    margin-top: 4px;
+    margin-bottom: 4px;
     padding: 0px;
     width: fit-content;
     min-width: 150px;
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
+    transform: translateY(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
   }
 
   .show {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 
   @keyframes slideIn {
@@ -376,6 +379,16 @@ pre {
   }
 
   .dropdown-item:hover {
+    background-color: var(--border);
+    border-radius: 4px;
+    transform: translateX(8px) !important;
+    width: calc(100% - 8px);
+    box-shadow: -4px 0 8px -4px rgba(var(--surface), 0.1);
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  .dropdown-item.active {
     background-color: var(--border);
     border-radius: 4px;
     transform: translateX(8px) !important;
