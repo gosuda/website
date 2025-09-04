@@ -1091,17 +1091,6 @@ if (document.readyState === 'loading') {
   initTheme();
 }
 
-// Helper function to get current language code from URL
-function getCurrentLanguageCode() {
-  const pathSegments = window.location.pathname.split('/');
-  return pathSegments[1] || 'en';
-}
-
-// Helper function to get stored language preference
-function getStoredLanguageCode() {
-  return localStorage.getItem('client_lang');
-}
-
 // Helper function to update dropdown button text with arrow
 function updateDropdownButtonText(button, languageName, isOpen = false) {
   const arrow = isOpen ? ' ▼' : ' ▲';
@@ -1140,7 +1129,6 @@ function handleLanguageSelection(
   return function () {
     updateDropdownButtonText(dropdownButton, languageName);
     dropdownContent.classList.remove('show');
-    localStorage.setItem('client_lang', languageCode);
     window.location.href = href;
   };
 }
@@ -1167,19 +1155,15 @@ function initDropdown() {
 
   if (!dropdownButton || !dropdownContent) return;
 
-  const storedLanguageCode = getStoredLanguageCode();
-  const currentLanguageCode = getCurrentLanguageCode();
-
   // Determine which language code to use
-  const activeLanguageCode = storedLanguageCode || currentLanguageCode;
+  const activeLanguageCode = document.documentElement.lang || 'en';
 
   // Update stored language if it differs from current URL
   if (
-    storedLanguageCode !== currentLanguageCode &&
-    alternateLinks[currentLanguageCode]
+    document.documentElement.lang !== activeLanguageCode &&
+    alternateLinks[activeLanguageCode]
   ) {
-    localStorage.setItem('client_lang', currentLanguageCode);
-    const languageName = languageMap[currentLanguageCode];
+    const languageName = languageMap[activeLanguageCode];
     updateDropdownButtonText(dropdownButton, languageName);
     return;
   }
@@ -1225,12 +1209,5 @@ function initDropdown() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  if (window.location.pathname === '/') {
-    localStorage.setItem('client_lang', 'en');
-  } else {
-    const clientLang = window.location.pathname.split('/')[1];
-
-    localStorage.setItem('client_lang', clientLang);
-  }
   initDropdown();
 });
