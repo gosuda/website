@@ -9,9 +9,10 @@
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "build": "tailwindcss -i public/tailwind-main.css -o public/main.css"
+    "build": "npx @tailwindcss/cli -i public/tailwind-main.css -o public/main.css"
   },
   "dependencies": {
+    "@tailwindcss/cli": "^4.1.12",
     "caniuse-lite": "^1.0.30001739"
   }
 }
