@@ -635,10 +635,10 @@ async function getViewCount(url = window.location.href) {
   try {
     const resp = await fetch(
       TELEMETRY_BASEURL +
-      '/view/count?' +
-      new URLSearchParams({
-        url: url,
-      }),
+        '/view/count?' +
+        new URLSearchParams({
+          url: url,
+        }),
       {
         method: 'GET',
         headers: {
@@ -738,10 +738,10 @@ async function getLikeCount(url = window.location.href) {
   try {
     const resp = await fetch(
       TELEMETRY_BASEURL +
-      '/like/count?' +
-      new URLSearchParams({
-        url: url,
-      }),
+        '/like/count?' +
+        new URLSearchParams({
+          url: url,
+        }),
       {
         method: 'GET',
         headers: {
@@ -1057,7 +1057,7 @@ function themeApply(theme) {
 function themeSet(theme) {
   try {
     localStorage.setItem(THEME_KEY, theme);
-  } catch { }
+  } catch {}
   themeApply(theme);
 }
 function themeToggle() {
@@ -1091,61 +1091,34 @@ if (document.readyState === 'loading') {
   initTheme();
 }
 
-const svg = {
-  ko: `/assets/images/flag/kr.svg`,
-  en: `/assets/images/flag/gb.svg`,
-  ja: `/assets/images/flag/jp.svg`,
-  es: `/assets/images/flag/es.svg`,
-  zh: `/assets/images/flag/cn.svg`,
-  de: `/assets/images/flag/de.svg`,
-  ru: `/assets/images/flag/ru.svg`,
-  fr: `/assets/images/flag/fr.svg`,
-  nl: `/assets/images/flag/nl.svg`,
-  it: `/assets/images/flag/it.svg`,
-  id: `/assets/images/flag/id.svg`,
-  pt: `/assets/images/flag/pt.svg`,
-  sv: `/assets/images/flag/sv.svg`,
-  cs: `/assets/images/flag/cz.svg`,
-  sk: `/assets/images/flag/sk.svg`,
-  pl: `/assets/images/flag/pl.svg`,
-  ro: `/assets/images/flag/ro.svg`,
-  hu: `/assets/images/flag/hu.svg`,
-  fi: `/assets/images/flag/fi.svg`,
-  tr: `/assets/images/flag/tr.svg`,
-  da: `/assets/images/flag/dk.svg`,
-  no: `/assets/images/flag/no.svg`,
-  bg: `/assets/images/flag/bg.svg`,
-};
-
 document.addEventListener('DOMContentLoaded', function () {
   const dropdownButton = document.querySelector('.dropdown-button');
   const dropdownContent = document.querySelector('.dropdown-content');
 
-  const pageLang = document.documentElement.lang || 'en';
-  const currentLang = pageLang || 'en';
-  dropdownButton.innerHTML = `<img src="${svg[currentLang]}" alt="${languageMap[currentLang]} flag" width="32" height="32"> ${languageMap[currentLang]} ▲`;
+  const innerPathName =
+    location.pathname.split('/')[1].length === 0
+      ? 'en'
+      : location.pathname.split('/')[1];
 
-  // Get alternateLinks on page load
-  alternateLinks = getAlternateLinks();
+  dropdownButton.innerHTML = `${languageMap[innerPathName]} ▲`;
 
-  // Create dropdown items based on alternateLinks
-  Object.keys(alternateLinks).forEach((key, index) => {
-    // Only create dropdown item if we have the language mapping and svg
-    if (languageMap[key] && svg[key]) {
+  Object.keys(languageMap)
+    .reverse()
+    .forEach((key, index) => {
       const liBtn = document.createElement('button');
       liBtn.className = 'dropdown-item';
       liBtn.style.setProperty('--order', index);
-      liBtn.innerHTML = `<img id="${key}" src="${svg[key]}" alt="${languageMap[key]} flag" width="32" height="32"> ${languageMap[key]}`;
+      liBtn.innerHTML = `${languageMap[key]}`;
 
       liBtn.addEventListener('click', function () {
-        dropdownButton.innerHTML = `<img src="${svg[key]}" alt="${languageMap[key]} flag" width="32" height="32"> ${languageMap[key]}`;
-        window.location.href = alternateLinks[key];
+        dropdownButton.innerHTML = `${languageMap[key]}`;
+        window.location.href = `/${key}/`;
         dropdownContent.classList.remove('show');
       });
+      key === innerPathName && liBtn.classList.add('active');
 
       dropdownContent.appendChild(liBtn);
-    }
-  });
+    });
 
   dropdownButton.addEventListener('click', function () {
     dropdownContent.classList.toggle('show');
