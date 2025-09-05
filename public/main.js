@@ -83,7 +83,7 @@ async function displayAlt() {
         View in ${languageName}
     </a>
 
-    <button type="button" aria-label="Close Language Selector"
+    <button id="language-selector-close" type="button" aria-label="Close Language Selector"
             class="ml-auto inline-flex items-center p-1 opacity-50
                     hover:opacity-100 focus:outline-none focus:ring-2
                     focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-0">
@@ -101,6 +101,10 @@ async function displayAlt() {
     } else {
       document.body.insertBefore(selector, document.body.firstChild);
     }
+
+    document.getElementById('language-selector-close').addEventListener('click', () => {
+      selector.remove();
+    });
   }
 }
 
@@ -635,10 +639,10 @@ async function getViewCount(url = window.location.href) {
   try {
     const resp = await fetch(
       TELEMETRY_BASEURL +
-        '/view/count?' +
-        new URLSearchParams({
-          url: url,
-        }),
+      '/view/count?' +
+      new URLSearchParams({
+        url: url,
+      }),
       {
         method: 'GET',
         headers: {
@@ -738,10 +742,10 @@ async function getLikeCount(url = window.location.href) {
   try {
     const resp = await fetch(
       TELEMETRY_BASEURL +
-        '/like/count?' +
-        new URLSearchParams({
-          url: url,
-        }),
+      '/like/count?' +
+      new URLSearchParams({
+        url: url,
+      }),
       {
         method: 'GET',
         headers: {
@@ -1030,12 +1034,14 @@ window.getLikeCount = getLikeCount;
 window.getBulkCounts = getBulkCounts;
 window.hydrateSummaryCounts = hydrateSummaryCounts;
 const THEME_KEY = 'pref_theme'; // 'light' | 'dark' | 'system'
+
 function themePrefersDark() {
   return (
     window.matchMedia &&
     window.matchMedia('(prefers-color-scheme: dark)').matches
   );
 }
+
 function themeGet() {
   try {
     return localStorage.getItem(THEME_KEY) || 'system';
@@ -1043,23 +1049,26 @@ function themeGet() {
     return 'system';
   }
 }
+
 function themeApply(theme) {
   const dark = theme === 'dark' || (theme === 'system' && themePrefersDark());
   const root = document.documentElement;
   root.classList.toggle('dark', dark);
   root.setAttribute('data-theme', dark ? 'dark' : 'light');
-  document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
+  document.querySelectorAll('button[data-theme-toggle]').forEach((btn) => {
     btn.setAttribute('aria-pressed', String(dark));
     const icon = btn.querySelector('[data-theme-icon]');
     if (icon) icon.textContent = dark ? '🌙' : '☀️';
   });
 }
+
 function themeSet(theme) {
   try {
     localStorage.setItem(THEME_KEY, theme);
-  } catch {}
+  } catch { }
   themeApply(theme);
 }
+
 function themeToggle() {
   const cur = themeGet();
   if (cur === 'system') themeSet(themePrefersDark() ? 'light' : 'dark');
@@ -1077,7 +1086,7 @@ if (window.matchMedia) {
 /* Wire up the mounted button and apply current theme */
 function initTheme() {
   themeApply(themeGet());
-  const btn = document.querySelector('[data-theme-toggle]');
+  const btn = document.querySelector('button[data-theme-toggle]');
   if (btn) {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
