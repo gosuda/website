@@ -1,7 +1,11 @@
 ---
+id: e80ed40ea024585819cc03207d51db23
 author: snowmerak
 title: 활기찬 비트맵
+description: 데이터베이스 비트맵 인덱스 개념부터 Roaring Bitmap의 동작 원리, Go 언어 활용법까지. 대규모 데이터셋 효율적 처리를 위한 비트맵 최적화를 탐구합니다.
 language: ko
+date: 2025-09-08T13:30:39.840979719Z
+path: /blog/posts/vibrant-bitmap-z1743872f
 ---
 
 ## 비트맵이란?
