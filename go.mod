@@ -19,7 +19,7 @@ require (
 	github.com/yuin/goldmark-meta v1.1.0
 	github.com/zeebo/blake3 v0.2.4
 	golang.org/x/image v0.30.0
-	golang.org/x/time v0.12.0
+	golang.org/x/time v0.13.0
 	gopkg.eu.org/envloader v1.1.0
 	gopkg.in/yaml.v3 v3.0.1
 	mvdan.cc/xurls/v2 v2.6.0
