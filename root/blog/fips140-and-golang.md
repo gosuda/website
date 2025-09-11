@@ -1,6 +1,11 @@
 ---
+id: 8131aee9df950f7eb198a94dbf02fd7f
 author: Gosunuts
 title: FIPS 140 인증과 Golang
+description: Golang이 FIPS 140 인증을 지원하는 방식과 FIPS 140-3으로의 진화, 그리고 Go 암호화 라이브러리의 강화된 보안 특징을 알아봅니다.
+language: ko
+date: 2025-09-11T05:33:18.23816735Z
+path: /blog/posts/fips-140-certification-and-golang-z0a59330a
 ---
 
 ## FIPS 140 ( Federal Information Processing Standard Publication 140 )
