@@ -35,7 +35,7 @@ FIPS 140 은 1994년 최초 제정된 이후로, 2001 년 FIPS 140-2 로, 2019�
 
 ### FIPS 140-3 과 Golang
 Go 팀은 이러한 한계를 극복하기 위해, 기존 Go 표준 crypto 라이브러리를 FIPS 140-3 규격에 맞게 개선했습니다. 이 개량된 모듈은 Go 1.21 버전부터 실험적으로 제공되기 시작했으며, 현재 NIST의 FIPS 140-3 인증 심사가 진행 중입니다.
-[FIPS 140-3 module in process](https://csrc.nist.gov/projects/cryptographic-module-validation-program/modules-in-process/modules-in-process-list)
+[NIST FIPS 140-3 심사 진행 중인 모듈 목록](https://csrc.nist.gov/projects/cryptographic-module-validation-program/modules-in-process/modules-in-process-list)
 
 이는 Go 암호화 라이브러리의 성숙도를 보여주며, 이를 통해 Go 는 완전히 독립적인 단일 바이너리로 FIPS 140-3 인증 환경을 제공할 수 있게 되었습니다.
 
