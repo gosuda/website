@@ -76,7 +76,7 @@ func init() {
 	llmClient = client
 	log.Debug().Msg("llm client initialized")
 
-	llmModel, err = llmClient.NewLLM("gemini-2.5-flash", &llm.Config{
+	llmModel, err = llmClient.NewLLM("gemini-2.5-flash-preview-09-2025", &llm.Config{
 		Temperature:           Ptr(float32(0.7)),
 		MaxOutputTokens:       Ptr(65535),
 		SafetyFilterThreshold: llm.BlockOff,
