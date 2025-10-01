@@ -174,7 +174,7 @@ func generatePath(title string) string {
 	langCode := mapDetectedLanguage(lang)
 	log.Debug().Str("title", title).Str("lang", langCode).Msgf("detected language of title %s", title)
 
-	if langCode != "en" && llmModel != nil {
+	if llmModel != nil && langCode != "en" {
 		var retries int
 		for retries < 3 {
 			retries++
