@@ -58,7 +58,7 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		doc.Metadata.Path = generatePath(doc.Metadata.Title)
 	}
 
-	if doc.Metadata.Description == "" {
+	if llmModel != nil && doc.Metadata.Description == "" {
 		log.Debug().Str("path", path).Msgf("generating description for document %s", path)
 		desc, err := description.GenerateDescription(context.Background(), llmModel, doc.Markdown)
 		if err != nil {
@@ -136,17 +136,19 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 	}
 	post.Translated[doc.Metadata.Language] = doc
 
-	if post.Hash != hash {
-		post.Hash = hash
-		post.UpdatedAt = now
-		err = translatePost(gc, post, true, doc.Metadata.Language)
-		if err != nil {
-			log.Error().Str("path", path).Err(err).Msg("failed to translate")
-		}
-	} else {
-		err = translatePost(gc, post, false, doc.Metadata.Language)
-		if err != nil {
-			log.Error().Str("path", path).Err(err).Msg("failed to translate")
+	if llmModel != nil {
+		if post.Hash != hash {
+			post.Hash = hash
+			post.UpdatedAt = now
+			err = translatePost(gc, post, true, doc.Metadata.Language)
+			if err != nil {
+				log.Error().Str("path", path).Err(err).Msg("failed to translate")
+			}
+		} else {
+			err = translatePost(gc, post, false, doc.Metadata.Language)
+			if err != nil {
+				log.Error().Str("path", path).Err(err).Msg("failed to translate")
+			}
 		}
 	}
 
@@ -172,7 +174,7 @@ func generatePath(title string) string {
 	langCode := mapDetectedLanguage(lang)
 	log.Debug().Str("title", title).Str("lang", langCode).Msgf("detected language of title %s", title)
 
-	if langCode != "en" {
+	if llmModel != nil && langCode != "en" {
 		var retries int
 		for retries < 3 {
 			retries++
