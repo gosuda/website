@@ -58,7 +58,7 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		doc.Metadata.Path = generatePath(doc.Metadata.Title)
 	}
 
-	if doc.Metadata.Description == "" && llmModel != nil {
+	if llmModel != nil && doc.Metadata.Description == "" {
 		log.Debug().Str("path", path).Msgf("generating description for document %s", path)
 		desc, err := description.GenerateDescription(context.Background(), llmModel, doc.Markdown)
 		if err != nil {
