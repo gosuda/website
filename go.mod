@@ -58,6 +58,8 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/tdewolff/parse/v2 v2.8.3 // indirect
 	github.com/valyala/fastjson v1.6.4 // indirect
+	github.com/wyatt915/goldmark-treeblood v0.0.0-20250825231212-5dcbdb2f4b57 // indirect
+	github.com/wyatt915/treeblood v0.1.13 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0 // indirect

@@ -19,6 +19,7 @@ import (
 
 	chtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/rs/zerolog/log"
+	treeblood "github.com/wyatt915/goldmark-treeblood"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	meta "github.com/yuin/goldmark-meta"
@@ -122,6 +123,7 @@ var gMark = goldmark.New(
 			),
 			highlighting.WithGuessLanguage(true),
 		),
+		treeblood.MathML(),
 		extension.GFM,
 		extension.CJK,
 	),
