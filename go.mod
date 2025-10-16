@@ -14,12 +14,13 @@ require (
 	github.com/pemistahl/lingua-go v1.4.0
 	github.com/rs/zerolog v1.34.0
 	github.com/tdewolff/minify/v2 v2.24.3
+	github.com/wyatt915/goldmark-treeblood v0.0.0-20250825231212-5dcbdb2f4b57
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 	github.com/yuin/goldmark-meta v1.1.0
 	github.com/zeebo/blake3 v0.2.4
-	golang.org/x/image v0.31.0
-	golang.org/x/time v0.13.0
+	golang.org/x/image v0.32.0
+	golang.org/x/time v0.14.0
 	gopkg.eu.org/envloader v1.1.0
 	gopkg.in/yaml.v3 v3.0.1
 	mvdan.cc/xurls/v2 v2.6.0
@@ -58,7 +59,6 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/tdewolff/parse/v2 v2.8.3 // indirect
 	github.com/valyala/fastjson v1.6.4 // indirect
-	github.com/wyatt915/goldmark-treeblood v0.0.0-20250825231212-5dcbdb2f4b57 // indirect
 	github.com/wyatt915/treeblood v0.1.13 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect
@@ -66,15 +66,15 @@ require (
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
-	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/crypto v0.42.0 // indirect
 	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
-	golang.org/x/mod v0.27.0 // indirect
-	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/mod v0.28.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/tools v0.37.0 // indirect
 	google.golang.org/api v0.248.0 // indirect
 	google.golang.org/genai v1.23.0 // indirect
 	google.golang.org/genproto v0.0.0-20250826171959-ef028d996bc1 // indirect
