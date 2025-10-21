@@ -14,7 +14,7 @@ require (
 	github.com/pemistahl/lingua-go v1.4.0
 	github.com/rs/zerolog v1.34.0
 	github.com/tdewolff/minify/v2 v2.24.3
-	github.com/wyatt915/goldmark-treeblood v0.0.0-20250825231212-5dcbdb2f4b57
+	github.com/wyatt915/goldmark-treeblood v0.0.1
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 	github.com/yuin/goldmark-meta v1.1.0
@@ -59,7 +59,7 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/tdewolff/parse/v2 v2.8.3 // indirect
 	github.com/valyala/fastjson v1.6.4 // indirect
-	github.com/wyatt915/treeblood v0.1.13 // indirect
+	github.com/wyatt915/treeblood v0.1.16 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0 // indirect
