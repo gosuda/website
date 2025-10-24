@@ -1,4 +1,4 @@
-.PHONY: all build run
+.PHONY: all build run run-relaydns
 
 all: build run
 
@@ -11,3 +11,6 @@ build:
 
 run:
 	npx serve dist
+
+run-relaydns:
+	go run ./cmd/relaydns-proxy --dir dist --port 8081 --name gosuda-blog --server-url http://relaydns.gosuda.org
