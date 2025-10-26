@@ -18,8 +18,9 @@ const _DocumentType_name = "unknownmarkdownhtml"
 var _DocumentType_index = [...]uint8{0, 7, 15, 19}
 
 func (i DocumentType) String() string {
-	if i >= DocumentType(len(_DocumentType_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_DocumentType_index)-1 {
 		return "DocumentType(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _DocumentType_name[_DocumentType_index[i]:_DocumentType_index[i+1]]
+	return _DocumentType_name[_DocumentType_index[idx]:_DocumentType_index[idx+1]]
 }
