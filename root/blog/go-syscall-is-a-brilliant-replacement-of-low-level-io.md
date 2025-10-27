@@ -1,8 +1,11 @@
 ---
+id: c90263519492728e7cc2d0ce840057b6
 author: Yunjin Lee
 title: Go syscall is a brilliant replacement of low-level I/O
 description: Let's learn how to syscall
 language: en
+date: 2025-10-26T12:31:21.655228078Z
+path: /blog/posts/go-syscall-is-a-brilliant-replacement-of-low-level-i-o-za50951e1
 ---
 
 ## Summary
