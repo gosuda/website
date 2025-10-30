@@ -84,8 +84,8 @@ This will attempt to get a PID from a space for system information.
 As a result, none of the information can be read correctly; the call must be retured as failed state.
 
 Now, we need to know which items are contained, and how items are ordered.
-In a first slot of a locker, we have Uptime, with a size of $2^64$.
-If we try to read this with $2^32$, the bit sequence is not fully read.
+In a first slot of a locker, we have Uptime, with a size of 2^64.
+If we try to read this with 2^32, the bit sequence is not fully read.
 We cannot use these kinds of partial binaries unless we are going to write low-level tricks.
 
 After reading 64 bits of binary data, finally we are on a second slot.
@@ -163,3 +163,4 @@ Although anonymous values are actually stored into a structure, there is no labe
 [syscall](https://pkg.go.dev/syscall)
 [unsafe](https://pkg.go.dev/unsafe)
 [x/sys/unix](https://pkg.go.dev/golang.org/x/sys/unix)
+
