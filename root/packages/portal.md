@@ -1,10 +1,13 @@
 ---
+id: 5f5f5498b44e9d7b4f3230a24c4e8958
 author: gosunuts
 title: Portal (Public Open Relay To Access Localhost)
+description: AI 시대의 웹 중앙화 문제를 해결하고, 개인의 로컬 서비스를 전 세계에 쉽게 배포하도록 돕는 오픈소스 프로젝트 Portal을 소개합니다.
+language: ko
+date: 2025-11-03T07:34:17.138071881Z
 path: /portal
 go_package: gosuda.org/portal
 go_repourl: https://github.com/gosuda/portal.git
-language: ko
 ---
 
 ## AI 와 웹사이트
