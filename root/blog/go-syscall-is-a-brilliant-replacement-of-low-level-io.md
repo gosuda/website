@@ -102,7 +102,8 @@ Let's check this with an example, "Free Memory Checker"
 ## Example - Free Memory Checker
 When checking Free Memory/Swaps, we don't need other information that is indicating different resources.
 To achieve a better visibility, you can make anonymous variables to hold specific spaces.
-```
+
+```go
 package main
 
 import (
