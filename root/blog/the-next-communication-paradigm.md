@@ -2,6 +2,10 @@
 id: 6b68cc1a848afe9fa2bfe0934a415fbc
 author: yoonhyunwoo
 title: AI 기반 시맨틱 통신이 이끄는 넥스트 통신 패러다임
+description: 섀넌의 법칙을 넘어 AI 기반 시맨틱 통신으로 전환하는 넥스트 통신 패러다임과 그 한계, 미래 전망을 탐구합니다.
+language: ko
+date: 2025-11-14T04:45:47.88369259Z
+path: /blog/posts/the-next-communication-paradigm-led-by-ai-based-semantic-communication-zc1496ec7
 ---
 
 ## 섀넌의 법칙
