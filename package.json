@@ -12,6 +12,6 @@
     "build": "tailwindcss -i public/tailwind-main.css -o public/main.css"
   },
   "dependencies": {
-    "caniuse-lite": "^1.0.30001756"
+    "caniuse-lite": "^1.0.30001759"
   }
 }
