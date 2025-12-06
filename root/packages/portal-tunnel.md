@@ -1,9 +1,13 @@
 ---
+id: 43210fd43f7878fd6c6b931640fb2175
 author: gosunuts
 title: Make localhost public with one curl — Portal Tunnel
+description: Make your localhost public instantly with one curl command using Portal Tunnel—a decentralized, permissionless alternative to ngrok and cloudflared.
+language: en
+date: 2025-12-06T05:35:03.047352133Z
+path: /blog/posts/make-localhost-public-with-one-curl-—-portal-tunnel-z2f33ae49
 go_package: gosuda.org/portal
 go_repourl: https://github.com/gosuda/portal.git
-language: en
 ---
 
 ## Portal and Tunnel
