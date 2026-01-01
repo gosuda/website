@@ -4,7 +4,7 @@ go 1.25.3
 
 require (
 	cloud.google.com/go/vertexai v0.15.0
-	github.com/a-h/templ v0.3.960
+	github.com/a-h/templ v0.3.977
 	github.com/alecthomas/chroma/v2 v2.21.1
 	github.com/fogleman/gg v1.3.0
 	github.com/google/uuid v1.6.0
