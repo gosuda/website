@@ -1,7 +1,10 @@
 ---
+id: 0e912e4573c6a113757269734de514a8
 author: gosunuts
-title: 'AI 네이티브 개발 방법론'
+title: AI 네이티브 개발 방법론
 language: ko
+date: 2026-02-01T01:18:36.450880849Z
+path: /blog/posts/ai-네이티브-개발-방법론-z86704c1a
 ---
 
 ## AI 와 개발자
