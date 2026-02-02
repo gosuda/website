@@ -15,7 +15,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/tdewolff/minify/v2 v2.24.8
 	github.com/wyatt915/goldmark-treeblood v0.0.1
-	github.com/yuin/goldmark v1.7.13
+	github.com/yuin/goldmark v1.7.14
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 	github.com/yuin/goldmark-meta v1.1.0
 	github.com/zeebo/blake3 v0.2.4
