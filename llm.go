@@ -81,7 +81,7 @@ func init() {
 		MaxOutputTokens:       Ptr(65535),
 		SafetyFilterThreshold: llm.BlockOff,
 		ThinkingConfig: &llm.ThinkingConfig{
-			ThinkingBudget: pconf.Ptrify(0),
+			ThinkingLevel: pconf.Ptrify(llm.ThinkingLevelMinimal),
 		},
 	})
 
