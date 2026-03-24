@@ -19,7 +19,7 @@ require (
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 	github.com/yuin/goldmark-meta v1.1.0
 	github.com/zeebo/blake3 v0.2.4
-	golang.org/x/image v0.37.0
+	golang.org/x/image v0.38.0
 	golang.org/x/time v0.15.0
 	gopkg.eu.org/envloader v1.1.0
 	gopkg.in/yaml.v3 v3.0.1
