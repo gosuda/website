@@ -82,6 +82,25 @@ func translatePost(_ *GenerationContext, post *types.Post, retranslate bool, ign
 
 var ErrLowQualityTranslation = errors.New("low quality translation")
 
+func translateAndEvaluate(ctx context.Context, post *types.Post, lang types.Lang, fullLangName string, fieldName string, text string) (string, error) {
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msgf("translating post %s", fieldName)
+	translatedText, err := translate.Translate(ctx, llmModel, text, fullLangName)
+	if err != nil {
+		return "", err
+	}
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Str(fieldName, translatedText).Msgf("translated post %s", fieldName)
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msgf("evaluating translated %s", fieldName)
+	score, err := evaluate.EvaluateTranslation(ctx, llmModel, post.Main.Metadata.Language, lang, text, translatedText)
+	if err != nil {
+		return "", err
+	}
+	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Float64("score", score).Msg("evaluated translation")
+	if score < 0.7 {
+		return "", ErrLowQualityTranslation
+	}
+	return translatedText, nil
+}
+
 func translateLang(ctx context.Context, post *types.Post, lang types.Lang) error {
 	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post")
 	original := post.Main.Markdown
@@ -96,56 +115,21 @@ func translateLang(ctx context.Context, post *types.Post, lang types.Lang) error
 	meta := post.Main.Metadata
 	meta.Language = lang
 
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post title")
-	newTitle, err := translate.Translate(ctx, llmModel, post.Main.Metadata.Title, fullLangName)
+	newTitle, err := translateAndEvaluate(ctx, post, lang, fullLangName, "title", post.Main.Metadata.Title)
 	if err != nil {
 		return err
 	}
 	meta.Title = newTitle
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Str("title", newTitle).Msg("translated post title")
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("evaluating translated title")
-	score, err := evaluate.EvaluateTranslation(ctx, llmModel, post.Main.Metadata.Language, lang, post.Main.Metadata.Title, newTitle)
-	if err != nil {
-		return err
-	}
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Float64("score", score).Msg("evaluated translation")
-	if score < 0.7 {
-		return ErrLowQualityTranslation
-	}
 
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post description")
-	newDescription, err := translate.Translate(ctx, llmModel, post.Main.Metadata.Description, fullLangName)
+	newDescription, err := translateAndEvaluate(ctx, post, lang, fullLangName, "description", post.Main.Metadata.Description)
 	if err != nil {
 		return err
 	}
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("evaluating translated description")
-	score, err = evaluate.EvaluateTranslation(ctx, llmModel, post.Main.Metadata.Language, lang, post.Main.Metadata.Description, newDescription)
-	if err != nil {
-		return err
-	}
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Float64("score", score).Msg("evaluated translation")
-	if score < 0.7 {
-		return ErrLowQualityTranslation
-	}
-
 	meta.Description = newDescription
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Str("description", newDescription).Msg("translated post description")
 
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translating post content")
-	tranDocument, err := translate.Translate(ctx, llmModel, origDocument, fullLangName)
+	tranDocument, err := translateAndEvaluate(ctx, post, lang, fullLangName, "content", origDocument)
 	if err != nil {
 		return err
-	}
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("translated post content")
-
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Msg("evaluating translated post content")
-	score, err = evaluate.EvaluateTranslation(ctx, llmModel, post.Main.Metadata.Language, lang, origDocument, tranDocument)
-	if err != nil {
-		return err
-	}
-	log.Debug().Str("path", post.FilePath).Str("lang", string(lang)).Float64("score", score).Msg("evaluated translation")
-	if score < 0.7 {
-		return ErrLowQualityTranslation
 	}
 
 	newMeta, err := yaml.Marshal(&meta)

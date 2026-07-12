@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/hex"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gorilla/feeds"
@@ -18,6 +19,18 @@ func langFeedID(id string, lang types.Lang) string {
 	var buf [16]byte
 	blake3.DeriveKey("LANGUAGE FEED ID v0.1 LANG:"+lang, []byte(id), buf[:])
 	return hex.EncodeToString(buf[:])
+}
+
+func createFeedItem(post *types.Post, doc *types.Document, link string) *feeds.Item {
+	return &feeds.Item{
+		Id:          langFeedID(post.ID, doc.Metadata.Language),
+		Title:       doc.Metadata.Title,
+		Link:        &feeds.Link{Href: link},
+		Author:      &feeds.Author{Name: doc.Metadata.Author},
+		Description: doc.Metadata.Description,
+		Created:     post.CreatedAt.UTC(),
+		Updated:     post.UpdatedAt.UTC(),
+	}
 }
 
 func generateGlobalFeed(gc *GenerationContext) error {
@@ -41,16 +54,7 @@ func generateGlobalFeed(gc *GenerationContext) error {
 		}
 		link := baseURL + post.Path
 
-		postFeed := &feeds.Item{
-			Id:          langFeedID(post.ID, doc.Metadata.Language),
-			Title:       doc.Metadata.Title,
-			Link:        &feeds.Link{Href: link},
-			Author:      &feeds.Author{Name: doc.Metadata.Author},
-			Description: doc.Metadata.Description,
-			Created:     post.CreatedAt,
-			Updated:     post.UpdatedAt,
-		}
-		globalFeed.Items = append(globalFeed.Items, postFeed)
+		globalFeed.Items = append(globalFeed.Items, createFeedItem(post, doc, link))
 	}
 
 	globalFeed.Items = append(globalFeed.Items, &feeds.Item{
@@ -73,17 +77,17 @@ func generateGlobalFeed(gc *GenerationContext) error {
 		return err
 	}
 
-	err = os.WriteFile(distDir+"/feed.rss", []byte(rss), 0644)
+	err = os.WriteFile(filepath.Join(distDir, "feed.rss"), []byte(rss), 0644)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(distDir+"/en/feed.rss", []byte(rss), 0644)
+	err = os.WriteFile(filepath.Join(distDir, "en", "feed.rss"), []byte(rss), 0644)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(distDir+"/sitemap.xml", []byte(sitemap), 0644)
+	err = os.WriteFile(filepath.Join(distDir, "sitemap.xml"), []byte(sitemap), 0644)
 	if err != nil {
 		return err
 	}
@@ -97,35 +101,26 @@ func generateLocalFeed(gc *GenerationContext, lang types.Lang) error {
 
 	feed := &feeds.Feed{
 		Title:       "GoSuda Blog" + " - " + types.FullLangName(lang),
-		Link:        &feeds.Link{Href: baseURL + "/" + lang + "/"},
+		Link:        &feeds.Link{Href: baseURL + "/" + string(lang) + "/"},
 		Description: "Gosuda: A blog about software development, and other topics.",
 		Author:      &feeds.Author{Name: "Gosuda", Email: "webmaster@gosuda.org"},
 		Created:     time.Now().UTC(),
 	}
 
 	for _, post := range gc.DataStore.Posts {
-		doc, ok := post.Translated[lang]
+		doc, ok := post.Translated[string(lang)]
 		if !ok {
 			continue
 		}
-		link := baseURL + "/" + lang + post.Path
+		link := baseURL + "/" + string(lang) + post.Path
 
-		postFeed := &feeds.Item{
-			Id:          langFeedID(post.ID, lang),
-			Title:       doc.Metadata.Title,
-			Link:        &feeds.Link{Href: link},
-			Author:      &feeds.Author{Name: doc.Metadata.Author},
-			Description: doc.Metadata.Description,
-			Created:     post.CreatedAt.UTC(),
-			Updated:     post.UpdatedAt.UTC(),
-		}
-		feed.Items = append(feed.Items, postFeed)
+		feed.Items = append(feed.Items, createFeedItem(post, doc, link))
 	}
 
 	feed.Items = append(feed.Items, &feeds.Item{
 		Id:          langFeedID("home", lang),
 		Title:       "GoSuda | Home",
-		Link:        &feeds.Link{Href: baseURL + "/" + lang + "/"},
+		Link:        &feeds.Link{Href: baseURL + "/" + string(lang) + "/"},
 		Author:      &feeds.Author{Name: "GoSuda"},
 		Description: "GoSuda is an industry-leading open source working group enabling developers to easily build, prototype, and deploy applications. Our comprehensive suite of tools and frameworks empowers developers to create robust, scalable solutions across various domains.",
 		Created:     time.Date(2024, 10, 07, 0, 0, 0, 0, time.UTC),
@@ -142,12 +137,12 @@ func generateLocalFeed(gc *GenerationContext, lang types.Lang) error {
 		return err
 	}
 
-	err = os.WriteFile(distDir+"/"+lang+"/feed.rss", []byte(rss), 0644)
+	err = os.WriteFile(filepath.Join(distDir, string(lang), "feed.rss"), []byte(rss), 0644)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(distDir+"/"+lang+"/sitemap.xml", sitemap, 0644)
+	err = os.WriteFile(filepath.Join(distDir, string(lang), "sitemap.xml"), sitemap, 0644)
 	if err != nil {
 		return err
 	}

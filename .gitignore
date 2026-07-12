@@ -32,3 +32,4 @@ gha-creds-*.json
 # Service Account Credentials
 
 service-account.json
+bun.lockb

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 
 	"github.com/klauspost/compress/zstd"
@@ -10,14 +11,10 @@ import (
 )
 
 func initializeDatabase(dbFile string) (*DataStore, error) {
-	_, err := os.Stat(dbFile)
-	if err != nil && !os.IsNotExist(err) {
-		return nil, err
-	}
-
 	var f *os.File
-	if err != nil && os.IsNotExist(err) {
-		log.Info().Err(err).Msgf("database file %s does not exist, Creating new database file", dbFile)
+	_, err := os.Stat(dbFile)
+	if errors.Is(err, os.ErrNotExist) {
+		log.Info().Msgf("database file %s does not exist, Creating new database file", dbFile)
 		f, err = os.OpenFile(dbFile, os.O_CREATE|os.O_RDWR, 0644)
 		if err != nil {
 			return nil, err
@@ -25,23 +22,30 @@ func initializeDatabase(dbFile string) (*DataStore, error) {
 
 		w, err := zstd.NewWriter(f)
 		if err != nil {
+			f.Close()
 			return nil, err
 		}
 
 		_, err = w.Write([]byte("{}"))
 		if err != nil {
+			w.Close()
+			f.Close()
 			return nil, err
 		}
 
 		err = w.Close()
 		if err != nil {
+			f.Close()
 			return nil, err
 		}
 
 		_, err = f.Seek(0, 0)
 		if err != nil {
+			f.Close()
 			return nil, err
 		}
+	} else if err != nil {
+		return nil, err
 	} else {
 		f, err = os.OpenFile(dbFile, os.O_RDWR, 0644)
 		if err != nil {
@@ -71,11 +75,15 @@ func initializeDatabase(dbFile string) (*DataStore, error) {
 }
 
 func updateDatabase(dbFile string, ds *DataStore) error {
-	f, err := os.OpenFile(dbFile+".tmp", os.O_CREATE|os.O_RDWR|os.O_TRUNC|os.O_EXCL, 0644)
+	tmpFile := dbFile + ".tmp"
+	f, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_RDWR|os.O_TRUNC|os.O_EXCL, 0644)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		f.Close()
+		os.Remove(tmpFile)
+	}()
 
 	w, err := zstd.NewWriter(f, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
 	if err != nil {
@@ -88,7 +96,22 @@ func updateDatabase(dbFile string, ds *DataStore) error {
 		return err
 	}
 
-	err = os.Rename(dbFile+".tmp", dbFile)
+	err = w.Close()
+	if err != nil {
+		return err
+	}
+
+	err = f.Sync()
+	if err != nil {
+		return err
+	}
+
+	err = f.Close()
+	if err != nil {
+		return err
+	}
+
+	err = os.Rename(tmpFile, dbFile)
 	if err != nil {
 		return err
 	}
