@@ -20,7 +20,7 @@ var _ = func() struct{} {
 }()
 
 //go:generate go tool templ generate
-//go:generate bun run build
+//go:generate npm run build
 
 func generate_main() {
 	ds, err := initializeDatabase(dbFile)

@@ -1,3 +1,3 @@
-bun install && \
+npm install && \
   go generate ./... && \
   go run .
