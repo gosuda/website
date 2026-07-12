@@ -53,14 +53,14 @@ func BlogPostCard(post *BlogPostPreview) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"p-4\"><div class=\"flex items-center mb-4\"><svg class=\"w-10 h-10 mr-3 rounded-full\" viewBox=\"0 0 40 40\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><!-- Background --><circle cx=\"20\" cy=\"20\" r=\"20\" fill=\"#FFE4E6\"></circle><!-- Bear Ears --><circle cx=\"11\" cy=\"12\" r=\"4.5\" fill=\"#E11D48\"></circle> <circle cx=\"11\" cy=\"12\" r=\"2\" fill=\"#FDA4AF\"></circle> <circle cx=\"29\" cy=\"12\" r=\"4.5\" fill=\"#E11D48\"></circle> <circle cx=\"29\" cy=\"12\" r=\"2\" fill=\"#FDA4AF\"></circle><!-- Bear Head --><circle cx=\"20\" cy=\"21\" r=\"11\" fill=\"#E11D48\"></circle><!-- Snout --><ellipse cx=\"20\" cy=\"24\" rx=\"4.5\" ry=\"3\" fill=\"#FFF1F2\"></ellipse><!-- Nose --><polygon points=\"19,23 21,23 20,24\" fill=\"#4C0519\"></polygon><!-- Mouth --><path d=\"M18.5 24.5 Q20 25.5 21.5 24.5\" stroke=\"#4C0519\" stroke-width=\"0.8\" fill=\"none\" stroke-linecap=\"round\"></path><!-- Eyes --><circle cx=\"16\" cy=\"19\" r=\"1.5\" fill=\"#4C0519\"></circle> <circle cx=\"24\" cy=\"19\" r=\"1.5\" fill=\"#4C0519\"></circle><!-- Blush --><circle cx=\"13\" cy=\"21.5\" r=\"1.5\" fill=\"#FDA4AF\"></circle> <circle cx=\"27\" cy=\"21.5\" r=\"1.5\" fill=\"#FDA4AF\"></circle></svg><div><div class=\"font-semibold\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"p-4\"><div class=\"flex items-center mb-4\"><img src=\"/assets/apple-touch-icon.png\" class=\"w-10 h-10 mr-3 rounded-full\" alt=\"Author avatar\"><div><div class=\"font-semibold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(post.Author)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 42, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 20, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -73,7 +73,7 @@ func BlogPostCard(post *BlogPostPreview) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(post.Date.Format("January 2, 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 43, Col: 77}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 21, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -86,7 +86,7 @@ func BlogPostCard(post *BlogPostPreview) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(post.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 46, Col: 50}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 24, Col: 50}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -99,7 +99,7 @@ func BlogPostCard(post *BlogPostPreview) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(post.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 47, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 25, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -112,7 +112,7 @@ func BlogPostCard(post *BlogPostPreview) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL("https://gosuda.org" + post.Path))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 50, Col: 100}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 28, Col: 100}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {
@@ -125,7 +125,7 @@ func BlogPostCard(post *BlogPostPreview) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL("https://gosuda.org" + post.Path))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 51, Col: 100}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/component_blog_post.templ`, Line: 29, Col: 100}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
