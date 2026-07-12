@@ -53,7 +53,7 @@ func BlogPostCard(post *BlogPostPreview) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"p-4\"><div class=\"flex items-center mb-4\"><div class=\"w-10 h-10 bg-gray-300 rounded-full mr-3\"></div><div><div class=\"font-semibold\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"p-4\"><div class=\"flex items-center mb-4\"><img src=\"/assets/apple-touch-icon.png\" class=\"w-10 h-10 mr-3 rounded-full\" alt=\"Author avatar\"><div><div class=\"font-semibold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

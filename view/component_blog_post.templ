@@ -15,7 +15,7 @@ templ BlogPostCard(post *BlogPostPreview) {
 	<a class="border-2 border-black rounded-lg overflow-hidden transition hover:shadow-lg hover:drop-shadow-lg" href={ templ.SafeURL(post.URL) }>
 		<div class="p-4">
 			<div class="flex items-center mb-4">
-				<div class="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+				<img src="/assets/apple-touch-icon.png" class="w-10 h-10 mr-3 rounded-full" alt="Author avatar"/>
 				<div>
 					<div class="font-semibold">{ post.Author }</div>
 					<div class="text-sm text-gray-500">{ post.Date.Format("January 2, 2006") }</div>
