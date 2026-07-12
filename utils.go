@@ -12,8 +12,11 @@ import (
 
 func generateFileList(dir string) ([]string, error) {
 	var fileList []string
-	err := filepath.Walk(dir, func(path string, info fs.FileInfo, err error) error {
-		if !info.IsDir() {
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() {
 			fileList = append(fileList, path)
 		}
 		return nil
@@ -48,13 +51,13 @@ func copyFile(src, dst string) error {
 }
 
 func copyDir(src, dst string) error {
-	filepath.Walk(src, func(path string, info fs.FileInfo, err error) error {
+	return filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		relPath := strings.TrimPrefix(path, src)
 		dstPath := filepath.Join(dst, relPath)
-		if info.IsDir() {
+		if d.IsDir() {
 			err := os.MkdirAll(dstPath, os.ModePerm)
 			if err != nil {
 				return err
@@ -67,7 +70,6 @@ func copyDir(src, dst string) error {
 		}
 		return nil
 	})
-	return nil
 }
 
 func mapDetectedLanguage(detectedLang lingua.Language) string {

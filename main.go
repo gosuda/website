@@ -12,12 +12,11 @@ import (
 	"gosuda.org/website/internal/evaluate"
 )
 
-var _ = func() struct{} {
+func init() {
 	envloader.LoadEnvFile(".env")
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02 15:04:05"})
-	return struct{}{}
-}()
+}
 
 //go:generate go tool templ generate
 //go:generate npm run build
@@ -47,14 +46,20 @@ func generate_main() {
 	log.Info().Msgf("website generated")
 }
 
-func remove_lang_main() {
+func remove_lang_main(postID, lang string) {
 	ds, err := initializeDatabase(dbFile)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to initialize database file %s", dbFile)
 	}
 
-	post_id := os.Args[2]
-	delete(ds.Posts[post_id].Translated, os.Args[3])
+	post, ok := ds.Posts[postID]
+	if !ok {
+		log.Fatal().Msgf("post not found: %s", postID)
+	}
+	if post.Translated == nil {
+		return
+	}
+	delete(post.Translated, lang)
 
 	err = updateDatabase(dbFile, ds)
 	if err != nil {
@@ -62,28 +67,43 @@ func remove_lang_main() {
 	}
 }
 
-func get_translation_main() {
+func get_translation_main(postID, lang string) {
 	ds, err := initializeDatabase(dbFile)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to initialize database file %s", dbFile)
 	}
 
-	fmt.Println(ds.Posts[os.Args[2]].Translated[os.Args[3]].Markdown)
+	post, ok := ds.Posts[postID]
+	if !ok {
+		log.Fatal().Msgf("post not found: %s", postID)
+	}
+	trans, ok := post.Translated[lang]
+	if !ok {
+		log.Fatal().Msgf("translation not found for language %s in post %s", lang, postID)
+	}
+	fmt.Println(trans.Markdown)
 
 	err = updateDatabase(dbFile, ds)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to update database file %s", dbFile)
 	}
 }
-func eval_translation_main() {
+func eval_translation_main(postID, lang string) {
 	ds, err := initializeDatabase(dbFile)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to initialize database file %s", dbFile)
 	}
 
 	evaluate.DEBUG_MODE = true
-	orig := ds.Posts[os.Args[2]].Main
-	trans := ds.Posts[os.Args[2]].Translated[os.Args[3]]
+	post, ok := ds.Posts[postID]
+	if !ok {
+		log.Fatal().Msgf("post not found: %s", postID)
+	}
+	orig := post.Main
+	trans, ok := post.Translated[lang]
+	if !ok {
+		log.Fatal().Msgf("translation not found for language %s in post %s", lang, postID)
+	}
 	score, err := evaluate.EvaluateTranslation(context.Background(), llmModel, orig.Metadata.Language, trans.Metadata.Language, orig.Markdown, trans.Markdown)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to evaluate translation")
@@ -196,6 +216,17 @@ func remove_lang_all_main() {
 	}
 }
 
+func printUsage() {
+	fmt.Println("Usage:")
+	fmt.Println("  website                         - Generate website")
+	fmt.Println("  website remove_lang <postID> <lang>  - Remove language translation from a post")
+	fmt.Println("  website remove_lang_all         - Remove all translations except main language")
+	fmt.Println("  website get_translation <postID> <lang> - Get translation markdown")
+	fmt.Println("  website eval_translation <postID> <lang> - Evaluate translation quality")
+	fmt.Println("  website eval_all                - Evaluate all translations and remove low quality ones")
+	fmt.Println("  website edit_db                 - Edit database interactively")
+}
+
 func main() {
 	if llmClient != nil {
 		defer llmClient.Close()
@@ -211,16 +242,31 @@ func main() {
 
 	switch os.Args[1] {
 	case "remove_lang":
-		remove_lang_main() // remove lang from db
+		if len(os.Args) < 4 {
+			log.Error().Msg("missing arguments: remove_lang <postID> <lang>")
+			printUsage()
+			os.Exit(1)
+		}
+		remove_lang_main(os.Args[2], os.Args[3])
 		return
 	case "remove_lang_all":
 		remove_lang_all_main() // remove lang from db
 		return
 	case "get_translation":
-		get_translation_main() // get translation from db
+		if len(os.Args) < 4 {
+			log.Error().Msg("missing arguments: get_translation <postID> <lang>")
+			printUsage()
+			os.Exit(1)
+		}
+		get_translation_main(os.Args[2], os.Args[3])
 		return
 	case "eval_translation":
-		eval_translation_main() // eval translation
+		if len(os.Args) < 4 {
+			log.Error().Msg("missing arguments: eval_translation <postID> <lang>")
+			printUsage()
+			os.Exit(1)
+		}
+		eval_translation_main(os.Args[2], os.Args[3])
 		return
 	case "eval_all":
 		eval_all_main() // eval all translations and remove if it is low quality.
@@ -228,5 +274,9 @@ func main() {
 	case "edit_db":
 		edit_db_main() // edit db
 		return
+	default:
+		log.Error().Msgf("unknown command: %s", os.Args[1])
+		printUsage()
+		os.Exit(1)
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -28,22 +29,7 @@ func parseMarkdown(path string, data []byte) (*types.Document, error) {
 	return doc, nil
 }
 
-func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, error) {
-	log.Debug().Str("path", path).Msgf("start processing markdown file %s", path)
-
-	log.Debug().Str("path", path).Msgf("start reading markdown file %s", path)
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n")) // normalize line endings
-	log.Debug().Str("path", path).Int("size", len(data)).Msgf("read markdown file %s", path)
-
-	doc, err := parseMarkdown(path, data)
-	if err != nil {
-		return nil, err
-	}
-
+func fillMissingMetadata(ctx context.Context, doc *types.Document, path string) error {
 	if doc.Metadata.ID == "" {
 		doc.Metadata.ID = types.RandID()
 		log.Debug().Str("path", path).Str("id", doc.Metadata.ID).Msgf("assigned new ID to document %s", path)
@@ -60,7 +46,7 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 
 	if llmModel != nil && doc.Metadata.Description == "" {
 		log.Debug().Str("path", path).Msgf("generating description for document %s", path)
-		desc, err := description.GenerateDescription(context.Background(), llmModel, doc.Markdown)
+		desc, err := description.GenerateDescription(ctx, llmModel, doc.Markdown)
 		if err != nil {
 			log.Error().Str("path", path).Err(err).Msgf("failed to generate description for document %s", path)
 		}
@@ -79,38 +65,45 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 			doc.Metadata.Language = lang
 		}
 	}
+	return nil
+}
+
+func saveMarkdownWithMetadata(path string, doc *types.Document) error {
+	if doc.Type != types.DocumentTypeMarkdown {
+		log.Debug().Str("path", path).Msgf("skipping non-markdown document %s", path)
+		return nil
+	}
 
 	log.Debug().Str("path", path).Msgf("saving updated document %s", path)
 
-	if doc.Type == types.DocumentTypeMarkdown {
-		newMeta, err := yaml.Marshal(&doc.Metadata)
-		if err != nil {
-			return nil, err
-		}
-
-		original := doc.Markdown
-		original = strings.TrimPrefix(original, "---\n")
-		_, origDocument, ok := strings.Cut(original, "---\n")
-		if !ok {
-			return nil, ErrInvalidMarkdown
-		}
-		newDocument := "---\n" + string(newMeta) + "---\n" + origDocument
-		doc.Markdown = newDocument
-
-		fStat, err := os.Stat(path)
-		if err != nil {
-			return nil, err
-		}
-
-		err = os.WriteFile(path, []byte(doc.Markdown), fStat.Mode())
-		if err != nil {
-			return nil, err
-		}
-		log.Debug().Str("path", path).Msgf("saved updated document %s", path)
-	} else {
-		log.Debug().Str("path", path).Msgf("skipping non-markdown document %s", path)
+	newMeta, err := yaml.Marshal(&doc.Metadata)
+	if err != nil {
+		return err
 	}
 
+	original := doc.Markdown
+	original = strings.TrimPrefix(original, "---\n")
+	_, origDocument, ok := strings.Cut(original, "---\n")
+	if !ok {
+		return ErrInvalidMarkdown
+	}
+	newDocument := "---\n" + string(newMeta) + "---\n" + origDocument
+	doc.Markdown = newDocument
+
+	fStat, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(path, []byte(doc.Markdown), fStat.Mode())
+	if err != nil {
+		return err
+	}
+	log.Debug().Str("path", path).Msgf("saved updated document %s", path)
+	return nil
+}
+
+func updatePostAndTranslate(gc *GenerationContext, doc *types.Document, path string) error {
 	now := time.Now()
 
 	// Update Post Object
@@ -140,12 +133,12 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		if post.Hash != hash {
 			post.Hash = hash
 			post.UpdatedAt = now
-			err = translatePost(gc, post, true, doc.Metadata.Language)
+			err := translatePost(gc, post, true, doc.Metadata.Language)
 			if err != nil {
 				log.Error().Str("path", path).Err(err).Msg("failed to translate")
 			}
 		} else {
-			err = translatePost(gc, post, false, doc.Metadata.Language)
+			err := translatePost(gc, post, false, doc.Metadata.Language)
 			if err != nil {
 				log.Error().Str("path", path).Err(err).Msg("failed to translate")
 			}
@@ -161,10 +154,45 @@ func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, e
 		gc.PathMap = make(map[string]string)
 	}
 	gc.PathMap[post.Path] = post.ID
+	return nil
+}
+
+func processMarkdownFile(gc *GenerationContext, path string) (*types.Document, error) {
+	log.Debug().Str("path", path).Msgf("start processing markdown file %s", path)
+
+	log.Debug().Str("path", path).Msgf("start reading markdown file %s", path)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n")) // normalize line endings
+	log.Debug().Str("path", path).Int("size", len(data)).Msgf("read markdown file %s", path)
+
+	doc, err := parseMarkdown(path, data)
+	if err != nil {
+		return nil, err
+	}
+
+	err = fillMissingMetadata(context.Background(), doc, path)
+	if err != nil {
+		return nil, err
+	}
+
+	err = saveMarkdownWithMetadata(path, doc)
+	if err != nil {
+		return nil, err
+	}
+
+	err = updatePostAndTranslate(gc, doc, path)
+	if err != nil {
+		return nil, err
+	}
 
 	log.Debug().Str("path", path).Msgf("done processing markdown file %s", path)
 	return doc, nil
 }
+
+var slugRegex = regexp.MustCompile(`[^a-z0-9]+`)
 
 func generatePath(title string) string {
 	lang, ok := languageDetector.DetectLanguageOf(title)
@@ -197,33 +225,8 @@ func generatePath(title string) string {
 	}
 
 	fp = strings.ToLower(fp)
-	fp = strings.ReplaceAll(fp, " ", "-")
-	fp = strings.ReplaceAll(fp, "/", "-")
-	fp = strings.ReplaceAll(fp, `{`, "-")
-	fp = strings.ReplaceAll(fp, `}`, "-")
-	fp = strings.ReplaceAll(fp, `|`, "-")
-	fp = strings.ReplaceAll(fp, `\`, "-")
-	fp = strings.ReplaceAll(fp, `^`, "-")
-	fp = strings.ReplaceAll(fp, `~`, "-")
-	fp = strings.ReplaceAll(fp, `[`, "-")
-	fp = strings.ReplaceAll(fp, `]`, "-")
-	fp = strings.ReplaceAll(fp, `'`, "-")
-	fp = strings.ReplaceAll(fp, `"`, "-")
-	fp = strings.ReplaceAll(fp, "`", "-")
-	fp = strings.ReplaceAll(fp, ",", "-")
-	fp = strings.ReplaceAll(fp, ".", "-")
-	fp = strings.ReplaceAll(fp, "?", "-")
-	fp = strings.ReplaceAll(fp, "&", "-")
-	fp = strings.ReplaceAll(fp, "=", "-")
-
-	fp = strings.ReplaceAll(fp, `----`, "-")
-	fp = strings.ReplaceAll(fp, `---`, "-")
-	fp = strings.ReplaceAll(fp, `--`, "-")
-	fp = strings.ReplaceAll(fp, `--`, "-")
-	fp = strings.ReplaceAll(fp, `--`, "-")
-	fp = strings.TrimSuffix(fp, "---")
-	fp = strings.TrimSuffix(fp, "--")
-	fp = strings.TrimSuffix(fp, "-")
+	fp = slugRegex.ReplaceAllString(fp, "-")
+	fp = strings.Trim(fp, "-")
 
 	var b [4]byte
 	rand.Read(b[:])
