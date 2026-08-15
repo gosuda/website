@@ -1,8 +1,11 @@
 ---
+id: 1a31e06c0d969b4b6cbbc590259cf089
 author: iwanhae
 title: Go 1.27, or How I Learned to Stop Worrying and Love Generic Methods
 description: Generic methods, encoding/json/v2, a standard uuid package, and a goroutine leak detector that actually works. A tour of Go 1.27 with examples that were all actually run.
 language: en
+date: 2026-08-15T02:08:43.129534158Z
+path: /blog/posts/go-1-27-or-how-i-learned-to-stop-worrying-and-love-generic-methods-za800e454
 ---
 
 ![Overview of Go 1.27](/assets/images/whats-new-in-go1.27/overview.webp)
