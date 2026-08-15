@@ -28,7 +28,7 @@ Since Go 1.18 we've had generics, and since Go 1.18 we've had The Conversation. 
 >
 > "...fine. Package-level function it is."
 
-Methods could only use type parameters declared by the *receiver*. Your own method couldn't introduce new ones. So every generic transformation got exiled to package scope, where it sat next to seventeen other free-floating helpers named some variation of `MapSlice`.
+Methods could only use type parameters declared by the _receiver_. Your own method couldn't introduce new ones. So every generic transformation got exiled to package scope, where it sat next to seventeen other free-floating helpers named some variation of `MapSlice`.
 
 Go 1.27 fixes this:
 
@@ -103,7 +103,7 @@ Previously only the package-level `rand.N` was generic, which meant using the gl
 
 ### 1.2. Struct Literal Field Selectors, or: Issue #9859 Finally Gets to Rest
 
-Embedding gives you `u.ID`. Embedding does *not* give you `User{ID: 1}`. Instead it gives you `User{Base: Base{ID: 1}}`, which is Go's way of asking whether you really meant it.
+Embedding gives you `u.ID`. Embedding does _not_ give you `User{ID: 1}`. Instead it gives you `User{Base: Base{ID: 1}}`, which is Go's way of asking whether you really meant it.
 
 [Issue #9859](https://go.dev/issue/9859) was filed in 2015. It has now been closed. Somewhere, a gopher who has since changed careers twice is getting a GitHub notification.
 
@@ -338,11 +338,11 @@ This is the big one. [Two-plus years of proposal discussion](https://go.dev/issu
 
 There are now **three packages**, and understanding the split is most of the battle:
 
-| Package | Job |
-|---|---|
-| `encoding/json` | The v1 API you know. **Behavior 100% unchanged.** Now implemented on top of v2 |
-| `encoding/json/v2` | Semantic processing. Go values ↔ JSON |
-| `encoding/json/jsontext` | Syntactic processing. JSON as a token stream |
+| Package                  | Job                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| `encoding/json`          | The v1 API you know. **Behavior 100% unchanged.** Now implemented on top of v2 |
+| `encoding/json/v2`       | Semantic processing. Go values ↔ JSON                                          |
+| `encoding/json/jsontext` | Syntactic processing. JSON as a token stream                                   |
 
 The headline is that `encoding/json` was rebuilt on a completely different implementation **and behaves identically**. Here's how:
 
@@ -483,7 +483,7 @@ fmt.Println(mldsa.Verify(pk, msg, sig, &mldsa.Options{Context: "other"}))
 
 Look at those numbers. **A single signature is 3,309 bytes.** Ed25519 is 64. That's a 50x increase, and the public key is nearly 2KB on top of it. Stuff a few of these into a certificate chain and your TLS handshake starts needing its own MTU strategy.
 
-This is the actual cost of quantum resistance today, and it's why nobody is switching everything over tomorrow. But it's in the standard library now, which is where you want it to be *before* you need it.
+This is the actual cost of quantum resistance today, and it's why nobody is switching everything over tomorrow. But it's in the standard library now, which is where you want it to be _before_ you need it.
 
 `Options.Context` is domain separation: sign with the same key for different purposes, use a different context for each, and a signature from one context won't verify in another. The example above shows exactly that — same key, same message, different context, rejected.
 
@@ -631,9 +631,9 @@ func TestRetryWithBackoff(t *testing.T) {
 --- PASS: TestRetryWithBackoff (0.00s)
 ```
 
-Read that twice. It simulated three seconds of backoff against a real HTTP server, and finished in **0.00 seconds**. And the assertion is `elapsed == 3*time.Second` — *exactly* three seconds, not "at least three seconds, give or take scheduler jitter." Fake clocks don't jitter.
+Read that twice. It simulated three seconds of backoff against a real HTTP server, and finished in **0.00 seconds**. And the assertion is `elapsed == 3*time.Second` — _exactly_ three seconds, not "at least three seconds, give or take scheduler jitter." Fake clocks don't jitter.
 
-`synctest.Sleep` exists for a specific reason: if your test sleeps for the same duration as the code under test, which one wakes up first is anybody's guess. `synctest.Sleep` sleeps *and then* waits until every other goroutine in the bubble is durably blocked, so you observe the system after it has settled.
+`synctest.Sleep` exists for a specific reason: if your test sleeps for the same duration as the code under test, which one wakes up first is anybody's guess. `synctest.Sleep` sleeps _and then_ waits until every other goroutine in the bubble is durably blocked, so you observe the system after it has settled.
 
 Timeouts, retries, circuit breakers, rate limiters — every time-dependent HTTP client test you own can become fast and deterministic. If your test suite is currently held together with `time.Sleep(100 * time.Millisecond)` and hope, this is your exit.
 
@@ -651,7 +651,7 @@ defer func() {
 }()
 ```
 
-For most programs this is a no-op or a small win. If it makes things *worse*, you're probably in the bucket the release notes politely describe: `Transport.MaxIdleConns` set to 0, or a new `Client` per request, bypassing the idle connection limit entirely. `Transport.DisableKeepAlives = true` will paper over it, but the release notes' actual advice is that "a deeper look would likely be beneficial," which is Go-team for *you have bigger problems*.
+For most programs this is a no-op or a small win. If it makes things _worse_, you're probably in the bucket the release notes politely describe: `Transport.MaxIdleConns` set to 0, or a new `Client` per request, bypassing the idle connection limit entirely. `Transport.DisableKeepAlives = true` will paper over it, but the release notes' actual advice is that "a deeper look would likely be beneficial," which is Go-team for _you have bigger problems_.
 
 **HTTP/2 client priority (RFC 9218).** The server now honors client priority signals. If you preferred the old round-robin scheduling, `Server.DisableClientPriority = true`.
 
@@ -661,14 +661,14 @@ For most programs this is a no-op or a small win. If it makes things *worse*, yo
 
 ### 3.8. The Small Stuff That Sparks Joy
 
-**`strings.CutLast` / `bytes.CutLast`.** `Cut` splits at the *first* separator. There was no "last" variant, so everyone hand-rolled `LastIndex` plus slicing, and roughly 30% of us got an off-by-one on the first try.
+**`strings.CutLast` / `bytes.CutLast`.** `Cut` splits at the _first_ separator. There was no "last" variant, so everyone hand-rolled `LastIndex` plus slicing, and roughly 30% of us got an off-by-one on the first try.
 
 ```go
 name, ext, ok := strings.CutLast("archive.tar.gz", ".")
 // archive.tar gz true
 ```
 
-Great for file extensions and for parsing `host:port` — where you must find the *last* colon, because IPv6 addresses are full of them.
+Great for file extensions and for parsing `host:port` — where you must find the _last_ colon, because IPv6 addresses are full of them.
 
 **`math/big.Int.Divide`.** Division with an explicit rounding mode, replacing the "is it `Quo` or `Div` I want?" coin flip:
 
@@ -698,7 +698,7 @@ fmt.Println(orig.Host, clone.Host)  // gosuda.org example.com
 
 **`unicode` 15 → 17.** Two versions in one jump. String classification and normalization behavior may shift subtly. If you have tests that depend on it, you'll find out.
 
-**`compress/flate` got faster** — and **its output bytes may differ from Go 1.26.** This cascades to `archive/zip`, `compress/gzip`, `compress/zlib`, and `image/png`. If you have golden-file tests that hash compressed output, they are going to break, and it will not be a regression. Check for this *before* you upgrade, not during the incident review.
+**`compress/flate` got faster** — and **its output bytes may differ from Go 1.26.** This cascades to `archive/zip`, `compress/gzip`, `compress/zlib`, and `image/png`. If you have golden-file tests that hash compressed output, they are going to break, and it will not be a regression. Check for this _before_ you upgrade, not during the incident review.
 
 ## 4. Toolchain
 
@@ -878,7 +878,7 @@ Output:
 Cut("Gopher", "Go") = "", "pher", true
 ```
 
-Example source *and* expected output, in the terminal, without opening a browser tab that will still be open next Thursday.
+Example source _and_ expected output, in the terminal, without opening a browser tab that will still be open next Thursday.
 
 ### 4.5. go mod tidy Cleans Up Your require Blocks
 
@@ -927,7 +927,7 @@ Note that the `// networking` comment survived. This mostly cleans up after **Gi
 
 **Compiler.** Relative filenames in `//line` directives now resolve against the directory of the containing file, matching `go/scanner`. Relevant if you write code generators.
 
-Function literal (closure) symbol names are also simpler now — the same name regardless of inlining, and multiple instances of the same literal may share code in the binary. No functional change, *except*: code that compares function identity via `reflect.Value.Pointer` will see "equal" more often than before. That comparison was never valid, but if you have it, now is when it starts lying to you louder.
+Function literal (closure) symbol names are also simpler now — the same name regardless of inlining, and multiple instances of the same literal may share code in the binary. No functional change, _except_: code that compares function identity via `reflect.Value.Pointer` will see "equal" more often than before. That comparison was never valid, but if you have it, now is when it starts lying to you louder.
 
 **Linker.** New `-macos` and `-macsdk` options set the OS and SDK versions in the macOS `LC_BUILD_VERSION` load command.
 
@@ -942,7 +942,7 @@ Go 1.27 takes compatibility seriously, but check these before you bump the versi
 
 - [ ] **Golden-file tests on compressed output.** `compress/flate` changed encoders; gzip/zip/png bytes may differ.
 - [ ] **Tests matching JSON error message strings.** Behavior is identical; **the error text is not.**
-- [ ] **Removed GODEBUGs in `go.mod`.** `asynctimerchan`, `gotypesalias`, `tlsrsakex`, `tls3des`, `tls10server`, `tlsunsafeekm`, `x509keypairleaf` — these fail the build only if set to their *old* values.
+- [ ] **Removed GODEBUGs in `go.mod`.** `asynctimerchan`, `gotypesalias`, `tlsrsakex`, `tls3des`, `tls10server`, `tlsunsafeekm`, `x509keypairleaf` — these fail the build only if set to their _old_ values.
 - [ ] **`stdversion` violations.** `go test` catches these now. Run it early if you maintain a library with a conservative `go` directive.
 - [ ] **macOS 12 or older CI runners.** Support is gone.
 - [ ] **Tests asserting on function literal symbol names**, and **`reflect.Value.Pointer` function comparisons.**
