@@ -58,17 +58,19 @@ pre {
     --code-bg: #f5f7fb;
     --code-border: #e5e7eb;
     --selection: #e0e7ff;
+    --link: #2563eb;
   }
 
   .dark {
     --bg: #0e1628;
     --surface: #121b30;
     --fg: #e6edf3;
-    --muted: #9aa7b5;
+    --muted: #94a3b8;
     --border: #243045;
     --code-bg: #0b1324;
     --code-border: #1b2740;
     --selection: #1f3a5b;
+    --link: #60a5fa;
   }
 
   body {
@@ -79,15 +81,6 @@ pre {
   ::before,
   ::after {
     border-color: var(--border);
-  }
-
-  a {
-    color: var(--link);
-  }
-  ::selection,
-  ::-moz-selection {
-    background: var(--selection);
-    color: var(--fg);
   }
 
   pre,
@@ -115,44 +108,85 @@ pre {
     color: inherit !important;
     background-color: transparent !important;
   }
+}
 
-  .dark pre {
-    background: var(--code-bg);
-    border: 1px solid var(--code-border);
-    border-radius: 0.5rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
-  }
+/* Dark mode overrides (applied with highest specificity) */
+.dark body {
+  background-color: var(--bg);
+  color: var(--fg);
+}
 
-  .dark .prose {
-    --tw-prose-body: var(--tw-prose-invert-body);
-    --tw-prose-headings: var(--tw-prose-invert-headings);
-    --tw-prose-lead: var(--tw-prose-invert-lead);
-    --tw-prose-links: var(--link);
-    --tw-prose-bold: var(--tw-prose-invert-bold);
-    --tw-prose-counters: var(--tw-prose-invert-counters);
-    --tw-prose-bullets: var(--tw-prose-invert-bullets);
-    --tw-prose-hr: var(--border);
-    --tw-prose-quotes: var(--tw-prose-invert-quotes);
-    --tw-prose-quote-borders: var(--border);
-    --tw-prose-captions: var(--muted);
-    --tw-prose-kbd: var(--fg);
-    --tw-prose-kbd-shadows: 255 255 255;
-    --tw-prose-code: var(--fg);
-    --tw-prose-pre-code: #c9d1d9;
-    --tw-prose-pre-bg: var(--code-bg);
-    --tw-prose-th-borders: var(--border);
-    --tw-prose-td-borders: var(--border);
-  }
+.dark pre {
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 0.5rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
 
-  .dark .text-black {
-    color: var(--fg) !important;
-  }
-  .dark .border-black {
-    border-color: var(--fg) !important;
-  }
-  .dark .bg-gray-300 {
-    background-color: #1b2740 !important;
-  }
+.dark .prose {
+  --tw-prose-body: #e6edf3;
+  --tw-prose-headings: #ffffff;
+  --tw-prose-lead: #cbd5e1;
+  --tw-prose-links: #60a5fa;
+  --tw-prose-bold: #ffffff;
+  --tw-prose-counters: #94a3b8;
+  --tw-prose-bullets: #94a3b8;
+  --tw-prose-hr: #243045;
+  --tw-prose-quotes: #e6edf3;
+  --tw-prose-quote-borders: #243045;
+  --tw-prose-captions: #94a3b8;
+  --tw-prose-kbd: #e6edf3;
+  --tw-prose-kbd-shadows: 255 255 255;
+  --tw-prose-code: #e6edf3;
+  --tw-prose-pre-code: #e6edf3;
+  --tw-prose-pre-bg: var(--code-bg);
+  --tw-prose-th-borders: #243045;
+  --tw-prose-td-borders: #243045;
+  color: #e6edf3;
+}
+
+.dark .prose p,
+.dark .prose li,
+.dark .prose blockquote,
+.dark .prose span {
+  color: #e6edf3;
+}
+
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4,
+.dark .prose h5,
+.dark .prose h6 {
+  color: #ffffff;
+}
+
+.dark .prose a {
+  color: #60a5fa;
+}
+
+.dark .text-black {
+  color: var(--fg) !important;
+}
+
+.dark .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-blue-500 {
+  color: #60a5fa !important;
+}
+
+.dark .border-black {
+  border-color: var(--border) !important;
+}
+
+.dark .bg-gray-300 {
+  background-color: #1b2740 !important;
 }
 
 @layer components {
