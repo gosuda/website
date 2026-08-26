@@ -1,6 +1,6 @@
 ---
 author: Lemon Mint
-title: Portalite를 소개합니다: 앱에 포털 Ingress를 추가하는 초경량 오픈소스 클라이언트와 SDK
+title: "Portalite를 소개합니다: 앱에 포털 Ingress를 추가하는 초경량 오픈소스 클라이언트와 SDK"
 path: /portalite
 go_package: gosuda.org/portalite
 go_repourl: https://github.com/gosuda/portalite.git
