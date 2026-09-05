@@ -1,8 +1,10 @@
 ---
+id: 78787664f5c944556bd14c0346a41b41
 author: Lemon Mint
-title: 'Introducing GSTime and GSTimeAssure'
-description: 'GSTime & GSTimeAssure'
+title: Introducing GSTime and GSTimeAssure
+description: GSTime & GSTimeAssure
 language: en
+date: 2026-09-05T11:44:59.861082619Z
 path: /gstime
 go_package: gosuda.org/gstime
 go_repourl: https://github.com/gosuda/gstime.git
