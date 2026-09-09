@@ -3,7 +3,7 @@
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.2",
     "@tailwindcss/typography": "^0.5.20",
-    "@types/bun": "^1.3.14",
+    "@types/bun": "^1.4.1",
     "caniuse-lite": "^1.0.30001805",
     "tailwindcss": "^4.3.2",
     "typescript": "^7.0.2"
