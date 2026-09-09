@@ -9,13 +9,13 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/feeds v1.2.0
-	github.com/klauspost/compress v1.19.2
+	github.com/klauspost/compress v1.20.0
 	github.com/lemon-mint/coord v0.5.0
 	github.com/pemistahl/lingua-go v1.4.0
 	github.com/rs/zerolog v1.35.1
 	github.com/tdewolff/minify/v2 v2.24.17
 	github.com/wyatt915/goldmark-treeblood v0.0.1
-	github.com/yuin/goldmark v1.8.5
+	github.com/yuin/goldmark v1.8.6
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 	github.com/yuin/goldmark-meta v1.1.0
 	github.com/zeebo/blake3 v0.2.4
