@@ -1,8 +1,10 @@
 ---
+id: 43974d116e135fd9d3478f658dcf71c6
 author: Lemon Mint
 title: 'HQQ: Isolating C Libraries from Go Over Cache-Line Shared Memory'
-description: 'Why we built a shared-memory IPC runtime, an IDL compiler with generation-checked handles, and a sealed-binary process launcher to call C libraries from Go with CGO_ENABLED=0.'
+description: Why we built a shared-memory IPC runtime, an IDL compiler with generation-checked handles, and a sealed-binary process launcher to call C libraries from Go with CGO_ENABLED=0.
 language: en
+date: 2026-10-18T13:56:46.094643498Z
 path: /hqq
 go_package: gosuda.org/hqq
 go_repourl: https://github.com/gosuda/HQQ.git
