@@ -192,14 +192,25 @@ func translateChunk(ctx context.Context, l llm.Model, chunk string, targetLangua
 	}
 
 	text := llmtools.TextFromContents(resp.Content)
-	sidx := strings.Index(text, startToken)
-	eidx := strings.Index(text, endToken)
-	if sidx != -1 && eidx != -1 {
-		text = text[sidx+len(startToken) : eidx]
-		return text, nil
+	if translated, ok := between(text, startToken, endToken); ok {
+		return translated, nil
 	}
 
 	return "", ErrFailedToTranslate
+}
+
+// between returns the text between start and the first end after it.
+// The model may echo the end token before the start token, so end is searched only after start.
+func between(text, start, end string) (string, bool) {
+	_, rest, ok := strings.Cut(text, start)
+	if !ok {
+		return "", false
+	}
+	inner, _, ok := strings.Cut(rest, end)
+	if !ok {
+		return "", false
+	}
+	return inner, true
 }
 
 func Translate(ctx context.Context, l llm.Model, input, targetLanguage string) (string, error) {

@@ -50,7 +50,7 @@ templ Hero(gh *GitHubStats) {
 				<div class="orbit"></div>
 				<div class="orbit orbit-reverse inset-[12%]"></div>
 				<div class="absolute inset-[22%] rounded-full bg-gradient-to-br from-brand/30 to-brand-2/30 blur-2xl"></div>
-				<img src="/assets/gosuda.webp" alt="GoSuda mascot" width="640" height="640" class="mascot-float absolute inset-[14%] size-[72%] drop-shadow-2xl"/>
+				<img src="/assets/gosuda.webp" alt="GoSuda mascot" width="640" height="640" fetchpriority="high" class="mascot-float absolute inset-[14%] size-[72%] drop-shadow-2xl"/>
 				if gh != nil {
 					<div class="mascot-float absolute right-0 top-[12%] flex items-center gap-1.5 rounded-full border bg-card/80 px-3 py-1.5 text-sm font-bold shadow-lg backdrop-blur [animation-delay:-2s]">
 						@ui.StarIcon("size-4 text-amber-400")

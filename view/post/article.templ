@@ -20,7 +20,7 @@ templ Article(doc *types.Document, canonical string, cover string) {
 				</button>
 			</div>
 			<div class="mt-8 aspect-[16/9] overflow-hidden rounded-xl border bg-muted">
-				<img src={ cover } alt="" width="1200" height="675" class="size-full object-cover"/>
+				<img src={ cover } alt="" width="1200" height="675" fetchpriority="high" class="size-full object-cover"/>
 			</div>
 		</header>
 		<div class="prose max-w-none dark:prose-invert prose-headings:tracking-tight prose-a:underline-offset-4 prose-img:rounded-lg">

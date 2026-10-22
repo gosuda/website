@@ -178,7 +178,7 @@ func Hero(gh *GitHubStats) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div class=\"relative mx-auto aspect-square w-full max-w-[420px]\"><div class=\"orbit\"></div><div class=\"orbit orbit-reverse inset-[12%]\"></div><div class=\"absolute inset-[22%] rounded-full bg-gradient-to-br from-brand/30 to-brand-2/30 blur-2xl\"></div><img src=\"/assets/gosuda.webp\" alt=\"GoSuda mascot\" width=\"640\" height=\"640\" class=\"mascot-float absolute inset-[14%] size-[72%] drop-shadow-2xl\"> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div class=\"relative mx-auto aspect-square w-full max-w-[420px]\"><div class=\"orbit\"></div><div class=\"orbit orbit-reverse inset-[12%]\"></div><div class=\"absolute inset-[22%] rounded-full bg-gradient-to-br from-brand/30 to-brand-2/30 blur-2xl\"></div><img src=\"/assets/gosuda.webp\" alt=\"GoSuda mascot\" width=\"640\" height=\"640\" fetchpriority=\"high\" class=\"mascot-float absolute inset-[14%] size-[72%] drop-shadow-2xl\"> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
