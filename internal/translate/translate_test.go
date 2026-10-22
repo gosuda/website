@@ -194,3 +194,21 @@ Final paragraph to conclude the headers and tables test.`,
 		})
 	}
 }
+
+func TestBetween(t *testing.T) {
+	cases := []struct {
+		text, want string
+		ok         bool
+	}{
+		{"x[s]hello[e]y", "hello", true},
+		{"[e] echoed first [s]hello[e]", "hello", true},
+		{"[e] only end", "", false},
+		{"[s] no end", "", false},
+	}
+	for _, c := range cases {
+		got, ok := between(c.text, "[s]", "[e]")
+		if got != c.want || ok != c.ok {
+			t.Errorf("between(%q) = %q, %v; want %q, %v", c.text, got, ok, c.want, c.ok)
+		}
+	}
+}

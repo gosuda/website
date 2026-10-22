@@ -125,7 +125,7 @@ func Article(doc *types.Document, canonical string, cover string) templ.Componen
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" alt=\"\" width=\"1200\" height=\"675\" class=\"size-full object-cover\"></div></header><div class=\"prose max-w-none dark:prose-invert prose-headings:tracking-tight prose-a:underline-offset-4 prose-img:rounded-lg\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" alt=\"\" width=\"1200\" height=\"675\" fetchpriority=\"high\" class=\"size-full object-cover\"></div></header><div class=\"prose max-w-none dark:prose-invert prose-headings:tracking-tight prose-a:underline-offset-4 prose-img:rounded-lg\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
