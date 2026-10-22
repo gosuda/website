@@ -68,8 +68,9 @@ async function displayAlt() {
     const languageName = languageMap[browserLang] || browserLang;
 
     const selector = document.createElement('div');
+    // Floats over the page instead of pushing it down, so it never causes a layout shift.
     selector.className =
-      'mx-auto my-5 max-w-3xl bg-[var(--surface)] ' +
+      'fixed inset-x-4 bottom-4 z-50 mx-auto max-w-3xl bg-[var(--surface)] ' +
       'p-4 rounded-lg shadow-md text-sm flex items-center gap-3 ' +
       'border border-[var(--border)]';
 
@@ -96,12 +97,7 @@ async function displayAlt() {
     </button>
     `;
 
-    const header = document.querySelector('header');
-    if (header) {
-      header.insertAdjacentElement('afterend', selector);
-    } else {
-      document.body.insertBefore(selector, document.body.firstChild);
-    }
+    document.body.append(selector);
 
     document.getElementById('language-selector-close').addEventListener('click', () => {
       selector.remove();
@@ -1280,3 +1276,9 @@ initCountUp();
     apply();
   });
 })();
+
+// Pause the hero and marquee animations while they are off screen.
+document.querySelectorAll('[data-motion]').forEach((el) => {
+  if (!('IntersectionObserver' in window)) return;
+  new IntersectionObserver(([entry]) => el.classList.toggle('motion-paused', !entry.isIntersecting)).observe(el);
+});

@@ -575,8 +575,8 @@ pre {
   50% { background-position: 0% 0; }
 }
 @keyframes letter-rise {
-  from { opacity: 0; transform: translateY(0.4em) rotate(6deg); filter: blur(6px); }
-  to { opacity: 1; transform: none; filter: none; }
+  from { opacity: 0; transform: translateY(0.4em) rotate(6deg); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes float {
   50% { transform: translateY(-14px) rotate(-2deg); }
@@ -592,6 +592,11 @@ pre {
 }
 @keyframes reveal {
   from { opacity: 0; transform: translateY(24px); }
+}
+
+.motion-paused,
+.motion-paused * {
+  animation-play-state: paused !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

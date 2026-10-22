@@ -203,7 +203,7 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 		}
 
 		b.Reset()
-		err = view.PostPage(meta, post.Translated[lang], coverURL(post.ID, post.Main.Metadata.Category)).Render(ctx, &b)
+		err = view.PostPage(meta, post.Translated[lang], coverURL(post)).Render(ctx, &b)
 		if err != nil {
 			return err
 		}
@@ -344,7 +344,7 @@ func generateIndex(gc *GenerationContext, lang types.Lang, gh *home.GitHubStats)
 			Date:        pm.Date,
 			URL:         postPath,
 			Path:        post.Path,
-			Cover:       coverURL(post.ID, post.Main.Metadata.Category),
+			Cover:       coverURL(post),
 			Category:    post.Main.Metadata.Category,
 		})
 	}
@@ -372,9 +372,10 @@ func generateIndex(gc *GenerationContext, lang types.Lang, gh *home.GitHubStats)
 }
 
 // coverURL returns the post's own cover, then its category cover, then the mascot cover.
-// Covers live at public/assets/covers/<post id>.webp and category-<slug>.webp so adding one never touches the markdown.
-func coverURL(postID, category string) string {
-	for _, name := range []string{postID + ".webp", "category-" + category + ".webp"} {
+// Covers live at public/assets/covers/<markdown file name>.webp and category-<slug>.webp so adding one never touches the markdown.
+func coverURL(post *types.Post) string {
+	own := strings.TrimSuffix(filepath.Base(post.FilePath), filepath.Ext(post.FilePath)) + ".webp"
+	for _, name := range []string{own, "category-" + post.Main.Metadata.Category + ".webp"} {
 		if _, err := os.Stat(filepath.Join(publicDir, "assets", "covers", name)); err == nil {
 			return "/assets/covers/" + name
 		}
