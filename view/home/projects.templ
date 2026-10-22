@@ -1,0 +1,46 @@
+package home
+
+import (
+	"gosuda.org/website/view/ui"
+	"strconv"
+)
+
+templ Projects(gh *GitHubStats) {
+	if gh != nil && len(gh.Repos) > 0 {
+		<section id="projects" class="mx-auto max-w-6xl scroll-mt-20 px-4 pt-24">
+			<div class="flex flex-wrap items-end justify-between gap-4">
+				<div>
+					<h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Projects looking for you</h2>
+					<p class="mt-3 text-muted-foreground">Our most starred repositories. Pick one and say hi.</p>
+				</div>
+				@ui.LinkButton("https://github.com/orgs/gosuda/repositories", ui.Outline, templ.Attributes{"target": "_blank", "rel": "noopener noreferrer"}) {
+					All { strconv.Itoa(gh.RepoCount) } repositories
+					@ui.ArrowIcon("size-4")
+				}
+			</div>
+			<div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				for _, r := range gh.Repos[:min(6, len(gh.Repos))] {
+					@ui.LinkCard(r.URL, templ.Attributes{"target": "_blank", "rel": "noopener noreferrer"}) {
+						<div class="reveal relative z-10 flex h-full flex-col p-6">
+							<div class="flex items-center justify-between gap-3">
+								<span class="truncate font-mono text-sm font-bold">gosuda/{ r.Name }</span>
+								<span class="flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
+									@ui.StarIcon("size-4 text-amber-400 transition-transform duration-500 group-hover:rotate-[72deg] group-hover:scale-125")
+									{ strconv.Itoa(r.Stars) }
+								</span>
+							</div>
+							<p class="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">{ r.Description }</p>
+							<div class="mt-5 flex items-center justify-between text-sm">
+								<span class="text-muted-foreground">{ r.Language }</span>
+								<span class="flex items-center gap-1 font-bold text-primary">
+									Contribute
+									@ui.ArrowIcon("size-4")
+								</span>
+							</div>
+						</div>
+					}
+				}
+			</div>
+		</section>
+	}
+}

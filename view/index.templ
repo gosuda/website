@@ -1,39 +1,24 @@
 package view
 
-import "time"
+import (
+	"gosuda.org/website/view/home"
+	"gosuda.org/website/view/layout"
+)
 
-type Metadata struct {
-	Language    string
-	Title       string
-	Description string
-	Author      string
-	Keywords    []string
-	Image       string
-	URL         string
-	BaseURL     string
-	Canonical   string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	GoImport    string
-	CustomHead  string
-
-	Alternate *Alternate
-}
-
-type Alternate struct {
-	Default  string
-	Versions []KV
-}
-
-type KV struct {
-	Key   string
-	Value string
-}
-
-templ IndexPage(m *Metadata, blogPosts []*BlogPostPreview, featuredPosts []FeaturedPost) {
+templ IndexPage(m *layout.Metadata, stats home.Stats, posts []*home.PostPreview) {
 	<!DOCTYPE html>
 	<html lang={ m.Language }>
-		@Head(m)
-		@IndexPageBody(m, blogPosts, featuredPosts)
+		@layout.Head(m)
+		<body>
+			@layout.Header(m)
+			<main>
+				@home.Hero(stats.GitHub)
+				@home.StatsBar(stats)
+				@home.Contribute()
+				@home.Projects(stats.GitHub)
+				@home.Posts(posts)
+			</main>
+			@layout.Footer()
+		</body>
 	</html>
 }

@@ -1220,3 +1220,36 @@ function initDropdown() {
 document.addEventListener('DOMContentLoaded', function () {
   initDropdown();
 });
+
+// Card spotlight: expose the pointer position to CSS as --x / --y.
+document.addEventListener('pointermove', (e) => {
+  const card = e.target.closest?.('[data-spotlight]');
+  if (!card) return;
+  const r = card.getBoundingClientRect();
+  card.style.setProperty('--x', `${e.clientX - r.left}px`);
+  card.style.setProperty('--y', `${e.clientY - r.top}px`);
+});
+
+// Count numbers up from zero the first time they scroll into view.
+function initCountUp() {
+  const els = document.querySelectorAll('[data-count]');
+  if (!els.length || !('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const io = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      io.unobserve(entry.target);
+      const el = entry.target;
+      const target = Number(el.dataset.count);
+      const start = performance.now();
+      const tick = (now) => {
+        const t = Math.min((now - start) / 1400, 1);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3))).toLocaleString('en-US');
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+  });
+  els.forEach((el) => io.observe(el));
+}
+initCountUp();

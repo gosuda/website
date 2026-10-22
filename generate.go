@@ -15,6 +15,8 @@ import (
 	"gosuda.org/website/internal/ogimage"
 	"gosuda.org/website/internal/types"
 	"gosuda.org/website/view"
+	"gosuda.org/website/view/home"
+	"gosuda.org/website/view/layout"
 )
 
 func generate(gc *GenerationContext) error {
@@ -65,8 +67,13 @@ func generate(gc *GenerationContext) error {
 		}
 	}
 
+	gh, err := fetchGitHubStats("gosuda")
+	if err != nil {
+		log.Warn().Err(err).Msg("failed to fetch github stats, hiding them on the home page")
+	}
+
 	for _, lang := range types.SupportedLanguages {
-		err = generateIndex(gc, lang)
+		err = generateIndex(gc, lang, gh)
 		if err != nil {
 			return err
 		}
@@ -148,7 +155,7 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 
 		url := baseURL + "/" + lang + post.Path
 
-		meta := &view.Metadata{
+		meta := &layout.Metadata{
 			Language:    lang,
 			Title:       pm.Title,
 			Description: pm.Description,
@@ -161,16 +168,16 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			UpdatedAt:   post.UpdatedAt,
 		}
 
-		alt := &view.Alternate{}
+		alt := &layout.Alternate{}
 		for _, lang := range languages {
 			if lang == types.LangEnglish {
-				alt.Versions = append(alt.Versions, view.KV{
+				alt.Versions = append(alt.Versions, layout.KV{
 					Key:   lang,
 					Value: baseURL + post.Path,
 				})
 				continue
 			}
-			alt.Versions = append(alt.Versions, view.KV{
+			alt.Versions = append(alt.Versions, layout.KV{
 				Key:   lang,
 				Value: baseURL + "/" + lang + post.Path,
 			})
@@ -196,7 +203,7 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 		}
 
 		b.Reset()
-		err = view.PostPage(meta, post.Translated[lang], post).Render(ctx, &b)
+		err = view.PostPage(meta, post.Translated[lang], coverURL(post.ID)).Render(ctx, &b)
 		if err != nil {
 			return err
 		}
@@ -258,7 +265,7 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 	return nil
 }
 
-func generateIndex(gc *GenerationContext, lang types.Lang) error {
+func generateIndex(gc *GenerationContext, lang types.Lang, gh *home.GitHubStats) error {
 	log.Debug().Msg("start generating index")
 	var b bytes.Buffer
 	ctx := context.Background()
@@ -268,7 +275,7 @@ func generateIndex(gc *GenerationContext, lang types.Lang) error {
 		return err
 	}
 
-	meta := &view.Metadata{
+	meta := &layout.Metadata{
 		Language:    lang,
 		Title:       "GoSuda | Home",
 		Description: "GoSuda is an industry-leading open source working group enabling developers to easily build, prototype, and deploy applications. Our comprehensive suite of tools and frameworks empowers developers to create robust, scalable solutions across various domains.",
@@ -286,16 +293,16 @@ func generateIndex(gc *GenerationContext, lang types.Lang) error {
 		meta.Canonical = baseURL + "/" + lang + "/"
 	}
 
-	alt := &view.Alternate{}
+	alt := &layout.Alternate{}
 	for _, lang := range types.SupportedLanguages {
 		if lang == types.LangEnglish {
-			alt.Versions = append(alt.Versions, view.KV{
+			alt.Versions = append(alt.Versions, layout.KV{
 				Key:   lang,
 				Value: baseURL + "/",
 			})
 			continue
 		}
-		alt.Versions = append(alt.Versions, view.KV{
+		alt.Versions = append(alt.Versions, layout.KV{
 			Key:   lang,
 			Value: baseURL + "/" + lang + "/",
 		})
@@ -313,7 +320,7 @@ func generateIndex(gc *GenerationContext, lang types.Lang) error {
 		return posts[i].Main.Metadata.Date.After(posts[j].Main.Metadata.Date)
 	})
 
-	var previews []*view.BlogPostPreview
+	var previews []*home.PostPreview
 	for _, post := range posts {
 		pm := post.Main.Metadata
 		if lang != pm.Language {
@@ -330,19 +337,19 @@ func generateIndex(gc *GenerationContext, lang types.Lang) error {
 			postPath = "/" + lang + post.Path
 		}
 
-		previews = append(previews, &view.BlogPostPreview{
+		previews = append(previews, &home.PostPreview{
 			Title:       pm.Title,
 			Author:      pm.Author,
 			Description: pm.Description,
 			Date:        pm.Date,
 			URL:         postPath,
 			Path:        post.Path,
+			Cover:       coverURL(post.ID),
 		})
 	}
 
-	var featuredPosts []view.FeaturedPost
-
-	err = view.IndexPage(meta, previews, featuredPosts).Render(ctx, &b)
+	stats := home.Stats{GitHub: gh, Articles: len(previews), Languages: len(types.SupportedLanguages)}
+	err = view.IndexPage(meta, stats, previews).Render(ctx, &b)
 	if err != nil {
 		return err
 	}
@@ -361,4 +368,14 @@ func generateIndex(gc *GenerationContext, lang types.Lang) error {
 
 	log.Debug().Msg("done generating index")
 	return nil
+}
+
+// coverURL returns the post's cover image, or the mascot cover when the post has none.
+// Covers live at public/assets/covers/<post id>.webp so adding one never touches the markdown.
+func coverURL(postID string) string {
+	name := postID + ".webp"
+	if _, err := os.Stat(filepath.Join(publicDir, "assets", "covers", name)); err != nil {
+		name = "default.webp"
+	}
+	return "/assets/covers/" + name
 }

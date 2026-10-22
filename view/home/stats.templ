@@ -1,0 +1,23 @@
+package home
+
+import "strconv"
+
+templ StatsBar(s Stats) {
+	<section class="mx-auto max-w-6xl px-4 pt-16">
+		<dl class="grid grid-cols-2 overflow-hidden rounded-xl border bg-card lg:grid-cols-4">
+			if s.GitHub != nil {
+				@stat("Repositories", s.GitHub.RepoCount)
+				@stat("GitHub stars", s.GitHub.StarCount)
+			}
+			@stat("Articles", s.Articles)
+			@stat("Languages", s.Languages)
+		</dl>
+	</section>
+}
+
+templ stat(label string, n int) {
+	<div class="reveal -mb-px -mr-px flex flex-col-reverse border-b border-r p-6 text-center sm:p-8">
+		<dt class="mt-2 text-sm text-muted-foreground">{ label }</dt>
+		<dd class="text-4xl font-bold tracking-tight sm:text-5xl" data-count={ strconv.Itoa(n) }>{ strconv.Itoa(n) }</dd>
+	</div>
+}
