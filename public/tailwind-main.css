@@ -519,7 +519,8 @@ pre {
   .marquee-track {
     display: flex;
     width: max-content;
-    animation: marquee 80s linear infinite;
+    /* speed stays constant however many repos the org has */
+    animation: marquee calc(var(--repos, 20) * 5s) linear infinite;
   }
   .marquee:hover .marquee-track {
     animation-play-state: paused;

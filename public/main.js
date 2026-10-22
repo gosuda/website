@@ -14,7 +14,8 @@ function getAlternateLinks() {
     document.querySelectorAll('link[rel="alternate"][hreflang]')
   ).reduce((acc, link) => {
     if (link.hreflang !== 'x-default') {
-      acc[link.hreflang] = link.href;
+      // hreflang hrefs are absolute production URLs; keep only the path so local and preview builds stay on their own origin.
+      acc[link.hreflang] = new URL(link.href).pathname;
     }
     return acc;
   }, {});

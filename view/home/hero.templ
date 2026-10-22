@@ -70,7 +70,7 @@ templ Hero(gh *GitHubStats) {
 
 templ repoMarquee(repos []Repo) {
 	<div class="marquee overflow-hidden border-y bg-muted/40 py-3" aria-hidden="true">
-		<div class="marquee-track">
+		<div class="marquee-track" style={ "--repos: " + strconv.Itoa(len(repos)) }>
 			for range 2 {
 				for _, r := range repos {
 					<span class="flex items-center gap-2 px-5 font-mono text-sm text-muted-foreground">
