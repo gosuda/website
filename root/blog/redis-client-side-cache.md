@@ -6,6 +6,7 @@ description: Redis Server Assisted Client Side Cache를 이용한 API 반응성 
 language: ko
 date: 2024-11-29T00:51:27.525566863Z
 path: /blog/posts/improving-responsiveness-with-redis-client-side-caching-zb711e502
+category: database
 ---
 
 ## What is Redis?

@@ -6,6 +6,7 @@ description: Go 동시성 관리를 위한 고루틴, 채널, 뮤텍스 등 다�
 language: ko
 date: 2024-10-18T05:51:30.010680581Z
 path: /blog/posts/go-concurrency-starter-pack-z221a3399
+category: concurrency
 ---
 
 ## 개요

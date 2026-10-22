@@ -6,6 +6,7 @@ description: Go 언어의 핵심인 고루틴에 대해 알아봅니다. 동시�
 language: ko
 date: 2025-08-22T13:28:15.766056383Z
 path: /blog/posts/goroutine-basics-z3fbe209e
+category: concurrency
 ---
 
 # Goroutine

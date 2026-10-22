@@ -6,6 +6,7 @@ description: 정치와 컴퓨터 공학, 서로 다른 듯 닮은 두 분야가 
 language: ko
 date: 2025-08-29T16:17:11.199526621Z
 path: /blog/posts/politics-and-computers-zc4a4a358
+category: ai
 ---
 
 ## 철학이란

@@ -6,6 +6,7 @@ description: Go is ideal for AI development due to its efficiency, concurrency, 
 language: en
 date: 2024-10-06T05:32:18.576117Z
 path: /blog/posts/go-is-the-ideal-language-for-ai-applications-and-our-plans-to-make-it-even-better-z2f380165
+category: ai
 ---
 
 With the continued advancement of AI, the need for a powerful and efficient programming language becomes paramount. Go offers a compelling solution.

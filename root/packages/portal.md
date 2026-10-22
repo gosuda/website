@@ -8,6 +8,7 @@ date: 2025-11-03T07:34:17.138071881Z
 path: /portal
 go_package: gosuda.org/portal
 go_repourl: https://github.com/gosuda/portal.git
+category: network
 ---
 
 ## AI 와 웹사이트

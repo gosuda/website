@@ -10,6 +10,35 @@ type PostPreview struct {
 	URL         string
 	Path        string
 	Cover       string
+	Category    string
+}
+
+type Category struct {
+	Slug  string
+	Label string
+}
+
+// Categories is the display order of the home filter. Slugs match the markdown `category` field.
+var Categories = []Category{
+	{"ai", "AI"},
+	{"network", "Networking"},
+	{"concurrency", "Concurrency"},
+	{"database", "Databases"},
+	{"lowlevel", "Low-level"},
+	{"language", "Language"},
+	{"security", "Security"},
+	{"api", "APIs"},
+	{"release", "Releases"},
+	{"gui", "GUI"},
+}
+
+func CategoryLabel(slug string) string {
+	for _, c := range Categories {
+		if c.Slug == slug {
+			return c.Label
+		}
+	}
+	return ""
 }
 
 type Repo struct {

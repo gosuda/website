@@ -6,6 +6,7 @@ description: Let's learn how to syscall
 language: en
 date: 2025-10-26T12:31:21.655228078Z
 path: /blog/posts/go-syscall-is-a-brilliant-replacement-of-low-level-i-o-za50951e1
+category: lowlevel
 ---
 
 ## Summary

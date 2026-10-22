@@ -8,6 +8,7 @@ date: 2025-12-06T05:35:03.047352133Z
 path: /blog/posts/make-localhost-public-with-one-curl-—-portal-tunnel-z2f33ae49
 go_package: gosuda.org/portal
 go_repourl: https://github.com/gosuda/portal.git
+category: network
 ---
 
 ## Portal and Tunnel

@@ -8,6 +8,7 @@ date: 2024-12-09T14:50:44.030047Z
 path: /randflake
 go_package: gosuda.org/randflake
 go_repourl: https://github.com/gosuda/randflake.git
+category: security
 ---
 
 Consider a situation where we need to generate unique 64-bit random numbers, and external parties should not be able to predict the next or previous number.

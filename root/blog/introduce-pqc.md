@@ -6,6 +6,7 @@ description: Go 언어에서 양자 내성 암호화 MLDSA와 MLKEM 사용법을
 language: ko
 date: 2024-12-22T08:17:58.797764292Z
 path: /blog/posts/usage-of-mldsa-and-mlkem-in-the-go-language-zb0442110
+category: security
 ---
 
 ## 개요

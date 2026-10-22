@@ -6,6 +6,7 @@ description: Go 언어의 If문과 어셈블리 구조를 분석합니다.
 language: ko
 date: 2026-05-17T12:00:00Z
 path: /blog/posts/go-if-statement-analysis-3012d30c
+category: lowlevel
 ---
 
 ## Go 언어에서의 If문

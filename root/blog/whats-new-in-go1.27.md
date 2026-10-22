@@ -6,6 +6,7 @@ description: Generic methods, encoding/json/v2, a standard uuid package, and a g
 language: en
 date: 2026-08-15T02:08:43.129534158Z
 path: /blog/posts/go-1-27-or-how-i-learned-to-stop-worrying-and-love-generic-methods-za800e454
+category: release
 ---
 
 ![Overview of Go 1.27](/assets/images/whats-new-in-go1.27/overview.webp)

@@ -8,6 +8,7 @@ date: 2026-10-18T13:56:46.094643498Z
 path: /hqq
 go_package: gosuda.org/hqq
 go_repourl: https://github.com/gosuda/HQQ.git
+category: lowlevel
 ---
 
 `gosuda.org/hqq` is a zero-cgo inter-process communication runtime and code generation toolchain for Go and C11. It isolates native C libraries inside separate OS worker processes and connects them to Go callers over memory-mapped, cache-line-aligned shared-memory rings. The project combines two transport tiers (`StandardLink` for dedicated single-producer single-consumer sessions and `Advanced` for multi-worker MPMC dispatch), the `hqq-bindgen` IDL compiler, and a tamper-verified process supervisor (`secureexec` and `launch`).

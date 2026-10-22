@@ -1253,3 +1253,29 @@ function initCountUp() {
   els.forEach((el) => io.observe(el));
 }
 initCountUp();
+
+// Home posts: category filter and "show more". A pressed category shows all its posts; "All" keeps the rest folded until "show more".
+(() => {
+  const filter = document.querySelector('[data-category-filter]');
+  const more = document.querySelector('[data-show-more]');
+  const cards = document.querySelectorAll('#posts a[data-category]');
+  let slug = '';
+  let expanded = false;
+  const apply = () => {
+    cards.forEach((card) => {
+      card.hidden = slug ? card.dataset.category !== slug : !expanded && card.hasAttribute('data-more');
+    });
+    if (more) more.hidden = expanded || slug !== '';
+  };
+  more?.addEventListener('click', () => {
+    expanded = true;
+    apply();
+  });
+  filter?.addEventListener('click', (e) => {
+    const chip = e.target.closest('button[data-category]');
+    if (!chip) return;
+    slug = chip.dataset.category;
+    filter.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === chip)));
+    apply();
+  });
+})();

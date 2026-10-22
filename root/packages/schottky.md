@@ -8,6 +8,7 @@ date: 2026-08-31T07:47:42.614875839Z
 path: /schottky
 go_package: gosuda.org/schottky
 go_repourl: https://github.com/gosuda/schottky.git
+category: database
 ---
 When implementing LSM-tree or B-tree based key-value stores and database indexes, composite fields often need to be combined into a single byte key. 
 
