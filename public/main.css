@@ -22,9 +22,6 @@
     --color-amber-400: oklch(82.8% 0.189 84.429);
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-blue-600: oklch(54.6% 0.245 262.881);
-    --color-gray-500: oklch(55.1% 0.027 264.364);
-    --color-gray-600: oklch(44.6% 0.03 256.802);
-    --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
     --container-xl: 36rem;
@@ -36,10 +33,6 @@
     --text-sm--line-height: calc(1.25 / 0.875);
     --text-lg: 1.125rem;
     --text-lg--line-height: calc(1.75 / 1.125);
-    --text-xl: 1.25rem;
-    --text-xl--line-height: calc(1.75 / 1.25);
-    --text-2xl: 1.5rem;
-    --text-2xl--line-height: calc(2 / 1.5);
     --text-3xl: 1.875rem;
     --text-3xl--line-height: calc(2.25 / 1.875);
     --text-4xl: 2.25rem;
@@ -53,15 +46,11 @@
     --text-9xl: 8rem;
     --text-9xl--line-height: 1;
     --font-weight-medium: 500;
-    --font-weight-semibold: 600;
     --font-weight-bold: 500;
     --tracking-tight: -0.025em;
     --leading-tight: 1.25;
     --leading-snug: 1.375;
     --leading-relaxed: 1.625;
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-lg: var(--radius);
-    --drop-shadow-lg: 0 4px 4px rgb(0 0 0 / 0.15);
     --drop-shadow-2xl: 0 25px 25px rgb(0 0 0 / 0.15);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -862,6 +851,9 @@
   .w-5 {
     width: calc(var(--spacing) * 5);
   }
+  .w-fit {
+    width: fit-content;
+  }
   .w-full {
     width: 100%;
   }
@@ -892,8 +884,14 @@
   .animate-ping {
     animation: var(--animate-ping);
   }
+  .cursor-pointer {
+    cursor: pointer;
+  }
   .scroll-mt-20 {
     scroll-margin-top: calc(var(--spacing) * 20);
+  }
+  .list-none {
+    list-style-type: none;
   }
   .grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1316,6 +1314,9 @@
   .\[animation-delay\:-4s\] {
     animation-delay: -4s;
   }
+  .group-open\/more\:hidden:is(:where(.group\/more):is([open], :popover-open, :open) *) {
+    display: none;
+  }
   @media (hover: hover) {
     .group-hover\:scale-110:is(:where(.group):hover *) {
       --tw-scale-x: 110%;
@@ -1500,6 +1501,9 @@
   }
   .prose-img\:rounded-lg :is(:where(img):not(:where([class~="not-prose"], [class~="not-prose"] *))) {
     border-radius: var(--radius);
+  }
+  .\[\&\:\:-webkit-details-marker\]\:hidden::-webkit-details-marker {
+    display: none;
   }
 }
 :root {
@@ -1902,7 +1906,7 @@ pre {
   .marquee-track {
     display: flex;
     width: max-content;
-    animation: marquee 40s linear infinite;
+    animation: marquee 80s linear infinite;
   }
   .marquee:hover .marquee-track {
     animation-play-state: paused;

@@ -1,16 +1,31 @@
 package home
 
-import "gosuda.org/website/view/ui"
+import (
+	"gosuda.org/website/view/ui"
+	"strconv"
+)
 
 templ Posts(posts []*PostPreview) {
 	<section id="posts" class="mx-auto max-w-6xl scroll-mt-20 px-4 pt-24">
 		<h2 class="text-3xl font-bold tracking-tight sm:text-4xl">From the blog</h2>
 		<p class="mt-3 text-muted-foreground">Deep dives written by GoSuda members.</p>
 		<div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			for _, p := range posts {
+			for _, p := range posts[:min(9, len(posts))] {
 				@PostCard(p)
 			}
 		</div>
+		if len(posts) > 9 {
+			<details class="group/more">
+				<summary class="mx-auto mt-10 flex h-11 w-fit cursor-pointer list-none items-center gap-2 rounded-md border bg-background/60 px-5 text-sm font-bold backdrop-blur transition-all hover:bg-accent hover:text-accent-foreground group-open/more:hidden [&::-webkit-details-marker]:hidden">
+					Show { strconv.Itoa(len(posts) - 9) } more posts
+				</summary>
+				<div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					for _, p := range posts[9:] {
+						@PostCard(p)
+					}
+				</div>
+			</details>
+		}
 	</section>
 }
 
