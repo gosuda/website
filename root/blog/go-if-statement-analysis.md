@@ -1,8 +1,8 @@
 ---
 id: 04e03e046bb46ab34aaeeed79279923b
 author: Lee Yunjin
-title: Go 언어에서의 If문
-description: Go 언어의 If문과 어셈블리 구조를 분석합니다.
+title: 'Go 조건문(if)의 AMD64 어셈블리 코드 생성과 분기 명령어 분석'
+description: Go 컴파일러가 if-else 조건문을 CMPQ, JGE, JMP 등 AMD64 기계어 분기 명령어로 번역하는 과정과 C 컴파일러(-O2)의 분기 코드 생성 결과를 비교합니다.
 language: ko
 date: 2026-05-17T12:00:00Z
 path: /blog/posts/go-if-statement-analysis-3012d30c

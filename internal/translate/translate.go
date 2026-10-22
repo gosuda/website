@@ -33,6 +33,7 @@ Translate the following text into <TARGET_LANGUAGE>, adhering to these guideline
 	m. Retain the start token and the end token.
 	n. Never use word "delve", "deepen" and "elara".
 	o. Preserve every whitespace and other formatting syntax unchanged.
+	p. Never use the em-dash ("—") or spaced en-dash (" – "); use colons, semicolons, commas, or parentheses instead.
 
 Do not include any additional commentary or explanations.
 Begin your translation now, translate the following text into <TARGET_LANGUAGE>.
@@ -213,20 +214,34 @@ func between(text, start, end string) (string, bool) {
 	return inner, true
 }
 
+type attemptModelSelector interface {
+	ModelForAttempt(attempt int) llm.Model
+}
+
+func selectModel(l llm.Model, attempt int) llm.Model {
+	if s, ok := l.(attemptModelSelector); ok {
+		if m := s.ModelForAttempt(attempt); m != nil {
+			return m
+		}
+	}
+	return l
+}
+
 func Translate(ctx context.Context, l llm.Model, input, targetLanguage string) (string, error) {
 	chunks := chunkMarkdown(input)
 	log.Debug().Msgf("chunked input into %d chunks", len(chunks))
 	translatedChunks := make([]string, len(chunks))
 
-	retryCount := 0
 	for i, chunk := range chunks {
+		retryCount := 0
 	RETRY:
-		log.Debug().Msgf("translating chunk %d/%d", i+1, len(chunks))
-		translatedChunk, err := translateChunk(ctx, l, chunk, targetLanguage)
+		model := selectModel(l, retryCount)
+		log.Debug().Str("model", model.Name()).Msgf("translating chunk %d/%d", i+1, len(chunks))
+		translatedChunk, err := translateChunk(ctx, model, chunk, targetLanguage)
 		if err != nil {
 			if retryCount < 3 {
 				retryCount++
-				log.Debug().Int("retry", retryCount).Msgf("retrying chunk %d/%d", i+1, len(chunks))
+				log.Debug().Int("retry", retryCount).Str("model", selectModel(l, retryCount).Name()).Msgf("retrying chunk %d/%d", i+1, len(chunks))
 				goto RETRY
 			}
 			return "", err

@@ -1,8 +1,8 @@
 ---
 id: 5f5f5498b44e9d7b4f3230a24c4e8958
 author: gosunuts
-title: Portal (Public Open Relay To Access Localhost)
-description: AI 시대의 웹 중앙화 문제를 해결하고, 개인의 로컬 서비스를 전 세계에 쉽게 배포하도록 돕는 오픈소스 프로젝트 Portal을 소개합니다.
+title: 'Portal: 로컬 서비스를 외부 네트워크로 중계하는 종단 간 암호화 오픈 릴레이'
+description: 공인 IP나 클라우드 인프라 설정 없이 로컬 서버를 종단 간 암호화(E2EE)된 개방형 릴레이 네트워크를 통해 외부 인터넷에 노출하는 Portal 아키텍처를 설명합니다.
 language: ko
 date: 2025-11-03T07:34:17.138071881Z
 path: /portal

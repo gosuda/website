@@ -1,8 +1,8 @@
 ---
 id: 78787664f5c944556bd14c0346a41b41
 author: Lemon Mint
-title: Introducing GSTime and GSTimeAssure
-description: GSTime & GSTimeAssure
+title: 'GSTime: Fault-Tolerant Time Synchronization and Interval Certification in Go'
+description: Zero-dependency Go clock synchronization engine with SI-nanosecond tracking, RFC 8915 NTS authentication, bounded leap smearing, and interval certification.
 language: en
 date: 2026-09-05T11:44:59.861082619Z
 path: /gstime

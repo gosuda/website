@@ -2,7 +2,7 @@
 id: 43974d116e135fd9d3478f658dcf71c6
 author: Lemon Mint
 title: 'HQQ: Isolating C Libraries from Go Over Cache-Line Shared Memory'
-description: Why we built a shared-memory IPC runtime, an IDL compiler with generation-checked handles, and a sealed-binary process launcher to call C libraries from Go with CGO_ENABLED=0.
+description: Zero-cgo IPC runtime, IDL compiler (hqq-bindgen), and verified process supervisor that execute native C11 libraries in isolated worker processes over shared-memory rings.
 language: en
 date: 2026-10-18T13:56:46.094643498Z
 path: /hqq

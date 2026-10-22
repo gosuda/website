@@ -1,8 +1,8 @@
 ---
 id: 134c150de56c188c925476664026a1ff
 author: Lemon Mint
-title: 'gosuda.org/sqlite3: A Drop-In database/sql Driver Running Native C SQLite Over Shared Memory'
-description: How gosuda.org/sqlite3 replaces github.com/mattn/go-sqlite3 with CGO_ENABLED=0, pipelined batch prefetching, SLSA-attested embedded workers, and process isolation.
+title: 'gosuda.org/sqlite3: CGO_ENABLED=0 database/sql Driver Over Shared-Memory IPC'
+description: Drop-in database/sql SQLite 3.54.1 driver for Go with CGO_ENABLED=0, HQQ shared-memory worker isolation, 64 KiB batch row prefetching, and SLSA-attested binaries.
 language: en
 date: 2026-10-18T14:02:16.803040007Z
 path: /sqlite3

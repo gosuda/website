@@ -1,9 +1,14 @@
 package translate
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/lemon-mint/coord/llm"
 )
 
 func TestChunkMarkdown(t *testing.T) {
@@ -210,5 +215,75 @@ func TestBetween(t *testing.T) {
 		if got != c.want || ok != c.ok {
 			t.Errorf("between(%q) = %q, %v; want %q, %v", c.text, got, ok, c.want, c.ok)
 		}
+	}
+}
+
+type mockModel struct {
+	name string
+	fn   func(prompt string) (*llm.StreamContent, error)
+}
+
+func (m *mockModel) Name() string  { return m.name }
+func (m *mockModel) Close() error { return nil }
+func (m *mockModel) GenerateStream(_ context.Context, _ *llm.ChatContext, input *llm.Content) *llm.StreamContent {
+	ch := make(chan llm.Segment)
+	close(ch)
+	prompt := string(input.Parts[0].(llm.Text))
+	resp, err := m.fn(prompt)
+	if err != nil {
+		return &llm.StreamContent{
+			Err:     err,
+			Content: &llm.Content{},
+			Stream:  ch,
+		}
+	}
+	resp.Stream = ch
+	return resp
+}
+
+type mockCascade struct {
+	models []llm.Model
+}
+
+func (c *mockCascade) ModelForAttempt(attempt int) llm.Model {
+	return c.models[attempt%len(c.models)]
+}
+func (c *mockCascade) Name() string  { return "cascade" }
+func (c *mockCascade) Close() error { return nil }
+func (c *mockCascade) GenerateStream(ctx context.Context, chat *llm.ChatContext, input *llm.Content) *llm.StreamContent {
+	return c.models[0].GenerateStream(ctx, chat, input)
+}
+
+func TestCascadeRetryOrder(t *testing.T) {
+	var called []string
+	m1 := &mockModel{
+		name: "anthropic/claude-haiku-5.5",
+		fn: func(_ string) (*llm.StreamContent, error) {
+			called = append(called, "anthropic/claude-haiku-5.5")
+			return nil, errors.New("simulated failure")
+		},
+	}
+	m2 := &mockModel{
+		name: "google/gemini-3.5-flash-lite",
+		fn: func(_ string) (*llm.StreamContent, error) {
+			called = append(called, "google/gemini-3.5-flash-lite")
+			return nil, errors.New("simulated failure")
+		},
+	}
+
+	cascade := &mockCascade{models: []llm.Model{m1, m2}}
+	_, err := Translate(context.Background(), cascade, "Hello world", "Korean")
+	if err == nil {
+		t.Fatal("expected error when all attempts fail")
+	}
+
+	want := []string{
+		"anthropic/claude-haiku-5.5",
+		"google/gemini-3.5-flash-lite",
+		"anthropic/claude-haiku-5.5",
+		"google/gemini-3.5-flash-lite",
+	}
+	if !reflect.DeepEqual(called, want) {
+		t.Fatalf("called models = %v, want %v", called, want)
 	}
 }

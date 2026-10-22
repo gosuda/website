@@ -2,7 +2,7 @@
 id: e52d68870be3de9f644fcfc584bd8aec
 author: Lemon Mint
 title: 'gosuda.org/zstd: Drop-In DataDog/zstd Compression with Zero CGO and Crash Isolation'
-description: Running upstream C libzstd 1.5.7 in a sandboxed shared-memory worker with a 100% DataDog/zstd-compatible Go API, zero-allocation contexts, and bulk batching.
+description: CGO_ENABLED=0 Go Zstandard library running upstream C libzstd 1.5.7 in a shared-memory worker with a DataDog/zstd-compatible API, reusable contexts, and bulk batching.
 language: en
 date: 2026-10-18T14:07:11.281986997Z
 path: /zstd

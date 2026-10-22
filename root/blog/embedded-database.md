@@ -1,8 +1,8 @@
 ---
 id: 2bc35fc657eb35eb5dbcb7286c1033ba
 author: gosunuts
-title: 데이터베이스 서버와 임베디드 데이터베이스
-description: 데이터베이스 서버와 임베디드 데이터베이스의 장단점을 비교하고, SSD, MSA 등 최신 기술 환경에서 임베디드 DB가 주목받는 이유를 설명합니다.
+title: '데이터베이스 서버와 임베디드 데이터베이스: 아키텍처 및 I/O 특성 비교'
+description: 독립 프로세스 기반 RDBMS와 SQLite, RocksDB, BadgerDB, PebbleDB 등 인프로세스 임베디드 데이터베이스를 NVMe SSD I/O 지연, MSA 데이터 격리, 배포 구조 관점에서 비교합니다.
 language: ko
 date: 2025-08-21T12:11:23.268337247Z
 path: /blog/posts/database-servers-and-embedded-databases-zd4cb799f

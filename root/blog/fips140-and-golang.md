@@ -1,8 +1,8 @@
 ---
 id: 8131aee9df950f7eb198a94dbf02fd7f
 author: Gosunuts
-title: FIPS 140 인증과 Golang
-description: Golang이 FIPS 140 인증을 지원하는 방식과 FIPS 140-3으로의 진화, 그리고 Go 암호화 라이브러리의 강화된 보안 특징을 알아봅니다.
+title: 'Go 표준 암호화 라이브러리의 FIPS 140-2 및 FIPS 140-3 구현 구조'
+description: 외부 C OpenSSL Provider 연동의 한계를 분석하고, BoringCrypto(FIPS 140-2)부터 네이티브 Go 표준 crypto 패키지의 FIPS 140-3 모드, Fail-Fast 검증, Hedged ECDSA, DRBG 구조를 다룹니다.
 language: ko
 date: 2025-09-11T05:33:18.23816735Z
 path: /blog/posts/fips-140-certification-and-golang-z0a59330a

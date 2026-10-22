@@ -28,23 +28,14 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Workload Identity Federation
-        id: auth
-        uses: "google-github-actions/auth@v2"
-        with:
-          project_id: ${{ secrets.PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          create_credentials_file: true
-
       - name: Go Test
         run: go test -v ./...
 
       - name: Update Metadata
         run: ./build.sh
         env:
-          AI_STUDIO_API_KEY: ${{ secrets.AI_STUDIO_API_KEY }}
-          PROJECT_ID: '${{ secrets.PROJECT_ID }}'
-          LOCATION: global
+          PROVIDER: openrouter
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Commit Changes
         uses: EndBug/add-and-commit@v9

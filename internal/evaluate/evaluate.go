@@ -77,9 +77,20 @@ var (
 	ErrFailedToEvaluate = errors.New("failed to evaluate the document")
 )
 
-func EvaluateTranslation(ctx context.Context, l llm.Model, inputLang types.Lang, outputLang types.Lang, input string, output string) (float64, error) {
-	return 1.0, nil
+type attemptModelSelector interface {
+	ModelForAttempt(attempt int) llm.Model
+}
 
+func selectModel(l llm.Model, attempt int) llm.Model {
+	if s, ok := l.(attemptModelSelector); ok {
+		if m := s.ModelForAttempt(attempt); m != nil {
+			return m
+		}
+	}
+	return l
+}
+
+func evaluateTranslationOnce(ctx context.Context, l llm.Model, inputLang types.Lang, outputLang types.Lang, input string, output string) (float64, error) {
 	var b [8]byte
 	rand.Read(b[:])
 	startToken := "[" + hex.EncodeToString(b[:]) + "]"
@@ -115,7 +126,7 @@ func EvaluateTranslation(ctx context.Context, l llm.Model, inputLang types.Lang,
 
 	sidx := strings.Index(text, startToken)
 	eidx := strings.Index(text, endToken)
-	if sidx != -1 && eidx != -1 {
+	if sidx != -1 && eidx != -1 && sidx+len(startToken) <= eidx {
 		text = text[sidx+len(startToken) : eidx]
 		text = strings.TrimSpace(text)
 		score, err := strconv.ParseFloat(text, 64)
@@ -126,4 +137,19 @@ func EvaluateTranslation(ctx context.Context, l llm.Model, inputLang types.Lang,
 	}
 
 	return 0.0, ErrFailedToEvaluate
+}
+
+func EvaluateTranslation(ctx context.Context, l llm.Model, inputLang types.Lang, outputLang types.Lang, input string, output string) (float64, error) {
+	return 1.0, nil
+
+	var lastErr error
+	for retryCount := 0; retryCount <= 3; retryCount++ {
+		model := selectModel(l, retryCount)
+		score, err := evaluateTranslationOnce(ctx, model, inputLang, outputLang, input, output)
+		if err == nil {
+			return score, nil
+		}
+		lastErr = err
+	}
+	return 0.0, lastErr
 }

@@ -1,8 +1,8 @@
 ---
 id: 208cfd8127284f07337b5f5002f3351d
 author: hamori
-title: 고루틴의 기본
-description: Go 언어의 핵심인 고루틴에 대해 알아봅니다. 동시성, 경량성, 성능, GMP 모델 등 고루틴의 장점과 동작 원리를 상세히 설명합니다.
+title: 'Go 고루틴(Goroutine)의 동작 원리: 2KB 가변 스택과 M:N GMP 스케줄러'
+description: 동시성과 병렬성의 차이부터 고루틴의 2KB 초기 가변 스택, 유저 레벨 컨텍스트 스위칭, GOMAXPROCS 및 GMP(Goroutine-Machine-Processor) 런타임 스케줄링 모델을 설명합니다.
 language: ko
 date: 2025-08-22T13:28:15.766056383Z
 path: /blog/posts/goroutine-basics-z3fbe209e

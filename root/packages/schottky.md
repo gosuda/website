@@ -2,7 +2,7 @@
 id: f5707f0f4f230a276a3428b1eb1e6469
 author: Lemon Mint
 title: 'Schottky: Zero-Allocation, Order-Preserving Byte-Key Encoding for Go'
-description: Schottky is a high-performance Go library designed to encode multi-type composite values into order-preserving byte keys. Featuring zero-allocation execution, independent NULL ordering, PostgreSQL 18 type compatibility, and prefix-scan upper bounding, it is built for modern storage engines and index pipelines.
+description: Zero-allocation Go library that encodes composite tuples into memcmp-ordered byte keys with independent ASC/DESC sorting, NULL placement tags, and prefix-scan bounds.
 language: en
 date: 2026-08-31T07:47:42.614875839Z
 path: /schottky

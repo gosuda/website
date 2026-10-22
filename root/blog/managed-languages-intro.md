@@ -1,8 +1,8 @@
 ---
 id: 191ebec04cf97317ba418a120521d30b
 author: Lee Yunjin
-title: 매니지드 언어란 무엇인가?
-description: 매니지드 언어의 정의와 Go 언어의 바이너리 구조를 살펴봅니다.
+title: '매니지드 언어의 런타임 구조와 Go 바이너리 AMD64 어셈블리 분석'
+description: 매니지드 언어와 언매니지드 언어의 실행 모델을 비교하고, go tool objdump로 추출한 AMD64 어셈블리를 통해 Go 바이너리의 스택 체크와 런타임 함수 호출 구조를 분석합니다.
 language: ko
 date: 2026-05-17T12:00:00Z
 path: /blog/posts/managed-languages-intro-656b7470

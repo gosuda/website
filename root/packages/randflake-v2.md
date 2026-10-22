@@ -1,8 +1,8 @@
 ---
 id: 642af9de8681e69b3f7a259faf4a04b0
 author: Lemon Mint
-title: Randflake v2
-description: Randflake v2 Go module with half-open leases, configured clocks, and encrypted 64-bit IDs.
+title: 'Randflake v2: 64-Bit Encrypted ID Generator with Half-Open Node Leases'
+description: Go module (gosuda.org/randflake/v2) providing Sparx64-encrypted 64-bit unique ID generation with whole-second Unix timestamps and half-open node lease validation.
 language: en
 date: 2026-09-09T00:49:37.732996276Z
 path: /randflake/v2

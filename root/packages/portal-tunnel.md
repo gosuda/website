@@ -1,8 +1,8 @@
 ---
 id: 43210fd43f7878fd6c6b931640fb2175
 author: gosunuts
-title: Make localhost public with one curl — Portal Tunnel
-description: Make your localhost public instantly with one curl command using Portal Tunnel—a decentralized, permissionless alternative to ngrok and cloudflared.
+title: 'Portal Tunnel: Expose Localhost Services Over Decentralized Public Relays'
+description: Expose local HTTP services to the public internet with a single curl command over multi-relay, permissionless Portal tunnels without accounts or binary installation.
 language: en
 date: 2025-12-06T05:35:03.047352133Z
 path: /blog/posts/make-localhost-public-with-one-curl-—-portal-tunnel-z2f33ae49
@@ -14,7 +14,7 @@ category: network
 ## Portal and Tunnel
 
 We can create programs anywhere With AI.
-But no matter how great a program is, it usually lives only on your own computer — on localhost.
+But no matter how great a program is, it usually lives only on your own computer: on localhost.
 ![vibecon](/assets/images/portal/vibecon.webp)
 
 To expose it to the outside world, you normally have to go through complicated steps such as router configuration, firewall rules, public IP setup, and tunnel configuration.

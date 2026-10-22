@@ -1,8 +1,8 @@
 ---
 id: 8f79af5c6af89b748112aa8b77b348ab
 author: prravda
-title: How embedded NATS communicate with go application?
-description: Go 애플리케이션에 임베드된 NATS가 어떻게 통신하는지, 공식 문서의 예시와 올바른 설정, 그리고 Go의 consumer-defined interface를 통해 자세히 알아봅니다.
+title: 'Go 애플리케이션 내장형 NATS 서버 구성과 인프로세스 통신 구조'
+description: Go 프로세스 내부에 NATS 브로커(nats-server/v2)를 내장하여 구동하는 설정 방법과 InProcessConn 기반 인메모리 통신 및 소비자 정의 인터페이스 설계를 다룹니다.
 language: ko
 date: 2025-08-04T01:05:22.150350794Z
 path: /blog/posts/how-embedded-nats-communicate-with-go-application-z36089af0

@@ -1,8 +1,8 @@
 ---
 id: e55cbf5b5116abf3a5fc62c1af99e19b
 author: Yunjin Lee
-title: Go에서 Tk로 파일 목록이 추가된 이미지 뷰어 만들기
-description: Go 언어로 Tcl/Tk를 이용해 간단한 이미지 뷰어를 만들어 보세요.
+title: 'Go와 Tcl/Tk 9.0으로 다중 파일 리스트박스 기반 이미지 뷰어 구현'
+description: modernc.org/tk9.0에 Tcl listbox 명령어 바인딩과 가상 이벤트 핸들러를 추가하여 다중 이미지 파일 열기, 선택 전환, 목록 항목 삭제가 가능한 GUI 이미지 뷰어를 구현합니다.
 language: ko
 date: 2024-11-19T11:51:05.279238471Z
 path: /blog/posts/creating-a-image-viewer-with-tk-in-go-z279238471Z

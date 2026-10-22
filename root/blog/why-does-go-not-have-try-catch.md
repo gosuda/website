@@ -1,8 +1,8 @@
 ---
 id: 448c02f1efb1042bc9e1d256fcd2acad
 author: Rabbit Princess
-title: Go에는 왜 Try-Catch가 없을까?
-description: Go는 왜 try-catch를 지원하지 않고 panic-recover를 사용하는지, 에러 처리에 대한 책임과 관련하여 알아봅니다.
+title: 'Go가 try-catch 예외 던지기 대신 명시적 에러 반환과 panic-recover를 선택한 이유'
+description: 호출 스택을 따라 예외 처리 책임을 전가하는 try-catch 구조의 한계를 살펴보고, 호출 지점의 명시적 error 처리와 복구 불가능한 상태에만 국한된 Go의 panic-recover 설계를 설명합니다.
 language: ko
 date: 2024-10-16T07:06:25.186989697Z
 path: /blog/posts/why-doesn-t-go-have-try-catch-zeb312147

@@ -1,8 +1,8 @@
 ---
 id: 8wel7k12347894gsdjkfnru23kl78989
 author: Yunjin Lee
-title: Go에서 엔드포인트 응답 시간 단축-작업 큐 활용하기
-description: 작업 큐를 이용하여 응답 시간을 단축해 봅시다.
+title: 'Go HTTP 파일 업로드 응답 지연 단축: 채널 기반 비동기 워커 큐 구현'
+description: net/http 파일 업로드 핸들러에서 임시 파일 수신과 Incus 컨테이너 전송 작업을 버퍼 채널 및 고루틴 워커 풀로 분리하여 엔드포인트 응답 지연을 줄이는 구조입니다.
 language: ko
 date: 2025-07-14T11:51:27.614782351Z
 path: /blog/posts/go-handle-file-upload-with-concurrency-s844ce238

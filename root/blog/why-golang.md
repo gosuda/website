@@ -1,8 +1,8 @@
 ---
 id: 9c37eb84639db83d3a69282adfcbbc84
 author: Rabbit Princess
-title: 왜 Go 언어인가?
-description: 'Go 언어를 선택해야 하는 5가지 이유: 성능, 생산성, 동시성, 안정성, 그리고 귀여운 Gopher까지! Go가 개발자의 성장을 돕는 이유를 알아보세요.'
+title: '시스템 및 백엔드 엔지니어링 관점에서 본 Go 언어의 5가지 설계 특성'
+description: 빠른 네이티브 컴파일과 실행 성능, 프레임워크 없이 동작하는 표준 라이브러리(net/http, database/sql), M:N 고루틴 스케줄러, 하위 호환성 보장을 중심으로 Go의 설계 철학을 정리합니다.
 language: ko
 date: 2025-07-17T03:02:30.365542012Z
 path: /blog/posts/why-the-go-language-zdb70b280

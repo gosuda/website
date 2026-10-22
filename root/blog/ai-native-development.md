@@ -1,8 +1,8 @@
 ---
 id: 0e912e4573c6a113757269734de514a8
 author: gosunuts
-title: AI 네이티브 개발 방법론
-description: AI 시대, 개발자와 AI가 상호작용하며 함께 성장하는 'AI 네이티브 개발' 방법론을 소개하고, 기존 개발 방식의 한계를 분석합니다.
+title: 'AI 네이티브 개발 방법론: 도구 활용을 넘어선 양방향 컨텍스트 순환'
+description: AI 의존 개발과 단순 도구 활용 단계의 구조적 한계를 비교하고, 설계 의도와 조직 컨텍스트를 양방향으로 축적하는 AI 네이티브 개발 프로세스를 정의합니다.
 language: ko
 date: 2026-02-01T01:18:36.450880849Z
 path: /blog/posts/ai-native-development-z86704c1a

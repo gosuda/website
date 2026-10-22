@@ -1,8 +1,8 @@
 ---
 id: 61f2009278a5f7366f79395da59447cf
 author: lemonmint
-title: Go 1.25 encoding/json v1 vs v2 비교
-description: Go 1.25 `encoding/json` v2는 v1의 단점을 개선한 새로운 구현입니다. 주요 차이점과 향상된 정확성, 성능, 유연성을 알아보세요.
+title: 'Go 1.25 encoding/json/v2 동작 변경점과 v1 호환성 레이어 분석'
+description: Go 1.25 실험 기능(goexperiment.jsonv2)으로 도입된 encoding/json/v2의 대소문자 구분 매칭, omitempty/omitzero 의미 변경, nil 슬라이스/맵 직렬화 및 옵션을 비교합니다.
 language: ko
 date: 2025-06-20T05:38:20.100520237Z
 path: /blog/posts/go-1-25-encoding-json-v1-vs-v2-z74a36b08

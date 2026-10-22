@@ -1,8 +1,8 @@
 ---
 id: ebf46089667a6469b258b8e52e57571f
 author: Yunjin Lee
-title: Go 인터페이스는 상속이 아니다
-description: Go 언어에서 인터페이스는 상속이 아닌 구성적 코드 재사용을 의미합니다. Go의 상속 오해 시나리오와 올바른 코드 작성법을 알아봅니다.
+title: 'Go 인터페이스와 구조체 임베딩: 클래스 상속과의 차이점과 합성 설계'
+description: Java/C++ 클래스 상속과 Go 인터페이스의 구조적 타이핑 차이를 비교하고, 구조체 임베딩과 메서드 위임을 이용한 합성(Composition) 패턴을 코드 예제로 설명합니다.
 language: ko
 date: 2025-07-17T10:40:02.284435348Z
 path: /blog/posts/go-interfaces-are-not-inheritance-zd04c1084
