@@ -38,7 +38,7 @@ func Hero(gh *GitHubStats) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"relative isolate overflow-hidden\"><div class=\"bg-grid absolute inset-0 -z-10\"></div><div class=\"aurora -z-10 left-[-10%] top-[-20%] size-[420px] bg-brand/40\"></div><div class=\"aurora aurora-b -z-10 right-[-10%] top-[10%] size-[380px] bg-brand-2/30\"></div><div class=\"mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-16 lg:grid-cols-[1.15fr_1fr] lg:pt-24\"><div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"relative isolate overflow-hidden\" data-motion><div class=\"bg-grid absolute inset-0 -z-10\"></div><div class=\"aurora -z-10 left-[-10%] top-[-20%] size-[420px] bg-brand/40\"></div><div class=\"aurora aurora-b -z-10 right-[-10%] top-[10%] size-[380px] bg-brand-2/30\"></div><div class=\"mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-16 lg:grid-cols-[1.15fr_1fr] lg:pt-24\"><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
