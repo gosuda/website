@@ -6,6 +6,7 @@ description: Go 언어로 OpenAPI 기반 API 개발 시 사용할 수 있는 라
 language: ko
 date: 2024-10-18T06:07:43.092628696Z
 path: /blog/posts/go-and-the-openapi-ecosystem-zd5a8e472
+category: api
 ---
 
 ### 서론

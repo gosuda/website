@@ -8,6 +8,7 @@ date: 2026-10-18T14:07:11.281986997Z
 path: /zstd
 go_package: gosuda.org/zstd
 go_repourl: https://github.com/gosuda/hqq-zstd.git
+category: lowlevel
 ---
 
 `gosuda.org/zstd` is a `CGO_ENABLED=0` Go compression library that runs the official C Zstandard (`libzstd 1.5.7`) engine inside an isolated worker process over [HQQ](https://gosuda.org/hqq) shared memory. It provides a drop-in replacement API for `github.com/DataDog/zstd` (including one-shot `Compress`/`Decompress`, streaming `io.Writer`/`io.Reader`, pre-digested dictionaries, and reusable zero-allocation contexts) while keeping C execution completely outside the Go runtime address space.

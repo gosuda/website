@@ -6,6 +6,7 @@ description: Cilium 프로젝트의 작은 코드 변경 하나가 어떻게 LRU
 language: ko
 date: 2025-04-10T06:07:43.092628696Z
 path: /blog/posts/cilium-story-small-but-effective-improvement-zd5a8e472
+category: network
 ---
 
 ## 서론

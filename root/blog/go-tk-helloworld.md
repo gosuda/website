@@ -6,6 +6,7 @@ description: Go로 Tk를 이용해 간단한 GUI 애플리케이션을 만들고
 language: ko
 date: 2024-10-22T11:51:27.614782351Z
 path: /blog/posts/creating-a-gui-with-tk-in-go-z004dd008
+category: gui
 lang_canonical:
     ko: https://blog.naver.com/bugaku/223629101405
 ---

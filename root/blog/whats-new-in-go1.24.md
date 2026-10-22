@@ -6,6 +6,7 @@ description: Go 1.24 delivers performance boosts, post-quantum crypto, TLS enhan
 language: en
 date: 2024-12-20T00:23:21.60729Z
 path: /blog/posts/whats-new-in-go-1-24-z83ff24d2
+category: release
 ---
 
 Go 1.24 is shaping up to be a significant release, introducing a range of enhancements focused on performance, security, and developer experience. These changes aim to make Go even more powerful and efficient for building modern applications.

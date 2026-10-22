@@ -1,0 +1,42 @@
+package home
+
+import (
+	"gosuda.org/website/view/ui"
+	"strconv"
+)
+
+type step struct {
+	Title string
+	Body  string
+	Href  string
+}
+
+var steps = []step{
+	{"Pick a project", "Find a repository that matches what you love to build, from relays to databases.", "https://github.com/orgs/gosuda/repositories"},
+	{"Open an issue or PR", "Report a bug, propose an idea or send a fix. Small pull requests are welcome.", issuesURL},
+	{"Write for the blog", "Share what you learned. Every post is translated into 20+ languages automatically.", "https://github.com/gosuda/website"},
+}
+
+templ Contribute() {
+	<section class="mx-auto max-w-6xl px-4 pt-24">
+		<h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Join in three steps</h2>
+		<p class="mt-3 text-muted-foreground">No sign-up. Everything happens on GitHub.</p>
+		<div class="mt-10 grid gap-4 md:grid-cols-3">
+			for i, s := range steps {
+				@ui.LinkCard(s.Href, templ.Attributes{"target": "_blank", "rel": "noopener noreferrer"}) {
+					<div class="reveal relative z-10 flex h-full flex-col p-6">
+						<span class="flex size-10 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-brand-2 font-mono text-sm font-bold text-white shadow-lg shadow-brand/30 transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110">
+							{ "0" + strconv.Itoa(i+1) }
+						</span>
+						<h3 class="mt-5 text-lg font-bold">{ s.Title }</h3>
+						<p class="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{ s.Body }</p>
+						<span class="mt-5 flex items-center gap-1 text-sm font-bold text-primary">
+							Go
+							@ui.ArrowIcon("size-4")
+						</span>
+					</div>
+				}
+			}
+		</div>
+	</section>
+}

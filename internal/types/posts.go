@@ -85,6 +85,8 @@ type Metadata struct {
 	GoRepoURL string `json:"go_repourl,omitempty" yaml:"go_repourl,omitempty"`
 	// Canonical is the canonical URL for the post.
 	Canonical string `json:"canonical,omitempty" yaml:"canonical,omitempty"`
+	// Category is the topic slug used for the home filter and the fallback cover (optional). Only effective if the post is Main Document.
+	Category string `json:"category,omitempty" yaml:"category,omitempty"`
 	// Hidden indicates whether the post should be listed on the front page.
 	Hidden bool `json:"hidden,omitempty" yaml:"hidden,omitempty"`
 	// NoTranslate indicates whether the post should be translated.

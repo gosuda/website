@@ -6,6 +6,7 @@ description: Go의 새로운 GreenTea GC는 메모리 스팬 기반으로 작은
 language: ko
 date: 2025-07-16T11:02:04.831022221Z
 path: /blog/posts/greentea-gc:-the-respite-of-a-cup-of-green-tea-seized-by-the-go-compiler-z72acc3f7
+category: lowlevel
 ---
 
 ## 왜 또 새로운 GC가 나오나

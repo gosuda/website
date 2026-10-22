@@ -6,6 +6,7 @@ description: 데이터베이스 비트맵 인덱스 개념부터 Roaring Bitmap�
 language: ko
 date: 2025-09-08T13:30:39.840979719Z
 path: /blog/posts/vibrant-bitmap-z1743872f
+category: database
 ---
 
 ## 비트맵이란?

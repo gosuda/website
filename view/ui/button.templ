@@ -1,0 +1,25 @@
+package ui
+
+type Variant string
+
+const (
+	Primary Variant = "primary"
+	Outline Variant = "outline"
+	Ghost   Variant = "ghost"
+)
+
+var buttonVariants = map[Variant]string{
+	Primary: "bg-primary text-primary-foreground shadow-sm shadow-primary/30 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/30",
+	Outline: "border bg-background/60 backdrop-blur hover:bg-accent hover:text-accent-foreground",
+	Ghost:   "hover:bg-accent hover:text-accent-foreground",
+}
+
+templ LinkButton(href string, v Variant, attrs templ.Attributes) {
+	<a
+		href={ templ.SafeURL(href) }
+		class={ "group inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-md px-5 text-sm font-bold transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-[0.98]", buttonVariants[v] }
+		{ attrs... }
+	>
+		{ children... }
+	</a>
+}

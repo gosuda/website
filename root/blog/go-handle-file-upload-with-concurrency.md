@@ -6,6 +6,7 @@ description: 작업 큐를 이용하여 응답 시간을 단축해 봅시다.
 language: ko
 date: 2025-07-14T11:51:27.614782351Z
 path: /blog/posts/go-handle-file-upload-with-concurrency-s844ce238
+category: concurrency
 ---
 
 # 개요

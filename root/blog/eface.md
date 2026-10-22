@@ -6,6 +6,7 @@ description: Go 언어의 `any` 타입과 내부 `EFace` 구조를 상세히 분
 language: ko
 date: 2025-09-30T15:12:53.689280321Z
 path: /blog/posts/any-is-not-any-but-any-is-any-z6161856d
+category: language
 ---
 
 ## Any

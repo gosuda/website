@@ -6,6 +6,7 @@ description: 'Go 언어를 선택해야 하는 5가지 이유: 성능, 생산성
 language: ko
 date: 2025-07-17T03:02:30.365542012Z
 path: /blog/posts/why-the-go-language-zdb70b280
+category: language
 ---
 
 ## 서론

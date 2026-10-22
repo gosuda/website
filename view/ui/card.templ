@@ -1,0 +1,11 @@
+package ui
+
+// CardClass is the shared surface style for every card on the site.
+const CardClass = "rounded-xl border bg-card text-card-foreground shadow-sm"
+
+// LinkCard is a whole-card link with the pointer spotlight hover effect.
+templ LinkCard(href string, attrs templ.Attributes) {
+	<a href={ templ.SafeURL(href) } class={ "spotlight group flex flex-col overflow-hidden outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50", CardClass } data-spotlight { attrs... }>
+		{ children... }
+	</a>
+}

@@ -6,6 +6,7 @@ description: Golang이 FIPS 140 인증을 지원하는 방식과 FIPS 140-3으�
 language: ko
 date: 2025-09-11T05:33:18.23816735Z
 path: /blog/posts/fips-140-certification-and-golang-z0a59330a
+category: security
 ---
 
 ## FIPS 140 ( Federal Information Processing Standard Publication 140 )

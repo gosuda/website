@@ -1,0 +1,28 @@
+package layout
+
+import "gosuda.org/website/view/ui"
+
+templ Header(m *Metadata) {
+	<header class="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+		<div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+			<a href={ templ.SafeURL(m.HomeURL()) } class="group flex items-center gap-2.5 text-lg font-bold">
+				<img src="/assets/gosuda.webp" alt="" width="36" height="36" class="size-9 transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110"/>
+				GoSuda
+			</a>
+			<nav class="flex items-center gap-1 text-sm">
+				<a href={ templ.SafeURL(m.HomeURL() + "#posts") } class="hidden rounded-md px-3 py-2 text-muted-foreground transition-colors hover:text-foreground sm:block">Blog</a>
+				<a href={ templ.SafeURL(m.HomeURL() + "#projects") } class="hidden rounded-md px-3 py-2 text-muted-foreground transition-colors hover:text-foreground sm:block">Projects</a>
+				<a href="https://github.com/gosuda" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 rounded-md px-3 py-2 text-muted-foreground transition-colors hover:text-foreground">
+					@ui.GitHubIcon("size-4")
+					GitHub
+				</a>
+				<button type="button" data-theme-toggle aria-pressed="false" class="theme-switch" aria-label="Toggle dark mode">
+					<span class="sr-only">Toggle color scheme</span>
+					<span data-sun aria-hidden="true">☀️</span>
+					<span data-moon aria-hidden="true">🌙</span>
+					<span data-knob aria-hidden="true"></span>
+				</button>
+			</nav>
+		</div>
+	</header>
+}

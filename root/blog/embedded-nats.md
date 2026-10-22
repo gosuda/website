@@ -6,6 +6,7 @@ description: Go 애플리케이션에 임베드된 NATS가 어떻게 통신하�
 language: ko
 date: 2025-08-04T01:05:22.150350794Z
 path: /blog/posts/how-embedded-nats-communicate-with-go-application-z36089af0
+category: network
 ---
 
 # Getting started

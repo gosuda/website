@@ -6,6 +6,7 @@ description: AI 시대, 개발자와 AI가 상호작용하며 함께 성장하�
 language: ko
 date: 2026-02-01T01:18:36.450880849Z
 path: /blog/posts/ai-native-development-z86704c1a
+category: ai
 ---
 
 ## AI 와 개발자

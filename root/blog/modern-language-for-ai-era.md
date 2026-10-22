@@ -6,6 +6,7 @@ description: AI 시대, 기존 모던 언어의 특징이 오히려 단점? Go �
 language: ko
 date: 2025-05-18T04:44:19.742674221Z
 path: /blog/posts/modern-language-of-the-ai-era-z2d7204f1
+category: ai
 lang_canonical:
     ko: https://blog.naver.com/sjc02183/223844938175
 ---

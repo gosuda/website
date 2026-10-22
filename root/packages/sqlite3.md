@@ -8,6 +8,7 @@ date: 2026-10-18T14:02:16.803040007Z
 path: /sqlite3
 go_package: gosuda.org/sqlite3
 go_repourl: https://github.com/gosuda/hqq-sqlite3.git
+category: database
 ---
 
 `gosuda.org/sqlite3` is a `CGO_ENABLED=0` `database/sql` driver for Go that runs the upstream C SQLite `3.54.1` amalgamation inside an isolated worker process over [HQQ](https://gosuda.org/hqq) shared-memory rings. It registers under the standard `"sqlite3"` driver name, supports `github.com/mattn/go-sqlite3` DSN query parameters, embeds SLSA-attested prebuilt server binaries for six OS and architecture targets, and uses request pipelining with 64 KiB batch prefetching to outperform in-process `cgo` on multi-row queries.

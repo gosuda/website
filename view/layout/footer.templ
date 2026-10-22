@@ -1,0 +1,30 @@
+package layout
+
+import "gosuda.org/website/view/ui"
+
+templ Footer() {
+	<footer class="mt-24 border-t">
+		<div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 py-10 text-sm text-muted-foreground sm:flex-row">
+			<div class="flex items-center gap-2">
+				<img src="/assets/gosuda.webp" alt="" width="28" height="28" class="size-7"/>
+				<span>© 2024 GoSuda. Built in the open.</span>
+			</div>
+			<div class="flex items-center gap-4">
+				<a href="https://github.com/gosuda" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 transition-colors hover:text-foreground">
+					@ui.GitHubIcon("size-4")
+					GitHub
+				</a>
+				<a href="https://gosuda.org/editor" target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-foreground">Editor</a>
+				<a href="/feed.rss" class="transition-colors hover:text-foreground">RSS</a>
+				<div class="dropdown">
+					<button class="dropdown-button" dropdown-button></button>
+					<ul class="dropdown-content" dropdown-content></ul>
+				</div>
+			</div>
+		</div>
+	</footer>
+	<script src="/main.js" type="module" defer></script>
+	<!-- Cloudflare Web Analytics -->
+	<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "4e67af35fb5a4e11ac4ce2a2053cf8d4"}'></script>
+	<!-- End Cloudflare Web Analytics -->
+}

@@ -1,0 +1,84 @@
+package home
+
+import (
+	"gosuda.org/website/view/ui"
+	"strconv"
+)
+
+const issuesURL = "https://github.com/search?q=org%3Agosuda+is%3Aissue+is%3Aopen&type=issues"
+
+var wordmark = []string{"G", "o", "S", "u", "d", "a"}
+
+templ Hero(gh *GitHubStats) {
+	<section class="relative isolate overflow-hidden">
+		<div class="bg-grid absolute inset-0 -z-10"></div>
+		<div class="aurora -z-10 left-[-10%] top-[-20%] size-[420px] bg-brand/40"></div>
+		<div class="aurora aurora-b -z-10 right-[-10%] top-[10%] size-[380px] bg-brand-2/30"></div>
+		<div class="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-16 lg:grid-cols-[1.15fr_1fr] lg:pt-24">
+			<div>
+				@ui.Badge() {
+					<span class="relative flex size-2">
+						<span class="absolute inline-flex size-full animate-ping rounded-full bg-brand opacity-75"></span>
+						<span class="relative inline-flex size-2 rounded-full bg-brand"></span>
+					</span>
+					Open source working group
+				}
+				<h1 class="wordmark mt-6 text-7xl font-bold tracking-tight sm:text-8xl lg:text-9xl" aria-label="GoSuda">
+					for i, ch := range wordmark {
+						<span aria-hidden="true" style={ "--i:" + strconv.Itoa(i) }>{ ch }</span>
+					}
+				</h1>
+				<p class="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+					We build fast, honest Go tools in the open: networking, storage, runtimes and developer tooling.
+					<span class="font-bold text-foreground">Your next commit belongs here.</span>
+				</p>
+				<div class="mt-8 flex flex-wrap gap-3">
+					@ui.LinkButton("https://github.com/gosuda", ui.Primary, templ.Attributes{"target": "_blank", "rel": "noopener noreferrer"}) {
+						@ui.GitHubIcon("size-4")
+						Start contributing
+						@ui.ArrowIcon("size-4")
+					}
+					@ui.LinkButton(issuesURL, ui.Outline, templ.Attributes{"target": "_blank", "rel": "noopener noreferrer"}) {
+						Browse open issues
+					}
+					@ui.LinkButton("#posts", ui.Ghost, nil) {
+						Read the blog
+					}
+				</div>
+			</div>
+			<div class="relative mx-auto aspect-square w-full max-w-[420px]">
+				<div class="orbit"></div>
+				<div class="orbit orbit-reverse inset-[12%]"></div>
+				<div class="absolute inset-[22%] rounded-full bg-gradient-to-br from-brand/30 to-brand-2/30 blur-2xl"></div>
+				<img src="/assets/gosuda.webp" alt="GoSuda mascot" width="640" height="640" class="mascot-float absolute inset-[14%] size-[72%] drop-shadow-2xl"/>
+				if gh != nil {
+					<div class="mascot-float absolute right-0 top-[12%] flex items-center gap-1.5 rounded-full border bg-card/80 px-3 py-1.5 text-sm font-bold shadow-lg backdrop-blur [animation-delay:-2s]">
+						@ui.StarIcon("size-4 text-amber-400")
+						<span data-count={ strconv.Itoa(gh.StarCount) }>{ strconv.Itoa(gh.StarCount) }</span>
+					</div>
+					<div class="mascot-float absolute bottom-[14%] left-0 rounded-full border bg-card/80 px-3 py-1.5 text-sm font-bold shadow-lg backdrop-blur [animation-delay:-4s]">
+						<span data-count={ strconv.Itoa(gh.RepoCount) }>{ strconv.Itoa(gh.RepoCount) }</span> repos
+					</div>
+				}
+			</div>
+		</div>
+		if gh != nil {
+			@repoMarquee(gh.Repos)
+		}
+	</section>
+}
+
+templ repoMarquee(repos []Repo) {
+	<div class="marquee overflow-hidden border-y bg-muted/40 py-3" aria-hidden="true">
+		<div class="marquee-track" style={ "--repos: " + strconv.Itoa(len(repos)) }>
+			for range 2 {
+				for _, r := range repos {
+					<span class="flex items-center gap-2 px-5 font-mono text-sm text-muted-foreground">
+						<span class="size-1.5 rounded-full bg-brand"></span>
+						gosuda/{ r.Name }
+					</span>
+				}
+			}
+		</div>
+	</div>
+}

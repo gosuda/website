@@ -6,6 +6,7 @@ description: 섀넌의 법칙을 넘어 AI 기반 시맨틱 통신으로 전환�
 language: ko
 date: 2025-11-14T04:45:47.88369259Z
 path: /blog/posts/the-next-communication-paradigm-led-by-ai-based-semantic-communication-zc1496ec7
+category: ai
 ---
 
 ## 섀넌의 법칙

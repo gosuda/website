@@ -6,6 +6,7 @@ description: 매니지드 언어의 정의와 Go 언어의 바이너리 구조�
 language: ko
 date: 2026-05-17T12:00:00Z
 path: /blog/posts/managed-languages-intro-656b7470
+category: lowlevel
 ---
 
 ## 매니지드 언어란 무엇인가?

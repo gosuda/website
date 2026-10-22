@@ -6,6 +6,7 @@ description: 데이터베이스 서버와 임베디드 데이터베이스의 장
 language: ko
 date: 2025-08-21T12:11:23.268337247Z
 path: /blog/posts/database-servers-and-embedded-databases-zd4cb799f
+category: database
 ---
 
 ## 데이터베이스 서버

@@ -6,6 +6,7 @@ description: Go는 왜 try-catch를 지원하지 않고 panic-recover를 사용�
 language: ko
 date: 2024-10-16T07:06:25.186989697Z
 path: /blog/posts/why-doesn-t-go-have-try-catch-zeb312147
+category: language
 lang_canonical:
     ko: https://blog.naver.com/sjc02183/222927597790
 ---

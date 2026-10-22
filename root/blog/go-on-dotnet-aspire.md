@@ -6,6 +6,7 @@ description: '닷넷 Aspire로 Go 서버를 확장 가능하게 실행하는 방
 language: ko
 date: 2025-01-05T05:04:22.744778105Z
 path: /blog/posts/exploring-the-scalable-execution-of-go-servers-in-net-aspire-z42f3b6ee
+category: network
 ---
 
 ## dotnet aspire?

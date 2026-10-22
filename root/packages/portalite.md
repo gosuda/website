@@ -8,6 +8,7 @@ date: 2026-08-26T14:05:55.212694445Z
 path: /portalite
 go_package: gosuda.org/portalite
 go_repourl: https://github.com/gosuda/portalite.git
+category: network
 ---
 
 앞서 [Portal](https://github.com/gosuda/portal)을 소개하면서 우리는 현대 웹의 문제를 이야기했습니다. AI 코딩 도구의 등장으로 누구나 웹사이트를 만들 수 있게 되었지만, 정작 그것을 세상에 공개하는 일은 여전히 거대 플랫폼과 클라우드의 독점 영역에 남아 있습니다. Portal은 웹의 호스팅과 콘텐츠 제작을 분리하고, 개인의 로컬 서비스를 종단 간 암호화된 릴레이를 통해 전 세계에 연결함으로써, 공개할 권한을 다시 개인에게 돌려주는 프로젝트입니다.
