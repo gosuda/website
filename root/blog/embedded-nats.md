@@ -1,11 +1,12 @@
 ---
 id: 8f79af5c6af89b748112aa8b77b348ab
 author: prravda
-title: How embedded NATS communicate with go application?
-description: Go 애플리케이션에 임베드된 NATS가 어떻게 통신하는지, 공식 문서의 예시와 올바른 설정, 그리고 Go의 consumer-defined interface를 통해 자세히 알아봅니다.
+title: Go 애플리케이션 내장형 NATS 서버 구성과 인프로세스 통신 구조
+description: Go 프로세스 내부에 NATS 브로커(nats-server/v2)를 내장하여 구동하는 설정 방법과 InProcessConn 기반 인메모리 통신 및 소비자 정의 인터페이스 설계를 다룹니다.
 language: ko
 date: 2025-08-04T01:05:22.150350794Z
 path: /blog/posts/how-embedded-nats-communicate-with-go-application-z36089af0
+category: network
 ---
 
 # Getting started
@@ -13,15 +14,14 @@ path: /blog/posts/how-embedded-nats-communicate-with-go-application-z36089af0
 ## About NATS
 
 > Software applications and services need to exchange data. NATS is an infrastructure that allows such data exchange, segmented in the form of messages. We call this a "**message oriented middleware**".
-> 
-> 
+>
 > With NATS, application developers can:
-> 
+>
 > - Effortlessly build distributed and scalable client-server applications.
 > - Store and distribute data in realtime in a general manner. This can flexibly be achieved across various environments, languages, cloud providers and on-premises systems.
-> 
+>
 > [What is NATS, NATS docs](https://docs.nats.io/nats-concepts/what-is-nats)
-> 
+
 - NATS 는 Go 로 구성된 메시지 브로커이다.
 
 ## Embedded NATS
@@ -29,7 +29,9 @@ path: /blog/posts/how-embedded-nats-communicate-with-go-application-z36089af0
 > If your application is in Go, and if it fits your use case and deployment scenarios, you can even embed a NATS server inside your application.
 
 [Embedding NATS, NATS docs](https://docs.nats.io/running-a-nats-service/clients#embedding-nats)
-> 
+
+>
+
 - 그리고 NATS 의 특이사항이 있는데, Go 로 구성된 애플리케이션의 경우 embedded mode 를 지원한다는 것이다.
 - 즉, 메시지 브로커의 일반적인 방식인 별도의 브로커 서버 구동 후 해당 서버와 애플리케이션의 클라이언트를 통해 통신하는 구조가 아닌, 브로커 자체를 Go 로 만든 애플리케이션에 내장(embed)할 수 있다는 이야기이다.
 
@@ -111,24 +113,23 @@ tcp4       0      0  127.0.0.1.4222         127.0.0.1.63769        TIME_WAIT
 # Right configurations for embedding mode
 
 - 의도하는 대로 embedded mode 로 통신을 하기 위해선 다음과 같은 두 가지 옵션이 필요하다.
-    - Client: `InProcessServer` option 을 넣어주어야 한다.
-    - Server: `Server.Options` 에 `DontListen` 이라는 flag 를 `true` 로 명시해야 한다.
+  - Client: `InProcessServer` option 을 넣어주어야 한다.
+  - Server: `Server.Options` 에 `DontListen` 이라는 flag 를 `true` 로 명시해야 한다.
 - 해당 부분들은 공식적으로 문서화가 되어있진 않았고, 이 기능의 시작은 해당 [PR](https://github.com/nats-io/nats-server/pull/2360) 을 통해 파악할 수 있다.
-    
-    > This PR adds three things:
-    > 
-    > 1. `InProcessConn()` function to `Server` which builds a `net.Pipe` to get a connection to the NATS server without using TCP sockets
-    > 2. `DontListen` option which tells the NATS server not to listen on the usual TCP listener
-    > 3. `startupComplete` channel, which is closed right before we start `AcceptLoop`, and `readyForConnections` will wait for it
-    > 
-    > The main motivation for this is that we have an application that can run either in a monolith (single-process) mode or a polylith (multi-process) mode. We'd like to be able to use NATS for both modes for simplicity, but the monolith mode has to be able to cater for a variety of platforms where opening socket connections either doesn't make sense (mobile) or just isn't possible (WASM). These changes will allow us to use NATS entirely in-process instead.
-    > 
-    > An accompanying PR [nats-io/nats.go#774](https://github.com/nats-io/nats.go/pull/774) adds support to the client side.
-    > 
-    > This is my first PR to this project so apologies in advance if I've missed anything obvious anywhere.
-    > 
-    > /cc @nats-io/core
-    > 
+
+  > This PR adds three things:
+  >
+  > 1. `InProcessConn()` function to `Server` which builds a `net.Pipe` to get a connection to the NATS server without using TCP sockets
+  > 2. `DontListen` option which tells the NATS server not to listen on the usual TCP listener
+  > 3. `startupComplete` channel, which is closed right before we start `AcceptLoop`, and `readyForConnections` will wait for it
+  >
+  > The main motivation for this is that we have an application that can run either in a monolith (single-process) mode or a polylith (multi-process) mode. We'd like to be able to use NATS for both modes for simplicity, but the monolith mode has to be able to cater for a variety of platforms where opening socket connections either doesn't make sense (mobile) or just isn't possible (WASM). These changes will allow us to use NATS entirely in-process instead.
+  >
+  > An accompanying PR [nats-io/nats.go#774](https://github.com/nats-io/nats.go/pull/774) adds support to the client side.
+  >
+  > This is my first PR to this project so apologies in advance if I've missed anything obvious anywhere.
+  >
+  > /cc @nats-io/core
 
 # Working Example for embedded mode
 
@@ -196,7 +197,7 @@ func main() {
 ```bash
 Every 2.0s: netstat -an | grep 127.0.0.1         pravdalaptop-home.local: 02:37:50
                                                                      in 0.023s (0)
-...no additional logs 
+...no additional logs
 
 ```
 
@@ -209,9 +210,9 @@ Every 2.0s: netstat -an | grep 127.0.0.1         pravdalaptop-home.local: 02:37:
 ![diagram1](/assets/images/embedded-nats/seq1.svg)
 
 - 해당 코드를 `main.go` 에서 실행시켰을 때, 내부적으로 어떠한 함수들이 어떻게 작동되는지를 나타낸 sequence diagram 이며, 골자를 설명하자면 아래와 같다.
-    - `DontListen: true` 를 통해 서버는 `AcceptLoop` 라는 client listening phase 를 생략한다.
-    - client 의 Connect option 중 `InProcessServer` 가 활성화 된다면 in-memory connection 을 생성하고 `net.Pipe` 를 통해 pipe 를 만든 뒤 end of pipe 를 client 에게 `net.Conn` type 으로 반환한다.
-    - client 와 server 가 해당 connection 을 통해 in-process communication 을 진행한다.
+  - `DontListen: true` 를 통해 서버는 `AcceptLoop` 라는 client listening phase 를 생략한다.
+  - client 의 Connect option 중 `InProcessServer` 가 활성화 된다면 in-memory connection 을 생성하고 `net.Pipe` 를 통해 pipe 를 만든 뒤 end of pipe 를 client 에게 `net.Conn` type 으로 반환한다.
+  - client 와 server 가 해당 connection 을 통해 in-process communication 을 진행한다.
 
 ## Server
 
@@ -352,7 +353,7 @@ type Options struct {
 	// same process. If this is set then we will attempt to connect
 	// to the server directly rather than using external TCP conns.
 	InProcessServer InProcessConnProvider
-	
+
 	//...
 }
 ```
@@ -365,7 +366,7 @@ type InProcessConnProvider interface {
 }
 ```
 
-- nats server 와 nats client 의 연결을 진행하는 `Connect` 함수는 client URL 과 connect Option 을 설정할 수 있고, 해당 Option 들을 모아놓은 Options struct 엔 `InProcesConnProvider` interface type 의  `InProcessServer` 라는 field 가 존재한다.
+- nats server 와 nats client 의 연결을 진행하는 `Connect` 함수는 client URL 과 connect Option 을 설정할 수 있고, 해당 Option 들을 모아놓은 Options struct 엔 `InProcesConnProvider` interface type 의 `InProcessServer` 라는 field 가 존재한다.
 
 ```go
 // main.go of example code
@@ -421,7 +422,7 @@ func (nc *Conn) createConn() (err error) {
 		nc.bindToNewConn()
 		return nil
 	}
-	
+
 	//...
 }
 ```
@@ -457,12 +458,11 @@ func (s *Server) InProcessConn() (net.Conn, error) {
 > A type implements an interface by implementing its methods. There is no explicit declaration of intent, no "implements" keyword. Implicit interfaces decouple the definition of an interface from its implementation, which could then appear in any package without prearrangement.
 
 [Interfaces are implemented implicitly, A Tour of Go](https://go.dev/tour/methods/10)
-> 
 
-> If a type exists only to implement an interface and will never have exported methods beyond that interface, there is no need to export the type itself. 
+> If a type exists only to implement an interface and will never have exported methods beyond that interface, there is no need to export the type itself.
 
 [Generality, Effective Go](https://go.dev/doc/effective_go#generality)
-> 
+
 - 해당 interface design 은 Go 에서 흔히 말 하는 consumer defined interface 와 structural typing(duck typing) 을 잘 담고 있어서 해당 주제도 같이 소개해 보려고 한다.
 
 ```go
@@ -479,7 +479,7 @@ type Options struct {
 	// same process. If this is set then we will attempt to connect
 	// to the server directly rather than using external TCP conns.
 	InProcessServer InProcessConnProvider
-	
+
 	//...
 }
 ```

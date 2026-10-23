@@ -2,14 +2,16 @@
 id: f5707f0f4f230a276a3428b1eb1e6469
 author: Lemon Mint
 title: 'Schottky: Zero-Allocation, Order-Preserving Byte-Key Encoding for Go'
-description: Schottky is a high-performance Go library designed to encode multi-type composite values into order-preserving byte keys. Featuring zero-allocation execution, independent NULL ordering, PostgreSQL 18 type compatibility, and prefix-scan upper bounding, it is built for modern storage engines and index pipelines.
+description: Zero-allocation Go library that encodes composite tuples into memcmp-ordered byte keys with independent ASC/DESC sorting, NULL placement tags, and prefix-scan bounds.
 language: en
 date: 2026-08-31T07:47:42.614875839Z
 path: /schottky
 go_package: gosuda.org/schottky
 go_repourl: https://github.com/gosuda/schottky.git
+category: database
 ---
-When implementing LSM-tree or B-tree based key-value stores and database indexes, composite fields often need to be combined into a single byte key. 
+
+When implementing LSM-tree or B-tree based key-value stores and database indexes, composite fields often need to be combined into a single byte key.
 
 Standard serialization formats like JSON or Protocol Buffers are not designed for this purpose because their serialized byte outputs do not preserve the natural sorting order required by unsigned bytewise comparisons (`bytes.Compare` or `memcmp`).
 
@@ -93,7 +95,7 @@ if finite {
 }
 ```
 
-*Note: `Builder.Len()` must be measured at clean field boundaries. Slicing inside a field's internal byte stream produces an invalid prefix.*
+_Note: `Builder.Len()` must be measured at clean field boundaries. Slicing inside a field's internal byte stream produces an invalid prefix._
 
 ### Zero-Allocation and Buffer Management
 
@@ -145,4 +147,3 @@ On Go 1.27+, experimental portable SIMD acceleration can be enabled using `GOEXP
 - **Key Layout Specification**: https://github.com/gosuda/schottky/blob/main/docs/03-key-layout.md
 - **SQL Type Mapping Guide**: https://github.com/gosuda/schottky/blob/main/docs/17-sql-type-map.md
 - **Go API Reference**: https://github.com/gosuda/schottky/blob/main/docs/18-api.md
-

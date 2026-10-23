@@ -6,6 +6,7 @@ description: Go API 에러 처리가 귀찮으신가요? RFC7807로 더 간편�
 language: ko
 date: 2025-05-19T20:56:37.945722346Z
 path: /blog/posts/handling-http-errors-more-conveniently-+-rfc7807-z862df968
+category: api
 ---
 
 ## 개요

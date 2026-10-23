@@ -1,13 +1,14 @@
 ---
 id: c6fb06cc6cc2bcfd669fca4de7868882
 author: Lemon Mint
-title: 'Introducing Randflake ID: a distributed, uniform, unpredictable, unique random ID generator.'
-description: 'Introducing Randflake ID: a distributed, uniform, unique, and unpredictable ID generator inspired by Snowflake, using a block cipher for security.'
+title: 'Randflake ID: Distributed 64-Bit Unique ID Generation with Sparx64 Block Cipher'
+description: Distributed 64-bit unique ID generator combining a 30-bit timestamp, 17-bit node ID, 17-bit local counter, and the Sparx64 ARX block cipher for unguessable IDs.
 language: en
 date: 2024-12-09T14:50:44.030047Z
 path: /randflake
 go_package: gosuda.org/randflake
 go_repourl: https://github.com/gosuda/randflake.git
+category: security
 ---
 
 Consider a situation where we need to generate unique 64-bit random numbers, and external parties should not be able to predict the next or previous number.

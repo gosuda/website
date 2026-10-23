@@ -14,7 +14,8 @@ function getAlternateLinks() {
     document.querySelectorAll('link[rel="alternate"][hreflang]')
   ).reduce((acc, link) => {
     if (link.hreflang !== 'x-default') {
-      acc[link.hreflang] = link.href;
+      // hreflang hrefs are absolute production URLs; keep only the path so local and preview builds stay on their own origin.
+      acc[link.hreflang] = new URL(link.href).pathname;
     }
     return acc;
   }, {});
@@ -67,8 +68,9 @@ async function displayAlt() {
     const languageName = languageMap[browserLang] || browserLang;
 
     const selector = document.createElement('div');
+    // Floats over the page instead of pushing it down, so it never causes a layout shift.
     selector.className =
-      'mx-auto my-5 max-w-3xl bg-[var(--surface)] ' +
+      'fixed inset-x-4 bottom-4 z-50 mx-auto max-w-3xl bg-[var(--surface)] ' +
       'p-4 rounded-lg shadow-md text-sm flex items-center gap-3 ' +
       'border border-[var(--border)]';
 
@@ -95,12 +97,7 @@ async function displayAlt() {
     </button>
     `;
 
-    const header = document.querySelector('header');
-    if (header) {
-      header.insertAdjacentElement('afterend', selector);
-    } else {
-      document.body.insertBefore(selector, document.body.firstChild);
-    }
+    document.body.append(selector);
 
     document.getElementById('language-selector-close').addEventListener('click', () => {
       selector.remove();
@@ -1219,4 +1216,69 @@ function initDropdown() {
 
 document.addEventListener('DOMContentLoaded', function () {
   initDropdown();
+});
+
+// Card spotlight: expose the pointer position to CSS as --x / --y.
+document.addEventListener('pointermove', (e) => {
+  const card = e.target.closest?.('[data-spotlight]');
+  if (!card) return;
+  const r = card.getBoundingClientRect();
+  card.style.setProperty('--x', `${e.clientX - r.left}px`);
+  card.style.setProperty('--y', `${e.clientY - r.top}px`);
+});
+
+// Count numbers up from zero the first time they scroll into view.
+function initCountUp() {
+  const els = document.querySelectorAll('[data-count]');
+  if (!els.length || !('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const io = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      io.unobserve(entry.target);
+      const el = entry.target;
+      const target = Number(el.dataset.count);
+      const start = performance.now();
+      const tick = (now) => {
+        const t = Math.min((now - start) / 1400, 1);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3))).toLocaleString('en-US');
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+  });
+  els.forEach((el) => io.observe(el));
+}
+initCountUp();
+
+// Home posts: category filter and "show more". A pressed category shows all its posts; "All" keeps the rest folded until "show more".
+(() => {
+  const filter = document.querySelector('[data-category-filter]');
+  const more = document.querySelector('[data-show-more]');
+  const cards = document.querySelectorAll('#posts a[data-category]');
+  let slug = '';
+  let expanded = false;
+  const apply = () => {
+    cards.forEach((card) => {
+      card.hidden = slug ? card.dataset.category !== slug : !expanded && card.hasAttribute('data-more');
+    });
+    if (more) more.hidden = expanded || slug !== '';
+  };
+  more?.addEventListener('click', () => {
+    expanded = true;
+    apply();
+  });
+  filter?.addEventListener('click', (e) => {
+    const chip = e.target.closest('button[data-category]');
+    if (!chip) return;
+    slug = chip.dataset.category;
+    filter.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === chip)));
+    apply();
+  });
+})();
+
+// Pause the hero and marquee animations while they are off screen.
+document.querySelectorAll('[data-motion]').forEach((el) => {
+  if (!('IntersectionObserver' in window)) return;
+  new IntersectionObserver(([entry]) => el.classList.toggle('motion-paused', !entry.isIntersecting)).observe(el);
 });

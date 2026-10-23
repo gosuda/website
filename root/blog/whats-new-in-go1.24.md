@@ -1,11 +1,12 @@
 ---
 id: 149c0672eec2caba57477612564e9368
 author: Lemon Mint
-title: What's New in Go 1.24?
-description: Go 1.24 delivers performance boosts, post-quantum crypto, TLS enhancements, & more, making it a significant release for modern app development.
+title: 'Go 1.24 Release Overview: Swiss Table Maps, ML-KEM, os.Root, and testing/synctest'
+description: 'Technical overview of Go 1.24: Swiss Table built-in maps, crypto/mlkem (FIPS 203), TLS Encrypted Client Hello, runtime.AddCleanup, os.Root, and testing/synctest.'
 language: en
 date: 2024-12-20T00:23:21.60729Z
 path: /blog/posts/whats-new-in-go-1-24-z83ff24d2
+category: release
 ---
 
 Go 1.24 is shaping up to be a significant release, introducing a range of enhancements focused on performance, security, and developer experience. These changes aim to make Go even more powerful and efficient for building modern applications.

@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	_ "golang.org/x/image/webp"
@@ -153,16 +154,32 @@ func parseMetadata(doc *types.Document, metadata map[string]interface{}) error {
 
 	return nil
 }
+var gMarkMu sync.Mutex
+
 func ParseMarkdown(text string) (*types.Document, error) {
 	doc := &types.Document{
 		Type:     types.DocumentTypeMarkdown,
 		Markdown: text,
 	}
 
+	if strings.HasPrefix(text, "---\n") {
+		rest := strings.TrimPrefix(text, "---\n")
+		rawMeta, _, ok := strings.Cut(rest, "---\n")
+		if !ok {
+			return nil, ErrInvalidMetadata
+		}
+		var check map[string]interface{}
+		if err := yaml.Unmarshal([]byte(rawMeta), &check); err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrInvalidMetadata, err)
+		}
+	}
+
 	context := parser.NewContext()
 	var buf bytes.Buffer
 
+	gMarkMu.Lock()
 	err := gMark.Convert([]byte(text), &buf, parser.WithContext(context))
+	gMarkMu.Unlock()
 	if err != nil {
 		return nil, err
 	}

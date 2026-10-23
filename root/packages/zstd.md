@@ -2,12 +2,13 @@
 id: e52d68870be3de9f644fcfc584bd8aec
 author: Lemon Mint
 title: 'gosuda.org/zstd: Drop-In DataDog/zstd Compression with Zero CGO and Crash Isolation'
-description: Running upstream C libzstd 1.5.7 in a sandboxed shared-memory worker with a 100% DataDog/zstd-compatible Go API, zero-allocation contexts, and bulk batching.
+description: CGO_ENABLED=0 Go Zstandard library running upstream C libzstd 1.5.7 in a shared-memory worker with a DataDog/zstd-compatible API, reusable contexts, and bulk batching.
 language: en
 date: 2026-10-18T14:07:11.281986997Z
 path: /zstd
 go_package: gosuda.org/zstd
 go_repourl: https://github.com/gosuda/hqq-zstd.git
+category: lowlevel
 ---
 
 `gosuda.org/zstd` is a `CGO_ENABLED=0` Go compression library that runs the official C Zstandard (`libzstd 1.5.7`) engine inside an isolated worker process over [HQQ](https://gosuda.org/hqq) shared memory. It provides a drop-in replacement API for `github.com/DataDog/zstd` (including one-shot `Compress`/`Decompress`, streaming `io.Writer`/`io.Reader`, pre-digested dictionaries, and reusable zero-allocation contexts) while keeping C execution completely outside the Go runtime address space.
@@ -82,12 +83,12 @@ func main() {
 
 All six target platforms ship with prebuilt, SHA-256-pinned worker binaries embedded via platform-specific build tags (`internal/embedded/embed_<goos>_<goarch>.go`):
 
-| Target OS | Target Arch (`GOARCH`) | Embedded Binary | Binary Size | Build Toolchain & Provenance |
-| :--- | :--- | :--- | ---: | :--- |
-| **Linux** | `amd64`, `arm64` | `zstd_server_linux_<arch>` | ~770 - 880 KiB | GCC `-O3`, SLSA Build L3 Provenance |
-| **macOS** | `arm64`, `amd64` | `zstd_server_darwin_<arch>` | ~660 - 795 KiB | AppleClang `-O3`, SLSA Build L3 Provenance |
-| **Windows** | `amd64` | `zstd_server_windows_amd64.exe` | ~818 KiB | MSVC `-O2`, SLSA Build L3 Provenance |
-| **Windows** | `arm64` | `zstd_server_windows_arm64.exe` | ~551 KiB | `zig cc -target aarch64-windows-gnu -O3`, SLSA L3 |
+| Target OS   | Target Arch (`GOARCH`) | Embedded Binary                 |    Binary Size | Build Toolchain & Provenance                      |
+| :---------- | :--------------------- | :------------------------------ | -------------: | :------------------------------------------------ |
+| **Linux**   | `amd64`, `arm64`       | `zstd_server_linux_<arch>`      | ~770 - 880 KiB | GCC `-O3`, SLSA Build L3 Provenance               |
+| **macOS**   | `arm64`, `amd64`       | `zstd_server_darwin_<arch>`     | ~660 - 795 KiB | AppleClang `-O3`, SLSA Build L3 Provenance        |
+| **Windows** | `amd64`                | `zstd_server_windows_amd64.exe` |       ~818 KiB | MSVC `-O2`, SLSA Build L3 Provenance              |
+| **Windows** | `arm64`                | `zstd_server_windows_arm64.exe` |       ~551 KiB | `zig cc -target aarch64-windows-gnu -O3`, SLSA L3 |
 
 ## Inside the Shared-Memory Data Path
 

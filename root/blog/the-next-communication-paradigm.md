@@ -1,11 +1,12 @@
 ---
 id: 6b68cc1a848afe9fa2bfe0934a415fbc
 author: yoonhyunwoo
-title: AI 기반 시맨틱 통신이 이끄는 넥스트 통신 패러다임
-description: 섀넌의 법칙을 넘어 AI 기반 시맨틱 통신으로 전환하는 넥스트 통신 패러다임과 그 한계, 미래 전망을 탐구합니다.
+title: 섀넌의 채널 용량 한계와 AI 기반 시맨틱 통신(Semantic Communication) 구조
+description: 섀넌-하틀리 정리의 물리적 채널 용량 한계를 짚어보고, 공유 지식 베이스와 시맨틱 인코더/디코더를 통해 비트 단위 대신 의미 단위로 전송 데이터를 압축하는 시맨틱 통신을 다룹니다.
 language: ko
 date: 2025-11-14T04:45:47.88369259Z
 path: /blog/posts/the-next-communication-paradigm-led-by-ai-based-semantic-communication-zc1496ec7
+category: ai
 ---
 
 ## 섀넌의 법칙

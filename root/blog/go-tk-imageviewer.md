@@ -1,11 +1,12 @@
 ---
 id: e55cbf5b5116abf3a5fc62c1af99e19b
 author: Yunjin Lee
-title: Go에서 Tk로 파일 목록이 추가된 이미지 뷰어 만들기
-description: Go 언어로 Tcl/Tk를 이용해 간단한 이미지 뷰어를 만들어 보세요.
+title: Go와 Tcl/Tk 9.0으로 다중 파일 리스트박스 기반 이미지 뷰어 구현
+description: modernc.org/tk9.0에 Tcl listbox 명령어 바인딩과 가상 이벤트 핸들러를 추가하여 다중 이미지 파일 열기, 선택 전환, 목록 항목 삭제가 가능한 GUI 이미지 뷰어를 구현합니다.
 language: ko
 date: 2024-11-19T11:51:05.279238471Z
 path: /blog/posts/creating-a-image-viewer-with-tk-in-go-z279238471Z
+category: gui
 ---
 
 지난 게시물에서는 CGo-Free Tcl/Tk 라이브러리에 대해 간단하게 살펴 봤습니다.
@@ -14,16 +15,14 @@ path: /blog/posts/creating-a-image-viewer-with-tk-in-go-z279238471Z
 ## 이미지 뷰어 계획
 
 1. 지난 시간의 이미지 표시기는 이미지 삭제 기능이 없어 여러 이미지들을 불러올 수록
-창의 크기가 모자랐습니다.
-사용하지 않는 라벨을 삭제해 줍시다.
+   창의 크기가 모자랐습니다.
+   사용하지 않는 라벨을 삭제해 줍시다.
 2. 이미지 표시기에 여러 이미지를 목록화할 것이라면 리스트를 만들어 줍시다.
 3. 한 번에 여러 이미지를 불러오는 것이 좋습니다.
 4. 보지 않을 이미지를 목록에서 빼는 것도 구현해 줍니다.
 5. 다중 이미지 중 특정 이미지를 선택해서 보는 기능을 만들어 줍시다.
 
-
 ## 수정된 Tcl/Tk 9.0 라이브러리
-
 
 기존 라이브러리에는 Listbox 구현이 미흡해서 이미지 목록을 보여주기 힘듭니다.
 수정된 라이브러리를 다운로드해 줍시다.
@@ -43,6 +42,7 @@ func Destroy(options ...Opt) {
 	evalErr(fmt.Sprintf("destroy %s", collect(options...)))
 }
 ```
+
 이 함수는 evalErr라는 함수에 Tcl 스크립트 형식으로 동작을 전달해 구현되어 있습니다.
 그 말은, 원하는 기능을 구현하기 위해서는 해당하는 Tcl 스크립트의 형식으로 명령을 전달하기만 된다는 뜻입니다.
 
@@ -52,14 +52,15 @@ func Destroy(options ...Opt) {
 [insert 명령어](https://www.tcl.tk/man/tcl8.6/TkCmd/listbox.htm#M29)
 
 insert 명령어의 설명 페이지를 보면, insert는 특정 인덱스에 나열된 항목들을 삽입합니다.
-그렇다면 이를 구현하기 위해서 
+그렇다면 이를 구현하기 위해서
+
 ```go
 func (l *ListboxWidget) AddItem(index int, items string) {
 	evalErr(fmt.Sprintf("%s insert %d %s", l.fpath, index, items))
 }
 ```
-와 같은 코드를 작성할 수 있습니다.
 
+와 같은 코드를 작성할 수 있습니다.
 
 이제 대략적인 구현 원리를 알았으니, Listbox를 위한 추가 기능들부터 설명하겠습니다.
 
@@ -81,7 +82,7 @@ func main() {
     }))
     b2 := TButton(Txt("Delete One Item, index (0)"), Command( func () {
         if length > 0 {
-            l.DeleteOne(0) 
+            l.DeleteOne(0)
             length-=1
         }
     }))
@@ -91,14 +92,11 @@ func main() {
 
 ```
 
-
 위 프로그램에서 AddItem은 스페이스바로 구분된 서로 다른 아이템들을 인덱스 0부터 차례대로 넣습니다.
 item1-item3는 차례대로 0, 1, 2 인덱스를 갖게 됩니다.
 항목 삭제가 어떻게 동작하는지 예제를 실행시켜 알아봅니다.
 
-
 ### 리스트: 선택된 항목 가져오기
-
 
 이제 Listbox에서 선택된 항목들을 가지고 온 후 확인해 보겠습니다.
 
@@ -165,7 +163,6 @@ func main() {
 
 또한, 큰 차이는 없지만 Relief 메서드를 이용하면 flat, groove, raise, ridge, solid, sunken 중에
 위젯 테두리의 스타일을 변경할 수 있습니다.
-
 
 ## 이미지 뷰어 예제
 
@@ -368,7 +365,6 @@ func main() {
 앞서 말씀드린 문제점을 개선할 수도 있고,
 주석 처리된 부분인 DefaultTheme 메서드를 이용하여 테마를 변경해 볼 수도 있습니다.
 이러한 부분을 개선한 프로그램을 새로 만들어 보면서 연습해 보시기 바랍니다.
-
 
 ## 정리
 

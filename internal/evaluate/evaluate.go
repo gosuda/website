@@ -2,7 +2,6 @@ package evaluate
 
 import (
 	"context"
-	"crypto/rand"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/lemon-mint/coord/llm"
 	"github.com/lemon-mint/coord/llmtools"
+	"github.com/zeebo/blake3"
 	"gosuda.org/website/internal/types"
 )
 
@@ -36,21 +36,11 @@ Here are the criteria to consider:
 If there are any violation within this criteria 6, 7, 8, 9, then mark score as 0.1
 
 Provide a detailed explanation of your evaluation, considering all the points above.
-Always adhere to the following output format precisely in your responses.
-
-Output Format:
-
-[START_TOKEN]
-x.xx
-[END_TOKEN]
-<reason>...</reason>
+Always adhere to the requested START_TOKEN and END_TOKEN output format precisely in your responses.
 
 REMEMBER If there are any violation within this criteria 6, 7, 8, 9, then mark score as 0.1!!!!`
 
-const prompt = `
-Here is the original document:
-
-# Original Document
+const originalBlockFmt = `# Original Document
 
 Language: %s
 
@@ -58,18 +48,22 @@ Language: %s
 %s
 </original_document>
 
+`
 
-=============
-
-Here is the translated document:
-
-# Translated Document
+const translatedBlockFmt = `# Translated Document
 
 Language: %s
 
 <translated_document>
 %s
-<translated_document>
+</translated_document>
+
+Output Format:
+
+%s
+x.xx
+%s
+<reason>...</reason>
 
 REMEMBER If there are any violation within this criteria 6, 7, 8, 9, then mark score as 0.1!!!!`
 
@@ -77,30 +71,58 @@ var (
 	ErrFailedToEvaluate = errors.New("failed to evaluate the document")
 )
 
-func EvaluateTranslation(ctx context.Context, l llm.Model, inputLang types.Lang, outputLang types.Lang, input string, output string) (float64, error) {
-	return 1.0, nil
+type attemptModelSelector interface {
+	ModelForAttempt(attempt int) llm.Model
+}
 
-	var b [8]byte
-	rand.Read(b[:])
-	startToken := "[" + hex.EncodeToString(b[:]) + "]"
-	rand.Read(b[:])
-	endToken := "[" + hex.EncodeToString(b[:]) + "]"
+func selectModel(l llm.Model, attempt int) llm.Model {
+	if s, ok := l.(attemptModelSelector); ok {
+		if m := s.ModelForAttempt(attempt); m != nil {
+			return m
+		}
+	}
+	return l
+}
 
-	input_prompt := strings.Replace(prompt, "[START_TOKEN]", startToken, 1)
-	input_prompt = strings.Replace(input_prompt, "[END_TOKEN]", endToken, 1)
-	input_prompt = fmt.Sprintf(input_prompt, types.FullLangName(inputLang), input, types.FullLangName(outputLang), output)
+func deterministicTokens(text string) (string, string) {
+	sh := blake3.New()
+	sh.WriteString("eval-start:")
+	sh.WriteString(text)
+	startSum := sh.Sum(nil)
+
+	eh := blake3.New()
+	eh.WriteString("eval-end:")
+	eh.WriteString(text)
+	endSum := eh.Sum(nil)
+
+	return "[" + hex.EncodeToString(startSum[:8]) + "]", "[" + hex.EncodeToString(endSum[:8]) + "]"
+}
+
+func evaluateTranslationOnce(ctx context.Context, l llm.Model, inputLang types.Lang, outputLang types.Lang, input string, output string) (float64, error) {
+	startToken, endToken := deterministicTokens(input)
+
+	originalBlock := fmt.Sprintf(originalBlockFmt, types.FullLangName(inputLang), input)
+	translatedBlock := fmt.Sprintf(translatedBlockFmt, types.FullLangName(outputLang), output, startToken, endToken)
 	if DEBUG_MODE {
 		fmt.Println("Prompt:")
-		fmt.Println(input_prompt)
+		fmt.Println(originalBlock)
+		fmt.Println(translatedBlock)
 		fmt.Println()
 	}
 
-	system_prompt := strings.Replace(system, "[START_TOKEN]", startToken, 1)
-	system_prompt = strings.Replace(system_prompt, "[END_TOKEN]", endToken, 1)
-
-	resp := l.GenerateStream(ctx, &llm.ChatContext{
-		SystemInstruction: system_prompt,
-	}, llm.TextContent(llm.RoleUser, input_prompt))
+	resp := l.GenerateStream(
+		ctx,
+		&llm.ChatContext{
+			SystemInstruction: system,
+		},
+		&llm.Content{
+			Role: llm.RoleUser,
+			Parts: []llm.Segment{
+				llm.Text(originalBlock),
+				llm.Text(translatedBlock),
+			},
+		},
+	)
 	err := resp.Wait()
 	if err != nil {
 		return 0.0, err
@@ -115,7 +137,7 @@ func EvaluateTranslation(ctx context.Context, l llm.Model, inputLang types.Lang,
 
 	sidx := strings.Index(text, startToken)
 	eidx := strings.Index(text, endToken)
-	if sidx != -1 && eidx != -1 {
+	if sidx != -1 && eidx != -1 && sidx+len(startToken) <= eidx {
 		text = text[sidx+len(startToken) : eidx]
 		text = strings.TrimSpace(text)
 		score, err := strconv.ParseFloat(text, 64)
@@ -126,4 +148,19 @@ func EvaluateTranslation(ctx context.Context, l llm.Model, inputLang types.Lang,
 	}
 
 	return 0.0, ErrFailedToEvaluate
+}
+
+func EvaluateTranslation(ctx context.Context, l llm.Model, inputLang types.Lang, outputLang types.Lang, input string, output string) (float64, error) {
+	return 1.0, nil
+
+	var lastErr error
+	for retryCount := 0; retryCount <= 3; retryCount++ {
+		model := selectModel(l, retryCount)
+		score, err := evaluateTranslationOnce(ctx, model, inputLang, outputLang, input, output)
+		if err == nil {
+			return score, nil
+		}
+		lastErr = err
+	}
+	return 0.0, lastErr
 }

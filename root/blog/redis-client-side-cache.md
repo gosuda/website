@@ -6,6 +6,7 @@ description: Redis Server Assisted Client Side Cache를 이용한 API 반응성 
 language: ko
 date: 2024-11-29T00:51:27.525566863Z
 path: /blog/posts/improving-responsiveness-with-redis-client-side-caching-zb711e502
+category: database
 ---
 
 ## What is Redis?
@@ -52,7 +53,6 @@ path: /blog/posts/improving-responsiveness-with-redis-client-side-caching-zb711e
 - 갱신에 쓰이는 키와 커맨드를 미리 저장하고 공유해야하는 번거로움이 존재합니다.
 - 예를 들어, 어떤 키에 대해선 단순 Set이 갱신 커맨드고, 어떤 키는 LPush, 혹은 RPush나 SAdd 및 SRem이 갱신 커맨드가 되는 등 복잡해집니다.
 - 이는 개발 과정에서 커뮤니케이션 미스와 코딩에서 휴먼 에러를 발생시킬 가능성이 대폭 증가합니다.
-
 
 > Keyevent Notification을 사용하여 커맨드 단위로 알림을 받으면?
 
@@ -270,7 +270,7 @@ func (r *RedisClient) Tracking(ctx context.Context) error {
 }
 ```
 
-코드가 조금 복잡합니다. 
+코드가 조금 복잡합니다.
 
 - Tracking을 하기 위해 커넥션을 하나 더 맺습니다. 이는 PubSub이 다른 동작의 방해가 될 것을 고려한 조치입니다.
 - 추가된 커넥션의 아이디를 조회하여, 데이터를 조회할 커넥션에서 Tracking을 해당 커넥션으로 Redirect하게 합니다.

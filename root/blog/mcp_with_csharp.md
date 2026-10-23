@@ -6,6 +6,7 @@ description: Anthropic의 MCP 프로토콜과 Go로 구현된 MCP 호스트(mcph
 language: ko
 date: 2025-04-08T00:59:42.416582136Z
 path: /blog/posts/a-little-understanding-of-mcp-host-zb952aae0
+category: ai
 ---
 
 ## MCP가 무엇입니까

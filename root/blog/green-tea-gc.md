@@ -6,6 +6,7 @@ description: Go의 새로운 GreenTea GC는 메모리 스팬 기반으로 작은
 language: ko
 date: 2025-07-16T11:02:04.831022221Z
 path: /blog/posts/greentea-gc:-the-respite-of-a-cup-of-green-tea-seized-by-the-go-compiler-z72acc3f7
+category: lowlevel
 ---
 
 ## 왜 또 새로운 GC가 나오나
@@ -13,6 +14,7 @@ path: /blog/posts/greentea-gc:-the-respite-of-a-cup-of-green-tea-seized-by-the-g
 ### 기존의 GC는 왜
 
 현재 Go의 GC는 다음과 같은 말로 설명할 수 있습니다.
+
 - concurrent tri-color mark and sweep
   - 총 3가지 색상(하양, 회색, 검정)을 사용하여 객체의 상태를 추적합니다.
     - 하양: 아직 방문하지 않은 객체
@@ -50,6 +52,7 @@ Go의 GC는 모든 객체를 루트로부터 탐색해 들어가서 삼색 마�
 ### 그래서 뭐가 문제임?
 
 이러한 GC의 동작은 다음 경우에서 쥐약입니다.
+
 - 코어 수가 많고, 메모리가 클 경우
   - Go의 GC는 기본적으로 동시적으로 수행됩니다.
   - 하지만 메모리 영역이 넓고 객체가 분산되어 있다면, 여러 코어가 동시적으로 다양한 메모리 공간에서 객체를 탐색하게 됩니다.
@@ -91,6 +94,7 @@ Go의 GC는 모든 객체를 루트로부터 탐색해 들어가서 삼색 마�
 짧게 말하면, 이제부터 저희는 더 자주, 그리고 가벼운 마음으로 512 bytes 이하의 객체를 할당할 수 있다는 점입니다.
 
 다만 여기에도 어느 정도 유리한 구간이 있습니다.
+
 - 트리/그래프 구조: fan-out이 높고 잘 변경이 일어나지 않는 경우
   - B+ 트리, Trie, AST (Abstract Syntax Tree)
   - 캐시 친화적인 데이터 구조
@@ -108,5 +112,4 @@ GreenTea GC는 Go 1.25부터 도입되는 실험실 기능입니다. `GOEXPERIME
 
 ## 레퍼런스
 
-- [github.com/golang/go - runtime: green tea garbage collector #73581
-](https://github.com/golang/go/issues/73581)
+- [github.com/golang/go - runtime: green tea garbage collector #73581](https://github.com/golang/go/issues/73581)

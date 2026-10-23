@@ -1,11 +1,12 @@
 ---
 id: 974f36e12dfcece861bfda1af9303980
 author: Yunjin Lee
-title: Go에서 Tk로 GUI 만들기
-description: Go로 Tk를 이용해 간단한 GUI 애플리케이션을 만들고, SVG, PNG, ICO 이미지 처리 및 메뉴 위젯 활용법을 배우세요!
+title: 'CGo 없는 Go Tcl/Tk(modernc.org/tk9.0) GUI 구현: 위젯 패킹과 이미지 렌더링'
+description: CGo 의존성 없는 크로스 플랫폼 라이브러리 modernc.org/tk9.0을 사용하여 Go에서 윈도우 생성, 버튼/메뉴바 위젯 패킹, SVG/PNG/ICO 이미지 렌더링을 구현합니다.
 language: ko
 date: 2024-10-22T11:51:27.614782351Z
 path: /blog/posts/creating-a-gui-with-tk-in-go-z004dd008
+category: gui
 lang_canonical:
     ko: https://blog.naver.com/bugaku/223629101405
 ---
@@ -234,7 +235,7 @@ func handleFileOpen() {
     for _, photo := range s {
         formatCheck := strings.Split(photo, ".")
         format := formatCheck[len(formatCheck)-1]
-        
+
         if (strings.Compare(format, "png") == 0) || (strings.Compare(format, "ico") == 0) {
             picFile, err := os.Open(photo)
             if err != nil {

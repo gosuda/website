@@ -1,13 +1,14 @@
 ---
 id: 5f5f5498b44e9d7b4f3230a24c4e8958
 author: gosunuts
-title: Portal (Public Open Relay To Access Localhost)
-description: AI 시대의 웹 중앙화 문제를 해결하고, 개인의 로컬 서비스를 전 세계에 쉽게 배포하도록 돕는 오픈소스 프로젝트 Portal을 소개합니다.
+title: 'Portal: 로컬 서비스를 외부 네트워크로 중계하는 종단 간 암호화 오픈 릴레이'
+description: 공인 IP나 클라우드 인프라 설정 없이 로컬 서버를 종단 간 암호화(E2EE)된 개방형 릴레이 네트워크를 통해 외부 인터넷에 노출하는 Portal 아키텍처를 설명합니다.
 language: ko
 date: 2025-11-03T07:34:17.138071881Z
 path: /portal
 go_package: gosuda.org/portal
 go_repourl: https://github.com/gosuda/portal.git
+category: network
 ---
 
 ## AI 와 웹사이트
@@ -20,7 +21,7 @@ AI는 프로그래밍의 장벽을 낮추고, 아이디어만 있다면 누구�
 
 현대의 웹 환경은 World Wide Web이라는 이름과 달리 극도로 중앙화되어 있습니다. 거대 플랫폼들은 공인 IP와 도메인 체계를 독점하며, 접근성과 편의성을 빌미로 개인의 자유로운 호스팅을 제한하고 있습니다.
 
-이런 구조 속에서 대부분의 창작자들은 도메인과 인프라의 장벽 앞에서 멈춰 서게 됩니다. 웹사이트를 만들 수는 있지만, 세상에 보여줄 수는 없게 되는 것입니다. 결과적으로 개인은 거대 플랫폼 틀 속에서 콘텐츠를 소비하는 데에만 그칠 뿐,  자신의 아이디어를 직접 호스팅하고 운영할 수 있는 권리를 보장받지 못하고 있습니다.
+이런 구조 속에서 대부분의 창작자들은 도메인과 인프라의 장벽 앞에서 멈춰 서게 됩니다. 웹사이트를 만들 수는 있지만, 세상에 보여줄 수는 없게 되는 것입니다. 결과적으로 개인은 거대 플랫폼 틀 속에서 콘텐츠를 소비하는 데에만 그칠 뿐, 자신의 아이디어를 직접 호스팅하고 운영할 수 있는 권리를 보장받지 못하고 있습니다.
 
 ## Portal: Public Open Relay To Access Localhost
 

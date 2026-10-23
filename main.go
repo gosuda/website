@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -216,9 +219,65 @@ func remove_lang_all_main() {
 	}
 }
 
+func format_md_main() {
+	zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	list, err := generateFileList(rootDir)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to list root files")
+	}
+	for _, path := range list {
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext != ".md" && ext != ".markdown" {
+			continue
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			log.Fatal().Err(err).Str("path", path).Msg("failed to read file")
+		}
+		data = []byte(strings.ReplaceAll(string(data), "\r\n", "\n"))
+		doc, err := parseMarkdown(path, data)
+		if err != nil {
+			log.Fatal().Err(err).Str("path", path).Msg("failed to parse markdown")
+		}
+		if err := fillMissingMetadata(context.Background(), doc, path); err != nil {
+			log.Fatal().Err(err).Str("path", path).Msg("failed to fill metadata")
+		}
+		if err := saveMarkdownWithMetadata(path, doc); err != nil {
+			log.Fatal().Err(err).Str("path", path).Msg("failed to save markdown with metadata")
+		}
+	}
+}
+
+func check_retranslate_main(maxAllowed int) {
+	zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	ds, err := initializeDatabase(dbFile)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to initialize database file %s", dbFile)
+	}
+
+	targets, err := checkRetranslateTargets(ds, rootDir)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to check retranslation targets")
+	}
+
+	for _, t := range targets {
+		fmt.Printf("- %s (reason: %s, target_langs: %d)\n", t.Path, t.Reason, t.Langs)
+	}
+	fmt.Printf("Retranslation targets: %d (max allowed: %d)\n", len(targets), maxAllowed)
+
+	if maxAllowed >= 0 && len(targets) > maxAllowed {
+		log.Error().
+			Int("count", len(targets)).
+			Int("max_allowed", maxAllowed).
+			Msg("retranslation target count exceeds maximum allowed for PR")
+		os.Exit(1)
+	}
+}
+
 func printUsage() {
 	fmt.Println("Usage:")
 	fmt.Println("  website                         - Generate website")
+	fmt.Println("  website check_retranslate [max] - Check count of posts requiring translation (default max: 3)")
 	fmt.Println("  website remove_lang <postID> <lang>  - Remove language translation from a post")
 	fmt.Println("  website remove_lang_all         - Remove all translations except main language")
 	fmt.Println("  website get_translation <postID> <lang> - Get translation markdown")
@@ -241,6 +300,22 @@ func main() {
 	}
 
 	switch os.Args[1] {
+	case "format_md":
+		format_md_main()
+		return
+	case "check_retranslate":
+		maxAllowed := 3
+		if len(os.Args) >= 3 {
+			parsed, err := strconv.Atoi(os.Args[2])
+			if err != nil {
+				log.Error().Err(err).Str("arg", os.Args[2]).Msg("invalid max allowed argument")
+				printUsage()
+				os.Exit(1)
+			}
+			maxAllowed = parsed
+		}
+		check_retranslate_main(maxAllowed)
+		return
 	case "remove_lang":
 		if len(os.Args) < 4 {
 			log.Error().Msg("missing arguments: remove_lang <postID> <lang>")

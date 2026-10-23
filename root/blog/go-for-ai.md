@@ -1,11 +1,12 @@
 ---
 id: 960bcc31b5c245d20cef3d01a5b81f7f
 author: Lemon Mint
-title: Go is the ideal language for AI apps
-description: Go is ideal for AI development due to its efficiency, concurrency, and seamless integration with AI APIs & cloud-native tools.
+title: 'Building AI Service Infrastructure in Go: Concurrency and API Integration'
+description: How Go handles foundation model API orchestration, concurrent network I/O, streaming pipelines, and cloud-native service deployment.
 language: en
 date: 2024-10-06T05:32:18.576117Z
 path: /blog/posts/go-is-the-ideal-language-for-ai-applications-and-our-plans-to-make-it-even-better-z2f380165
+category: ai
 ---
 
 With the continued advancement of AI, the need for a powerful and efficient programming language becomes paramount. Go offers a compelling solution.

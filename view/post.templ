@@ -1,11 +1,21 @@
 package view
 
-import "gosuda.org/website/internal/types"
+import (
+	"gosuda.org/website/internal/types"
+	"gosuda.org/website/view/layout"
+	"gosuda.org/website/view/post"
+)
 
-templ PostPage(m *Metadata, doc *types.Document, post *types.Post) {
+templ PostPage(m *layout.Metadata, doc *types.Document, cover string) {
 	<!DOCTYPE html>
 	<html lang={ m.Language }>
-		@Head(m)
-		@PostPageBody(m, doc, post)
+		@layout.Head(m)
+		<body>
+			@layout.Header(m)
+			<main>
+				@post.Article(doc, "https://gosuda.org"+doc.Metadata.Path, cover)
+			</main>
+			@layout.Footer()
+		</body>
 	</html>
 }

@@ -1,8 +1,8 @@
 ---
 id: 78787664f5c944556bd14c0346a41b41
 author: Lemon Mint
-title: Introducing GSTime and GSTimeAssure
-description: GSTime & GSTimeAssure
+title: 'GSTime: Fault-Tolerant Time Synchronization and Interval Certification in Go'
+description: Zero-dependency Go clock synchronization engine with SI-nanosecond tracking, RFC 8915 NTS authentication, bounded leap smearing, and interval certification.
 language: en
 date: 2026-09-05T11:44:59.861082619Z
 path: /gstime
@@ -171,6 +171,7 @@ go run ./examples/main.go
 ### Deterministic Simulation Testing (DST)
 
 GSTime includes a deterministic simulation testing (DST) harness (`dst_test.go`) inspired by FoundationDB and Antithesis. It runs discrete time simulation with pseudorandom fault injection across PRNG seeds:
+
 - **VM Snapshot Rollbacks**: Hardware counter rewinds and continuity token changes (verifying fail-fast `StatusDesync`).
 - **Hypervisor Freezes / Suspends**: VM pause/migration for 10s–60s across validity horizons.
 - **OS Clock Shaking**: Oscillator frequency wander (up to ±180 ppm) and sampling noise.

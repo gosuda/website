@@ -2,12 +2,13 @@
 id: 43974d116e135fd9d3478f658dcf71c6
 author: Lemon Mint
 title: 'HQQ: Isolating C Libraries from Go Over Cache-Line Shared Memory'
-description: Why we built a shared-memory IPC runtime, an IDL compiler with generation-checked handles, and a sealed-binary process launcher to call C libraries from Go with CGO_ENABLED=0.
+description: Zero-cgo IPC runtime, IDL compiler (hqq-bindgen), and verified process supervisor that execute native C11 libraries in isolated worker processes over shared-memory rings.
 language: en
 date: 2026-10-18T13:56:46.094643498Z
 path: /hqq
 go_package: gosuda.org/hqq
 go_repourl: https://github.com/gosuda/HQQ.git
+category: lowlevel
 ---
 
 `gosuda.org/hqq` is a zero-cgo inter-process communication runtime and code generation toolchain for Go and C11. It isolates native C libraries inside separate OS worker processes and connects them to Go callers over memory-mapped, cache-line-aligned shared-memory rings. The project combines two transport tiers (`StandardLink` for dedicated single-producer single-consumer sessions and `Advanced` for multi-worker MPMC dispatch), the `hqq-bindgen` IDL compiler, and a tamper-verified process supervisor (`secureexec` and `launch`).
@@ -30,12 +31,12 @@ When teams try to avoid `cgo`, the common alternatives force a different comprom
 
 We built HQQ after asking a direct question: what if the C library lived in a separate OS process with its own virtual address space, while Go and C exchanged frames directly through shared CPU cache lines without entering the kernel on the fast path?
 
-| Integration Model | `CGO_ENABLED=0` | Fault Isolation | Fast-Path Syscalls | Per-Call Heap Allocations | Upstream C11 Fidelity |
-| :--- | :--- | :--- | ---: | ---: | :--- |
-| **`cgo` In-Process Linking** | No | None (shared heap) | 0 | 0 to 1+ | Exact upstream C |
-| **Socket / Pipe Subprocess RPC** | Yes | Process boundary | 2 to 4 | Multiple (framing + I/O) | Exact upstream C |
-| **Mechanical C-to-Go Translation** | Yes | In-process Go | 0 | High on complex calls | Emulated C runtime |
-| **HQQ Shared-Memory IPC** | Yes | Process boundary | 0 (adaptive spin) | 0 (`StandardLink`) | Exact upstream C |
+| Integration Model                  | `CGO_ENABLED=0` | Fault Isolation    | Fast-Path Syscalls | Per-Call Heap Allocations | Upstream C11 Fidelity |
+| :--------------------------------- | :-------------- | :----------------- | -----------------: | ------------------------: | :-------------------- |
+| **`cgo` In-Process Linking**       | No              | None (shared heap) |                  0 |                   0 to 1+ | Exact upstream C      |
+| **Socket / Pipe Subprocess RPC**   | Yes             | Process boundary   |             2 to 4 |  Multiple (framing + I/O) | Exact upstream C      |
+| **Mechanical C-to-Go Translation** | Yes             | In-process Go      |                  0 |     High on complex calls | Emulated C runtime    |
+| **HQQ Shared-Memory IPC**          | Yes             | Process boundary   |  0 (adaptive spin) |        0 (`StandardLink`) | Exact upstream C      |
 
 ## Architectural Overview: Four Layers Across Process Boundaries
 
@@ -92,12 +93,12 @@ Payload Area: | payload bytes [0 .. BufferSize - 1] (directly encoded / decoded)
               +---------------------------------------------------------------------+
 ```
 
-| Field | Offset | Size | Semantics |
-| :--- | ---: | ---: | :--- |
-| `seq` | `0x00` | 8 B | Monotonic sequence counter. Odd values mark an in-progress write; even values publish a committed frame via store-release. |
-| `len` | `0x08` | 4 B | Payload byte length written into the slot (`0 <= len <= BufferSize`). |
-| `flags` | `0x0C` | 4 B | Frame control bits (continuation, error status, or shutdown notice). |
-| `payload` | `0x40` | `BufferSize` | Contiguous payload region read and written in place without intermediate copies. |
+| Field     | Offset |         Size | Semantics                                                                                                                  |
+| :-------- | -----: | -----------: | :------------------------------------------------------------------------------------------------------------------------- |
+| `seq`     | `0x00` |          8 B | Monotonic sequence counter. Odd values mark an in-progress write; even values publish a committed frame via store-release. |
+| `len`     | `0x08` |          4 B | Payload byte length written into the slot (`0 <= len <= BufferSize`).                                                      |
+| `flags`   | `0x0C` |          4 B | Frame control bits (continuation, error status, or shutdown notice).                                                       |
+| `payload` | `0x40` | `BufferSize` | Contiguous payload region read and written in place without intermediate copies.                                           |
 
 Callers choose between two transport tiers depending on concurrency structure:
 
