@@ -319,25 +319,31 @@ func TestTranslatePreservesChunkWhitespace(t *testing.T) {
 			if chat == nil || chat.SystemInstruction == "" {
 				t.Errorf("expected non-empty SystemInstruction for prompt caching")
 			}
-			if len(input.Parts) != 2 {
-				t.Fatalf("expected 2 content parts (source block + instruction block), got %d", len(input.Parts))
-			}
-			sourceBlock := string(input.Parts[0].(llm.Text))
-			instructionBlock := string(input.Parts[1].(llm.Text))
 
-			inner := strings.TrimPrefix(sourceBlock, "INPUT_TEXT:\n")
+			var inner, startTag, endTag string
+			if len(input.Parts) == 2 {
+				sourceBlock := string(input.Parts[0].(llm.Text))
+				instructionBlock := string(input.Parts[1].(llm.Text))
+				if !strings.HasSuffix(sourceBlock, "\n</source_text>\n\n") {
+					t.Errorf("expected sourceBlock to end with closing tag and blank line, got %q", sourceBlock)
+				}
+				inner = strings.TrimPrefix(sourceBlock, "<source_text>\n")
+				inner = strings.TrimSuffix(inner, "\n</source_text>\n\n")
+				idx1 := strings.Index(instructionBlock, "[")
+				startTag = instructionBlock[idx1 : idx1+18]
+				idx2 := strings.LastIndex(instructionBlock, "[")
+				endTag = instructionBlock[idx2 : idx2+18]
+			} else {
+				prompt := string(input.Parts[0].(llm.Text))
+				_, after, _ := strings.Cut(prompt, "<source_text>\n")
+				payload, _, _ := strings.Cut(after, "\n</source_text>")
+				startTag = payload[:18]
+				endTag = payload[len(payload)-18:]
+				inner = payload[18 : len(payload)-18]
+			}
+
 			if strings.HasPrefix(inner, "\n") || strings.HasSuffix(inner, "\n") {
 				t.Errorf("expected stripped inner payload without surrounding newlines, got %q", inner)
-			}
-
-			var startTag, endTag string
-			for _, line := range strings.Split(instructionBlock, "\n") {
-				if v, ok := strings.CutPrefix(line, "START_TOKEN: "); ok {
-					startTag = v
-				}
-				if v, ok := strings.CutPrefix(line, "END_TOKEN: "); ok {
-					endTag = v
-				}
 			}
 
 			// Model injects arbitrary leading/trailing newlines inside tags
@@ -352,6 +358,7 @@ func TestTranslatePreservesChunkWhitespace(t *testing.T) {
 		"\n## Heading\n\nFirst paragraph.\n\n",
 		"```go\nfunc main() {}\n```\n\n",
 		"   - Indented item\n\n",
+		"\n" + strings.Repeat("Long cacheable paragraph content. ", 80) + "\n\n",
 	}
 	var translated []string
 	for _, ch := range chunks {
@@ -362,7 +369,10 @@ func TestTranslatePreservesChunkWhitespace(t *testing.T) {
 		translated = append(translated, out)
 	}
 	got := strings.Join(translated, "")
-	want := "\n## Heading\n\nFirst paragraph. (translated)\n\n```go\nfunc main() {}\n``` (translated)\n\n   - Indented item (translated)\n\n"
+	want := "\n## Heading\n\nFirst paragraph. (translated)\n\n" +
+		"```go\nfunc main() {}\n``` (translated)\n\n" +
+		"   - Indented item (translated)\n\n" +
+		"\n" + strings.TrimSpace(strings.Repeat("Long cacheable paragraph content. ", 80)) + " (translated) \n\n"
 	if got != want {
 		t.Fatalf("got:\n%q\nwant:\n%q", got, want)
 	}

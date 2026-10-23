@@ -55,7 +55,7 @@ func generateDescriptionOnce(ctx context.Context, l llm.Model, input string) (st
 	rand.Read(b[:])
 	endToken := "[" + hex.EncodeToString(b[:]) + "]"
 
-	docBlock := "<document>\n" + input + "\n</document>"
+	docBlock := "<document>\n" + input + "\n</document>\n\n"
 	instructionBlock := "Present your Open Graph Description in the following format:\n" +
 		startToken + "\n[Your description here]\n" + endToken
 

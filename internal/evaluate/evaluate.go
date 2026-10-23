@@ -46,7 +46,9 @@ Language: %s
 
 <original_document>
 %s
-</original_document>`
+</original_document>
+
+`
 
 const translatedBlockFmt = `# Translated Document
 
