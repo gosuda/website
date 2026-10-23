@@ -70,16 +70,16 @@ func main() {
 
 ### Embedded SLSA-Attested Worker Binaries
 
-A natural question when hearing that a library uses a C worker process is: *"Do I have to install or ship a separate C binary alongside my Go program?"*
+A natural question when hearing that a library uses a C worker process is: _"Do I have to install or ship a separate C binary alongside my Go program?"_
 
 No. `gosuda.org/sqlite3` embeds prebuilt `hqq-sqlite-server` binaries for all six major targets directly inside platform-tagged Go files (`internal/embedded/embed_<goos>_<goarch>.go`). Because Go's build constraints compile only the file matching your target `GOOS` and `GOARCH`, cross-compiling `GOOS=linux GOARCH=arm64 go build` automatically embeds only the ~1.4 MiB `linux/arm64` server binary.
 
-| Target OS | Target Arch (`GOARCH`) | Embedded Binary | Build Toolchain & Provenance |
-| :--- | :--- | :--- | :--- |
-| **Linux** | `amd64`, `arm64` | `hqq-sqlite-server_linux_<arch>` | GCC `-O3`, SLSA Build L3 Provenance |
-| **macOS** | `arm64`, `amd64` | `hqq-sqlite-server_darwin_<arch>` | AppleClang `-O3`, SLSA Build L3 Provenance |
-| **Windows** | `amd64` | `hqq-sqlite-server_windows_amd64.exe` | MSVC `-O2`, SLSA Build L3 Provenance |
-| **Windows** | `arm64` | `hqq-sqlite-server_windows_arm64.exe` | `zig cc -target aarch64-windows-gnu -O3`, SLSA L3 |
+| Target OS   | Target Arch (`GOARCH`) | Embedded Binary                       | Build Toolchain & Provenance                      |
+| :---------- | :--------------------- | :------------------------------------ | :------------------------------------------------ |
+| **Linux**   | `amd64`, `arm64`       | `hqq-sqlite-server_linux_<arch>`      | GCC `-O3`, SLSA Build L3 Provenance               |
+| **macOS**   | `arm64`, `amd64`       | `hqq-sqlite-server_darwin_<arch>`     | AppleClang `-O3`, SLSA Build L3 Provenance        |
+| **Windows** | `amd64`                | `hqq-sqlite-server_windows_amd64.exe` | MSVC `-O2`, SLSA Build L3 Provenance              |
+| **Windows** | `arm64`                | `hqq-sqlite-server_windows_arm64.exe` | `zig cc -target aarch64-windows-gnu -O3`, SLSA L3 |
 
 When `sql.Open` establishes its first connection, `autolaunch.go` materializes the embedded binary into the user cache directory (`$XDG_CACHE_HOME/hqq/bin/<sha256>/`), verifies its cryptographic SHA-256 digest against the pinned `ReleaseHashes` map in `hashes.go` via `gosuda.org/hqq/secureexec`, and spawns the worker with `--parent-stdin` so its lifetime is strictly bound to your Go process.
 
@@ -87,17 +87,17 @@ When `sql.Open` establishes its first connection, `autolaunch.go` materializes t
 
 To work as a true drop-in replacement, the DSN parser (`dsn.go`) implements a clean-room replica of the connection and pragma knobs used across `mattn/go-sqlite3` codebases:
 
-| DSN Query Parameter |Accepted Values | SQLite Effect |
-| :--- | :--- | :--- |
-| `_busy_timeout` / `_timeout` | Integer milliseconds (e.g. `5000`) | Calls `sqlite3_busy_timeout(db, ms)` on session open. |
-| `_journal_mode` / `_journal` | `DELETE`, `TRUNCATE`, `PERSIST`, `MEMORY`, `WAL`, `OFF` | Executes `PRAGMA journal_mode = <mode>`. |
-| `_txlock` | `immediate`, `exclusive`, `deferred` | Selects `BEGIN IMMEDIATE`, `BEGIN EXCLUSIVE`, or `BEGIN DEFERRED` for `db.BeginTx`. |
-| `_foreign_keys` / `_fk` | `on`, `true`, `1`, `off`, `false`, `0` | Executes `PRAGMA foreign_keys = ON/OFF`. |
-| `_synchronous` / `_sync` | `0`/`OFF`, `1`/`NORMAL`, `2`/`FULL`, `3`/`EXTRA` | Executes `PRAGMA synchronous = <level>`. |
-| `_cache_size` | Integer pages or `-KiB` (e.g. `-20000`) | Executes `PRAGMA cache_size = <val>`. |
-| `_loc` | `auto` or IANA timezone (e.g. `UTC`, `Asia/Seoul`) | Parses `DATETIME`/`TIMESTAMP` text columns into `*time.Time` in the target location. |
-| `mode` | `ro`, `rw`, `rwc`, `memory` | Sets `SQLITE_OPEN_READONLY`, `SQLITE_OPEN_READWRITE`, `SQLITE_OPEN_CREATE`, or `SQLITE_OPEN_MEMORY`. |
-| `_case_sensitive_like`, `_query_only`, `_recursive_triggers`, `_secure_delete`, `_AutoVacuum` | Boolean or mode integers | Applies the corresponding session `PRAGMA` on connection initialization. |
+| DSN Query Parameter                                                                           | Accepted Values                                         | SQLite Effect                                                                                        |
+| :-------------------------------------------------------------------------------------------- | :------------------------------------------------------ | :--------------------------------------------------------------------------------------------------- |
+| `_busy_timeout` / `_timeout`                                                                  | Integer milliseconds (e.g. `5000`)                      | Calls `sqlite3_busy_timeout(db, ms)` on session open.                                                |
+| `_journal_mode` / `_journal`                                                                  | `DELETE`, `TRUNCATE`, `PERSIST`, `MEMORY`, `WAL`, `OFF` | Executes `PRAGMA journal_mode = <mode>`.                                                             |
+| `_txlock`                                                                                     | `immediate`, `exclusive`, `deferred`                    | Selects `BEGIN IMMEDIATE`, `BEGIN EXCLUSIVE`, or `BEGIN DEFERRED` for `db.BeginTx`.                  |
+| `_foreign_keys` / `_fk`                                                                       | `on`, `true`, `1`, `off`, `false`, `0`                  | Executes `PRAGMA foreign_keys = ON/OFF`.                                                             |
+| `_synchronous` / `_sync`                                                                      | `0`/`OFF`, `1`/`NORMAL`, `2`/`FULL`, `3`/`EXTRA`        | Executes `PRAGMA synchronous = <level>`.                                                             |
+| `_cache_size`                                                                                 | Integer pages or `-KiB` (e.g. `-20000`)                 | Executes `PRAGMA cache_size = <val>`.                                                                |
+| `_loc`                                                                                        | `auto` or IANA timezone (e.g. `UTC`, `Asia/Seoul`)      | Parses `DATETIME`/`TIMESTAMP` text columns into `*time.Time` in the target location.                 |
+| `mode`                                                                                        | `ro`, `rw`, `rwc`, `memory`                             | Sets `SQLITE_OPEN_READONLY`, `SQLITE_OPEN_READWRITE`, `SQLITE_OPEN_CREATE`, or `SQLITE_OPEN_MEMORY`. |
+| `_case_sensitive_like`, `_query_only`, `_recursive_triggers`, `_secure_delete`, `_AutoVacuum` | Boolean or mode integers                                | Applies the corresponding session `PRAGMA` on connection initialization.                             |
 
 ## Turning Process Isolation into a Throughput Advantage
 
@@ -134,13 +134,13 @@ Go Client (stmt.go / rows.go)                       C11 Worker (sqlite3_hooks.c)
 
 On Apple M4 (`darwin/arm64`), comparing `gosuda.org/sqlite3` (`CGO_ENABLED=0`) against `github.com/mattn/go-sqlite3` (`CGO_ENABLED=1`) on the same SQLite database shows the effect of batching and pipelining:
 
-| Workload | `gosuda.org/sqlite3` (`CGO_ENABLED=0`) | `mattn/go-sqlite3` (`CGO_ENABLED=1`) | Relative Speed |
-| :--- | ---: | ---: | :--- |
-| **Point Select (`QueryRow` by PK)** | `3.52 µs/op` (9 B, 1 alloc) | `3.56 µs/op` (232 B, 11 allocs) | **1.01x (parity, 11x fewer allocs)** |
-| **100-Row Scan (`rows.Next`)** | `20.41 µs/op` (30.5 KB, 211 allocs) | `36.34 µs/op` (21.8 KB, 309 allocs) | **1.78x faster** |
-| **1,000-Row Scan (`rows.Next`)** | `125.92 µs/op` (296 KB, 2,030 allocs) | `349.10 µs/op` (216 KB, 3,009 allocs) | **2.77x faster** |
-| **Prepared Insert (Autocommit)** | `5.33 µs/op` (0 B, 0 allocs) | `5.88 µs/op` (120 B, 5 allocs) | **1.10x faster (0 allocs)** |
-| **100-Row Transaction Batch** | `189.99 µs/op` (16 B, 1 alloc) | `191.50 µs/op` (12.1 KB, 503 allocs) | **1.01x (500x fewer allocs)** |
+| Workload                            | `gosuda.org/sqlite3` (`CGO_ENABLED=0`) |  `mattn/go-sqlite3` (`CGO_ENABLED=1`) | Relative Speed                       |
+| :---------------------------------- | -------------------------------------: | ------------------------------------: | :----------------------------------- |
+| **Point Select (`QueryRow` by PK)** |            `3.52 µs/op` (9 B, 1 alloc) |       `3.56 µs/op` (232 B, 11 allocs) | **1.01x (parity, 11x fewer allocs)** |
+| **100-Row Scan (`rows.Next`)**      |    `20.41 µs/op` (30.5 KB, 211 allocs) |   `36.34 µs/op` (21.8 KB, 309 allocs) | **1.78x faster**                     |
+| **1,000-Row Scan (`rows.Next`)**    |  `125.92 µs/op` (296 KB, 2,030 allocs) | `349.10 µs/op` (216 KB, 3,009 allocs) | **2.77x faster**                     |
+| **Prepared Insert (Autocommit)**    |           `5.33 µs/op` (0 B, 0 allocs) |        `5.88 µs/op` (120 B, 5 allocs) | **1.10x faster (0 allocs)**          |
+| **100-Row Transaction Batch**       |         `189.99 µs/op` (16 B, 1 alloc) |  `191.50 µs/op` (12.1 KB, 503 allocs) | **1.01x (500x fewer allocs)**        |
 
 ## Cancellation, Path Sandboxing, and Connection Pool Recovery
 

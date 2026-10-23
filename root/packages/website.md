@@ -10,6 +10,7 @@ go_package: gosuda.org/website
 go_repourl: https://github.com/gosuda/website.git
 hidden: true
 ---
+
 GoSuda is an industry-leading open source working group enabling developers to easily build, prototype, and deploy applications. Our comprehensive suite of tools and frameworks empowers developers to create robust, scalable solutions across various domains.
 
 With GoSuda, you can streamline your development process, leverage cutting-edge technologies, and tap into a vibrant community of like-minded professionals. Whether you're working on web applications, microservices, or complex distributed systems, GoSuda provides the resources and support you need to bring your ideas to life.

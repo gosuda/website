@@ -133,15 +133,9 @@ func updatePostAndTranslate(gc *GenerationContext, doc *types.Document, path str
 		if post.Hash != hash {
 			post.Hash = hash
 			post.UpdatedAt = now
-			err := translatePost(gc, post, true, doc.Metadata.Language)
-			if err != nil {
-				log.Error().Str("path", path).Err(err).Msg("failed to translate")
-			}
+			enqueuePostTranslations(gc, post, true, doc.Metadata.Language)
 		} else {
-			err := translatePost(gc, post, false, doc.Metadata.Language)
-			if err != nil {
-				log.Error().Str("path", path).Err(err).Msg("failed to translate")
-			}
+			enqueuePostTranslations(gc, post, false, doc.Metadata.Language)
 		}
 	}
 

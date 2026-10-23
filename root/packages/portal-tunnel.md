@@ -28,12 +28,13 @@ With Portal’s tunnel, you can turn your local program into a public service wi
 1. First, run your program locally.
 
 2. Then, this single line is all you need:
-```bash
-curl -fsSL portal.gosuda.org/tunnel | PORT=3000 NAME={app name} sh
-```
+
+   ```bash
+   curl -fsSL portal.gosuda.org/tunnel | PORT=3000 NAME={app name} sh
+   ```
 
 3. Check that your app is now publicly accessible:
-- {app name}.portal.gosuda.org
+   - {app name}.portal.gosuda.org
 
 ## Multi-tenancy
 

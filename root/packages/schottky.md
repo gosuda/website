@@ -10,7 +10,8 @@ go_package: gosuda.org/schottky
 go_repourl: https://github.com/gosuda/schottky.git
 category: database
 ---
-When implementing LSM-tree or B-tree based key-value stores and database indexes, composite fields often need to be combined into a single byte key. 
+
+When implementing LSM-tree or B-tree based key-value stores and database indexes, composite fields often need to be combined into a single byte key.
 
 Standard serialization formats like JSON or Protocol Buffers are not designed for this purpose because their serialized byte outputs do not preserve the natural sorting order required by unsigned bytewise comparisons (`bytes.Compare` or `memcmp`).
 
@@ -94,7 +95,7 @@ if finite {
 }
 ```
 
-*Note: `Builder.Len()` must be measured at clean field boundaries. Slicing inside a field's internal byte stream produces an invalid prefix.*
+_Note: `Builder.Len()` must be measured at clean field boundaries. Slicing inside a field's internal byte stream produces an invalid prefix._
 
 ### Zero-Allocation and Buffer Management
 
@@ -146,4 +147,3 @@ On Go 1.27+, experimental portable SIMD acceleration can be enabled using `GOEXP
 - **Key Layout Specification**: https://github.com/gosuda/schottky/blob/main/docs/03-key-layout.md
 - **SQL Type Mapping Guide**: https://github.com/gosuda/schottky/blob/main/docs/17-sql-type-map.md
 - **Go API Reference**: https://github.com/gosuda/schottky/blob/main/docs/18-api.md
-

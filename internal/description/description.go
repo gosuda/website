@@ -11,12 +11,7 @@ import (
 	"github.com/lemon-mint/coord/llmtools"
 )
 
-const prompt = `You are tasked with generating an Open Graph Description based on a given Markdown document. This description will be used for social media sharing and SEO purposes.
-
-Here is the document you need to analyze:
-<document>
-<INPUT_DOCUMENT>
-</document>
+const systemPrompt = `You are tasked with generating an Open Graph Description based on a given Markdown document. This description will be used for social media sharing and SEO purposes.
 
 An Open Graph Description is a brief summary of a web page's content, typically displayed when the page is shared on social media platforms. It should accurately represent the core content of the document while being engaging and informative.
 
@@ -33,11 +28,6 @@ When writing the Open Graph Description:
 - Ensure the description accurately represents the document's content.
 - Write the description in the same language as the input document.
 - Never use the em-dash ("—") or spaced en-dash (" – ").
-
-Present your Open Graph Description in the following format:
-[START_TOKEN]
-[Your description here]
-[END_TOKEN]
 
 Remember to check that your description is within the 150-character limit before submitting your answer.`
 
@@ -65,11 +55,23 @@ func generateDescriptionOnce(ctx context.Context, l llm.Model, input string) (st
 	rand.Read(b[:])
 	endToken := "[" + hex.EncodeToString(b[:]) + "]"
 
-	prompt := strings.Replace(prompt, "[START_TOKEN]", startToken, 1)
-	prompt = strings.Replace(prompt, "[END_TOKEN]", endToken, 1)
-	prompt = strings.Replace(prompt, "<INPUT_DOCUMENT>", input, 1)
+	docBlock := "<document>\n" + input + "\n</document>"
+	instructionBlock := "Present your Open Graph Description in the following format:\n" +
+		startToken + "\n[Your description here]\n" + endToken
 
-	resp := l.GenerateStream(ctx, &llm.ChatContext{}, llm.TextContent(llm.RoleUser, prompt))
+	resp := l.GenerateStream(
+		ctx,
+		&llm.ChatContext{
+			SystemInstruction: systemPrompt,
+		},
+		&llm.Content{
+			Role: llm.RoleUser,
+			Parts: []llm.Segment{
+				llm.Text(docBlock),
+				llm.Text(instructionBlock),
+			},
+		},
+	)
 	err := resp.Wait()
 	if err != nil {
 		return "", err

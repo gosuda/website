@@ -83,12 +83,12 @@ func main() {
 
 All six target platforms ship with prebuilt, SHA-256-pinned worker binaries embedded via platform-specific build tags (`internal/embedded/embed_<goos>_<goarch>.go`):
 
-| Target OS | Target Arch (`GOARCH`) | Embedded Binary | Binary Size | Build Toolchain & Provenance |
-| :--- | :--- | :--- | ---: | :--- |
-| **Linux** | `amd64`, `arm64` | `zstd_server_linux_<arch>` | ~770 - 880 KiB | GCC `-O3`, SLSA Build L3 Provenance |
-| **macOS** | `arm64`, `amd64` | `zstd_server_darwin_<arch>` | ~660 - 795 KiB | AppleClang `-O3`, SLSA Build L3 Provenance |
-| **Windows** | `amd64` | `zstd_server_windows_amd64.exe` | ~818 KiB | MSVC `-O2`, SLSA Build L3 Provenance |
-| **Windows** | `arm64` | `zstd_server_windows_arm64.exe` | ~551 KiB | `zig cc -target aarch64-windows-gnu -O3`, SLSA L3 |
+| Target OS   | Target Arch (`GOARCH`) | Embedded Binary                 |    Binary Size | Build Toolchain & Provenance                      |
+| :---------- | :--------------------- | :------------------------------ | -------------: | :------------------------------------------------ |
+| **Linux**   | `amd64`, `arm64`       | `zstd_server_linux_<arch>`      | ~770 - 880 KiB | GCC `-O3`, SLSA Build L3 Provenance               |
+| **macOS**   | `arm64`, `amd64`       | `zstd_server_darwin_<arch>`     | ~660 - 795 KiB | AppleClang `-O3`, SLSA Build L3 Provenance        |
+| **Windows** | `amd64`                | `zstd_server_windows_amd64.exe` |       ~818 KiB | MSVC `-O2`, SLSA Build L3 Provenance              |
+| **Windows** | `arm64`                | `zstd_server_windows_arm64.exe` |       ~551 KiB | `zig cc -target aarch64-windows-gnu -O3`, SLSA L3 |
 
 ## Inside the Shared-Memory Data Path
 

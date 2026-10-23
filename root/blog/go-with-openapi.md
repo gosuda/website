@@ -31,12 +31,12 @@ Go 언어로 Production Backend 서버를 개발하다 보면 거의 대부분�
 
 OpenAPI 에 맞춰서 API 를 개발할때 까다로운점 중 하나는 실제 문서와 해당 문서를 구현한 코드가 별도의 파일로 전혀 다른위치에 존재하다보니, 코드를 업데이트 했는데 문서를 업데이트 안했던가 문서는 업데이트 했는데 코드를 업데이트 하지 못하는 상황이 생각보다 잦다는 것입니다.
 
-간단한 예시를 들어보면 
+간단한 예시를 들어보면
 
-1. `./internal/server/user.go` 라는 파일 속에서 API 에 대한 로직을 수정했는데 
-2. 실제 문서는 `./openapi3.yaml` 에 존재하고, 이에대한 변경을 실수로 깜빡할 수 있습니다. 
+1. `./internal/server/user.go` 라는 파일 속에서 API 에 대한 로직을 수정했는데
+2. 실제 문서는 `./openapi3.yaml` 에 존재하고, 이에대한 변경을 실수로 깜빡할 수 있습니다.
 3. 이러한 변경사항에 대한 이슈를 인지하지 못하고 Pull Request 를 날리고 동료들에게 리뷰를 받을 경우
-4. 리뷰어들 또한 `./openapi3.yaml` 에 대한 변경사항이 눈에 보이지 않기 때문에 
+4. 리뷰어들 또한 `./openapi3.yaml` 에 대한 변경사항이 눈에 보이지 않기 때문에
    API 스펙은 그대로인데 실제 API 구현체는 변경이 되어버리는 불상사가 발생할 수 있습니다.
 
 Go 주석의 형태로 API 문서를 작성하면 이러한 문제를 어느 정도 해소할 수 있습니다. 코드와 문서가 한 곳에 모여 있기 때문에, 코드를 수정하면서 주석도 함께 업데이트할 수 있습니다. 이러한 주석을 기반으로 자동으로 OpenAPI 스펙 문서를 생성해주는 도구들이 존재합니다.
@@ -76,9 +76,9 @@ func CreateUser(c *gin.Context) {
 
 Single source of Truth (SSOT) 를 Go 코드가 아니라 문서쪽에 두는 방법도 존재합니다. 바로 OpenAPI 스펙을 먼저 정의하고, 정의된 내용을 기반으로 Go 코드를 생성하는 방식입니다. API 스펙이 곧 코드를 생성해주기 때문에 개발 문화적으로 API 설계를 먼저 하는것을 강제할 수 있으며 개발 순서적으로 API 스펙을 정의하는것이 가장먼저 시작이 되기때문에 개발이 완료되고 나서야 놓친부분을 인지하고 API 스펙 변경과 함께 전체 코드가 수정되는 불상사를 조기에 방지할 수 있는 강점을 가지고 있습니다.
 
-이 방식을 채택하는 대표적인 프로젝트로는 [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) 과 [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator/tree/master/samples/server/petstore/go-echo-server) 가 존재합니다. 사용법은 간단합니다. 
+이 방식을 채택하는 대표적인 프로젝트로는 [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) 과 [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator/tree/master/samples/server/petstore/go-echo-server) 가 존재합니다. 사용법은 간단합니다.
 
-1. OpenAPI 스펙에 맞게 yaml 혹은 json 문서를 작성하고 
+1. OpenAPI 스펙에 맞게 yaml 혹은 json 문서를 작성하고
 2. CLI 를 실행하면
 3. 그에 대응되는 Go stub 코드가 생성됩니다.
 4. 이제 이 stub 이 사용할 수 있도록 개별 API 에 대한 세부 로직만 직접 구현하면 됩니다.
@@ -112,8 +112,6 @@ type StrictServerInterface interface {
 > 저자의 코멘트.
 > 2024년 10월 기준 OpenAPI Generator 가 생성한 Go 코드는 API 로직뿐만 아니라 전체 프로젝트 형상을 강제하며 프로젝트의 구조가 경직되어있어 실제 Production 환경에 필요한 다양한 기능들을 추가하기에는 부적합한 형태의 코드를 생성하고 있습니다. 이 방식을 채택하시는 분들은 oapi-codegen 을 사용하시는것을 적극적으로 권장드립니다. 저자는, oapi-codege + echo + StrictServerInterface 를 사용하고 있습니다.
 
-
-
 ## 3. Go 코드로 OpenAPI 스펙 문서를 생성
 
 수십, 수백명의 사람들이 같은 서버에대해서 개발을 진행하다보면 필연적으로 발생하는 이슈가 개별 API 별로 통일성이 깨질 수 있다는 것입니다. 직관적인 예시로 100개가 넘어가는 API Endpoint 에 대한 명세를 하나의 OpenAPI yaml 파일에 선언할경우 해당 파일은 1만 라인이 넘어가는 괴물이 되어있을 것이고 새로운 API Endpoint 를 선언하면서 필연적으로 같은 모델을 중복해서 선언한다던가 몇몇 필드를 누락한다던가, 컨벤션에 맞지 않는 Path 네이밍이 탄생한다던가와 같은 전체저인 API 의 통일성이 깨지기 시작하게 됩니다.
@@ -135,7 +133,7 @@ var _ = Service("user", func() {
 })
 ```
 
-위와같이 컴파일 가능한 Go 코드를 작성하면 `POST /users` API 에 대한 구현과 문서에 대한 정의가 동시에 완료되는 강점을 얻을 수 있습니다. 
+위와같이 컴파일 가능한 Go 코드를 작성하면 `POST /users` API 에 대한 구현과 문서에 대한 정의가 동시에 완료되는 강점을 얻을 수 있습니다.
 
 **장점:**
 

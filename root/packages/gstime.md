@@ -171,6 +171,7 @@ go run ./examples/main.go
 ### Deterministic Simulation Testing (DST)
 
 GSTime includes a deterministic simulation testing (DST) harness (`dst_test.go`) inspired by FoundationDB and Antithesis. It runs discrete time simulation with pseudorandom fault injection across PRNG seeds:
+
 - **VM Snapshot Rollbacks**: Hardware counter rewinds and continuity token changes (verifying fail-fast `StatusDesync`).
 - **Hypervisor Freezes / Suspends**: VM pause/migration for 10s–60s across validity horizons.
 - **OS Clock Shaking**: Oscillator frequency wander (up to ±180 ppm) and sampling noise.

@@ -59,6 +59,8 @@ func generate(gc *GenerationContext) error {
 		log.Debug().Str("path", path).Msgf("processed file %s", path)
 	}
 
+	runTranslationJobs(gc)
+
 	// Remove unused posts
 	for id := range gc.DataStore.Posts {
 		if _, ok := gc.UsedPosts[id]; !ok {

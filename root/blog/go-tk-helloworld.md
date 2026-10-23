@@ -235,7 +235,7 @@ func handleFileOpen() {
     for _, photo := range s {
         formatCheck := strings.Split(photo, ".")
         format := formatCheck[len(formatCheck)-1]
-        
+
         if (strings.Compare(format, "png") == 0) || (strings.Compare(format, "ico") == 0) {
             picFile, err := os.Open(photo)
             if err != nil {

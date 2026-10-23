@@ -50,7 +50,7 @@ package config
 
 var Version string
 
-// github.com/myproject/internal/config/config.go  
+// github.com/myproject/internal/config/config.go
 package config
 
 var BuildTime string

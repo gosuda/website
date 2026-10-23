@@ -1,0 +1,40 @@
+name: PR Gate
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  pr-gate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+          check-latest: true
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Check Markdown Formatting
+        run: npm run format:check
+
+      - name: Lint Markdown
+        run: npm run lint:md
+
+      - name: Go Test
+        run: go test -v ./...
+
+      - name: Check Retranslation Target Limit (<= 3)
+        run: LLM_INIT=false go run . check_retranslate 3

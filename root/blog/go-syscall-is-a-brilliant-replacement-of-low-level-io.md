@@ -1,7 +1,7 @@
 ---
 id: c90263519492728e7cc2d0ce840057b6
 author: Yunjin Lee
-title: 'Direct Linux System Calls in Pure Go with syscall.Syscall and unsafe.Pointer'
+title: Direct Linux System Calls in Pure Go with syscall.Syscall and unsafe.Pointer
 description: Invoking Linux kernel system calls such as SYS_SYSINFO directly from pure Go using ABI-aligned structs, unsafe.Pointer, and the standard syscall package without cgo.
 language: en
 date: 2025-10-26T12:31:21.655228078Z
@@ -17,6 +17,7 @@ Luckily, most of the C function calls are fully reimplemented in Go, in a good a
 Let's take a look at it.
 
 ## System Call
+
 System call is a direct request to the operating system.
 Since system is usually written in rigid, old-fashioned style since it is running right on a hardware, we need to consider that its call must deliver strict, and correct form of a request.
 So, even if we don't need some variables, we still need to fill out the size regardless of use.
@@ -101,6 +102,7 @@ If use of the program is clear enough, it is better to use nameless variables as
 Let's check this with an example, "Free Memory Checker"
 
 ## Example - Free Memory Checker
+
 When checking Free Memory/Swaps, we don't need other information that is indicating different resources.
 To achieve a better visibility, you can make anonymous variables to hold specific spaces.
 
@@ -123,10 +125,10 @@ type sysinfo_t struct {
 	Totalswap uint64
 	Freeswap  uint64
 	_         uint16  // anonymous, and unused ones are marked as _
-	_         uint16  
-	_         [4]byte 
-	_         uint64  
-	_         uint64  
+	_         uint16
+	_         [4]byte
+	_         uint64
+	_         uint64
 	MemUnit   uint32
 	_         [4]byte
 }
@@ -153,6 +155,7 @@ Consequently, variables are read without labels.
 Although anonymous values are actually stored into a structure, there is no labels/legible marks on a code.
 
 ## Conclusion
+
 - Using Go's `syscall` and `unsafe` is still safer than C/CGo
 - If you are writing a huge project that can be expaneded easily:
   - Don't make anonymous variables; make each names for the members.
@@ -165,4 +168,3 @@ Although anonymous values are actually stored into a structure, there is no labe
 [syscall](https://pkg.go.dev/syscall)
 [unsafe](https://pkg.go.dev/unsafe)
 [x/sys/unix](https://pkg.go.dev/golang.org/x/sys/unix)
-

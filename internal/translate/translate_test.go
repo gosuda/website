@@ -220,16 +220,15 @@ func TestBetween(t *testing.T) {
 
 type mockModel struct {
 	name string
-	fn   func(prompt string) (*llm.StreamContent, error)
+	fn   func(chat *llm.ChatContext, input *llm.Content) (*llm.StreamContent, error)
 }
 
 func (m *mockModel) Name() string  { return m.name }
 func (m *mockModel) Close() error { return nil }
-func (m *mockModel) GenerateStream(_ context.Context, _ *llm.ChatContext, input *llm.Content) *llm.StreamContent {
+func (m *mockModel) GenerateStream(_ context.Context, chat *llm.ChatContext, input *llm.Content) *llm.StreamContent {
 	ch := make(chan llm.Segment)
 	close(ch)
-	prompt := string(input.Parts[0].(llm.Text))
-	resp, err := m.fn(prompt)
+	resp, err := m.fn(chat, input)
 	if err != nil {
 		return &llm.StreamContent{
 			Err:     err,
@@ -258,14 +257,14 @@ func TestCascadeRetryOrder(t *testing.T) {
 	var called []string
 	m1 := &mockModel{
 		name: "anthropic/claude-haiku-5.5",
-		fn: func(_ string) (*llm.StreamContent, error) {
+		fn: func(_ *llm.ChatContext, _ *llm.Content) (*llm.StreamContent, error) {
 			called = append(called, "anthropic/claude-haiku-5.5")
 			return nil, errors.New("simulated failure")
 		},
 	}
 	m2 := &mockModel{
 		name: "google/gemini-3.5-flash-lite",
-		fn: func(_ string) (*llm.StreamContent, error) {
+		fn: func(_ *llm.ChatContext, _ *llm.Content) (*llm.StreamContent, error) {
 			called = append(called, "google/gemini-3.5-flash-lite")
 			return nil, errors.New("simulated failure")
 		},
@@ -285,5 +284,86 @@ func TestCascadeRetryOrder(t *testing.T) {
 	}
 	if !reflect.DeepEqual(called, want) {
 		t.Fatalf("called models = %v, want %v", called, want)
+	}
+}
+
+func TestSplitSurroundingWhitespace(t *testing.T) {
+	cases := []struct {
+		in      string
+		leading string
+		core    string
+		trail   string
+	}{
+		{"\n## Title\n\nParagraph\n\n", "\n", "## Title\n\nParagraph", "\n\n"},
+		{"   ```bash\n   echo hi\n   ```\n\n", "   ", "```bash\n   echo hi\n   ```", "\n\n"},
+		{"No whitespace", "", "No whitespace", ""},
+		{"\n\t  \n", "\n\t  \n", "", ""},
+	}
+	for _, tc := range cases {
+		lead, core, trail := splitSurroundingWhitespace(tc.in)
+		if lead != tc.leading || core != tc.core || trail != tc.trail {
+			t.Errorf("splitSurroundingWhitespace(%q) = (%q, %q, %q), want (%q, %q, %q)",
+				tc.in, lead, core, trail, tc.leading, tc.core, tc.trail)
+		}
+		if lead+core+trail != tc.in {
+			t.Errorf("reconstructed %q != %q", lead+core+trail, tc.in)
+		}
+	}
+}
+
+func TestTranslatePreservesChunkWhitespace(t *testing.T) {
+	// Simulate Haiku stripping trailing newlines or injecting extra newlines inside magic tags
+	m := &mockModel{
+		name: "anthropic/claude-haiku-5.5",
+		fn: func(chat *llm.ChatContext, input *llm.Content) (*llm.StreamContent, error) {
+			if chat == nil || chat.SystemInstruction == "" {
+				t.Errorf("expected non-empty SystemInstruction for prompt caching")
+			}
+			if len(input.Parts) != 2 {
+				t.Fatalf("expected 2 content parts (source block + instruction block), got %d", len(input.Parts))
+			}
+			sourceBlock := string(input.Parts[0].(llm.Text))
+			instructionBlock := string(input.Parts[1].(llm.Text))
+
+			inner := strings.TrimPrefix(sourceBlock, "INPUT_TEXT:\n")
+			if strings.HasPrefix(inner, "\n") || strings.HasSuffix(inner, "\n") {
+				t.Errorf("expected stripped inner payload without surrounding newlines, got %q", inner)
+			}
+
+			var startTag, endTag string
+			for _, line := range strings.Split(instructionBlock, "\n") {
+				if v, ok := strings.CutPrefix(line, "START_TOKEN: "); ok {
+					startTag = v
+				}
+				if v, ok := strings.CutPrefix(line, "END_TOKEN: "); ok {
+					endTag = v
+				}
+			}
+
+			// Model injects arbitrary leading/trailing newlines inside tags
+			out := startTag + "\n\n" + inner + " (translated)\n" + endTag
+			return &llm.StreamContent{
+				Content: llm.TextContent(llm.RoleModel, out),
+			}, nil
+		},
+	}
+
+	chunks := []string{
+		"\n## Heading\n\nFirst paragraph.\n\n",
+		"```go\nfunc main() {}\n```\n\n",
+		"   - Indented item\n\n",
+	}
+	var translated []string
+	for _, ch := range chunks {
+		out, err := translateChunk(context.Background(), m, ch, "Korean")
+		if err != nil {
+			t.Fatalf("translateChunk(%q) failed: %v", ch, err)
+		}
+		translated = append(translated, out)
+	}
+	got := strings.Join(translated, "")
+	want := "\n## Heading\n\nFirst paragraph. (translated)\n\n```go\nfunc main() {}\n``` (translated)\n\n   - Indented item (translated)\n\n"
+	if got != want {
+		t.Fatalf("got:\n%q\nwant:\n%q", got, want)
 	}
 }

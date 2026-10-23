@@ -3,8 +3,12 @@ package main
 import (
 	"context"
 	"errors"
+	"os"
+	"path/filepath"
 	"slices"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -15,7 +19,11 @@ import (
 	"gosuda.org/website/internal/types"
 )
 
-func translatePost(_ *GenerationContext, post *types.Post, retranslate bool, ignoreLangs ...types.Lang) error {
+const translationConcurrency = 16
+
+var postTranslatedMu sync.Mutex
+
+func collectPostTranslationLangs(post *types.Post, retranslate bool, ignoreLangs ...types.Lang) []types.Lang {
 	if post.Translated == nil {
 		post.Translated = make(map[string]*types.Document)
 	}
@@ -36,8 +44,6 @@ func translatePost(_ *GenerationContext, post *types.Post, retranslate bool, ign
 		delete(post.Translated, lang)
 	}
 
-	ctx := context.Background()
-
 	var langs []types.Lang
 	if !retranslate {
 		// only retranslate the missing languages
@@ -46,37 +52,130 @@ func translatePost(_ *GenerationContext, post *types.Post, retranslate bool, ign
 				langs = append(langs, lang)
 			}
 		}
-
-		if len(langs) == 0 {
-			return nil
-		}
 	} else {
 		// all supported languages except the ones in ignoreLangs
 		for _, lang := range types.SupportedLanguages {
 			if !slices.Contains(ignoreLangs, lang) {
+				delete(post.Translated, string(lang))
 				langs = append(langs, lang)
 			}
 		}
 	}
 
-	for _, lang := range langs {
-		var retry int
-		for retry < 3 {
-			retry++
-			if retry > 1 {
-				log.Debug().Int("retry", retry).Str("path", post.FilePath).Str("lang", string(lang)).Msg("retrying translation")
-				time.Sleep(time.Second * 3)
-			}
+	return langs
+}
 
-			err := translateLang(ctx, post, lang)
-			if err != nil {
-				log.Error().Err(err).Str("path", post.FilePath).Str("lang", string(lang)).Msg("failed to translate, retrying")
-				continue
-			}
-			break
+func enqueuePostTranslations(gc *GenerationContext, post *types.Post, retranslate bool, ignoreLangs ...types.Lang) {
+	langs := collectPostTranslationLangs(post, retranslate, ignoreLangs...)
+	for _, lang := range langs {
+		gc.TranslationJobs = append(gc.TranslationJobs, TranslationJob{
+			Post: post,
+			Lang: lang,
+		})
+	}
+}
+
+func runTranslationJobs(gc *GenerationContext) {
+	executeTranslationJobs(context.Background(), gc.TranslationJobs)
+}
+
+func executeTranslationJobs(ctx context.Context, jobs []TranslationJob) {
+	total := len(jobs)
+	if total == 0 {
+		return
+	}
+
+	type scheduledJob struct {
+		job       TranslationJob
+		followUps []TranslationJob
+	}
+
+	var firstJobs []scheduledJob
+	indexByPost := make(map[*types.Post]int)
+	for _, job := range jobs {
+		if idx, exists := indexByPost[job.Post]; exists {
+			firstJobs[idx].followUps = append(firstJobs[idx].followUps, job)
+		} else {
+			indexByPost[job.Post] = len(firstJobs)
+			firstJobs = append(firstJobs, scheduledJob{job: job})
 		}
 	}
 
+	workers := min(translationConcurrency, total)
+	log.Info().Int("jobs", total).Int("posts", len(firstJobs)).Int("workers", workers).Msg("starting parallel translation")
+
+	jobCh := make(chan scheduledJob, total)
+	for _, sj := range firstJobs {
+		jobCh <- sj
+	}
+
+	var completed atomic.Int64
+	var wg sync.WaitGroup
+	wg.Add(workers)
+	for range workers {
+		go func() {
+			defer wg.Done()
+			for sj := range jobCh {
+				job := sj.job
+				err := translateWithRetry(ctx, job.Post, job.Lang)
+				for _, next := range sj.followUps {
+					jobCh <- scheduledJob{job: next}
+				}
+				done := completed.Add(1)
+				if done == int64(total) {
+					close(jobCh)
+				}
+				if err != nil {
+					log.Error().
+						Err(err).
+						Int64("completed", done).
+						Int("total", total).
+						Str("path", job.Post.FilePath).
+						Str("lang", string(job.Lang)).
+						Msg("translation job failed after retries")
+					continue
+				}
+				log.Info().
+					Int64("completed", done).
+					Int("total", total).
+					Str("path", job.Post.FilePath).
+					Str("lang", string(job.Lang)).
+					Msg("translation job completed")
+			}
+		}()
+	}
+	wg.Wait()
+}
+
+func translateWithRetry(ctx context.Context, post *types.Post, lang types.Lang) error {
+	var lastErr error
+	for retry := 1; retry <= 3; retry++ {
+		if retry > 1 {
+			log.Debug().Int("retry", retry).Str("path", post.FilePath).Str("lang", string(lang)).Msg("retrying translation")
+			time.Sleep(time.Second * 3)
+		}
+
+		err := translateLang(ctx, post, lang)
+		if err != nil {
+			lastErr = err
+			log.Error().Err(err).Int("retry", retry).Str("path", post.FilePath).Str("lang", string(lang)).Msg("failed to translate, retrying")
+			continue
+		}
+		return nil
+	}
+	return lastErr
+}
+
+func translatePost(_ *GenerationContext, post *types.Post, retranslate bool, ignoreLangs ...types.Lang) error {
+	langs := collectPostTranslationLangs(post, retranslate, ignoreLangs...)
+	if len(langs) == 0 {
+		return nil
+	}
+	jobs := make([]TranslationJob, 0, len(langs))
+	for _, lang := range langs {
+		jobs = append(jobs, TranslationJob{Post: post, Lang: lang})
+	}
+	executeTranslationJobs(context.Background(), jobs)
 	return nil
 }
 
@@ -142,7 +241,127 @@ func translateLang(ctx context.Context, post *types.Post, lang types.Lang) error
 	if err != nil {
 		return err
 	}
+	postTranslatedMu.Lock()
 	post.Translated[string(lang)] = doc
+	postTranslatedMu.Unlock()
 
 	return nil
+}
+
+type RetranslateTarget struct {
+	Path   string
+	ID     string
+	Reason string
+	Langs  int
+}
+
+func normalizeDocumentForHash(doc *types.Document) error {
+	if doc.Type != types.DocumentTypeMarkdown {
+		return nil
+	}
+	if doc.Metadata.Language == "" {
+		detectedLang, ok := languageDetector.DetectLanguageOf(doc.Markdown)
+		if ok {
+			doc.Metadata.Language = mapDetectedLanguage(detectedLang)
+		} else {
+			doc.Metadata.Language = "en"
+		}
+	}
+
+	newMeta, err := yaml.Marshal(&doc.Metadata)
+	if err != nil {
+		return err
+	}
+
+	original := strings.TrimPrefix(doc.Markdown, "---\n")
+	_, origDocument, ok := strings.Cut(original, "---\n")
+	if !ok {
+		return ErrInvalidMarkdown
+	}
+	doc.Markdown = "---\n" + string(newMeta) + "---\n" + origDocument
+	return nil
+}
+
+func checkRetranslateTargets(ds *DataStore, dir string) ([]RetranslateTarget, error) {
+	list, err := generateFileList(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var targets []RetranslateTarget
+	for _, path := range list {
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext != ".md" && ext != ".markdown" {
+			continue
+		}
+
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, err
+		}
+		data = []byte(strings.ReplaceAll(string(data), "\r\n", "\n"))
+
+		doc, err := parseMarkdown(path, data)
+		if err != nil {
+			return nil, err
+		}
+
+		if doc.Metadata.NoTranslate {
+			continue
+		}
+
+		hasMissingRequiredMeta := doc.Metadata.ID == "" || doc.Metadata.Date.IsZero() || doc.Metadata.Path == "" || doc.Metadata.Description == ""
+		if err := normalizeDocumentForHash(doc); err != nil {
+			return nil, err
+		}
+
+		ignoreLangs := append([]string{doc.Metadata.Language}, doc.Metadata.IgnoreLangs...)
+		fullTargetCount := 0
+		for _, lang := range types.SupportedLanguages {
+			if !slices.Contains(ignoreLangs, lang) {
+				fullTargetCount++
+			}
+		}
+		if fullTargetCount == 0 {
+			continue
+		}
+
+		post, ok := ds.Posts[doc.Metadata.ID]
+		if !ok || hasMissingRequiredMeta {
+			targets = append(targets, RetranslateTarget{
+				Path:   path,
+				ID:     doc.Metadata.ID,
+				Reason: "new_post",
+				Langs:  fullTargetCount,
+			})
+			continue
+		}
+
+		if post.Hash != doc.Hash() {
+			targets = append(targets, RetranslateTarget{
+				Path:   path,
+				ID:     doc.Metadata.ID,
+				Reason: "hash_changed",
+				Langs:  fullTargetCount,
+			})
+			continue
+		}
+
+		missingCount := 0
+		for _, lang := range types.SupportedLanguages {
+			if _, translated := post.Translated[string(lang)]; !translated && !slices.Contains(ignoreLangs, lang) {
+				missingCount++
+			}
+		}
+		if missingCount > 0 {
+			targets = append(targets, RetranslateTarget{
+				Path:   path,
+				ID:     doc.Metadata.ID,
+				Reason: "missing_langs",
+				Langs:  missingCount,
+			})
+		}
+	}
+
+	return targets, nil
 }

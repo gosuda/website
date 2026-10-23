@@ -18,10 +18,16 @@ var (
 	ErrInvalidMarkdown = fmt.Errorf("invalid markdown file")
 )
 
+type TranslationJob struct {
+	Post *types.Post
+	Lang types.Lang
+}
+
 type GenerationContext struct {
-	DataStore *DataStore
-	UsedPosts map[string]struct{}
-	PathMap   map[string]string
+	DataStore       *DataStore
+	UsedPosts       map[string]struct{}
+	PathMap         map[string]string
+	TranslationJobs []TranslationJob
 }
 
 type DataStore struct {

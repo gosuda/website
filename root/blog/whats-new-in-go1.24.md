@@ -2,7 +2,7 @@
 id: 149c0672eec2caba57477612564e9368
 author: Lemon Mint
 title: 'Go 1.24 Release Overview: Swiss Table Maps, ML-KEM, os.Root, and testing/synctest'
-description: Technical overview of Go 1.24: Swiss Table built-in maps, crypto/mlkem (FIPS 203), TLS Encrypted Client Hello, runtime.AddCleanup, os.Root, and testing/synctest.
+description: 'Technical overview of Go 1.24: Swiss Table built-in maps, crypto/mlkem (FIPS 203), TLS Encrypted Client Hello, runtime.AddCleanup, os.Root, and testing/synctest.'
 language: en
 date: 2024-12-20T00:23:21.60729Z
 path: /blog/posts/whats-new-in-go-1-24-z83ff24d2
