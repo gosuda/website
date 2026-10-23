@@ -2,7 +2,6 @@ package evaluate
 
 import (
 	"context"
-	"crypto/rand"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/lemon-mint/coord/llm"
 	"github.com/lemon-mint/coord/llmtools"
+	"github.com/zeebo/blake3"
 	"gosuda.org/website/internal/types"
 )
 
@@ -84,12 +84,22 @@ func selectModel(l llm.Model, attempt int) llm.Model {
 	return l
 }
 
+func deterministicTokens(text string) (string, string) {
+	sh := blake3.New()
+	sh.WriteString("eval-start:")
+	sh.WriteString(text)
+	startSum := sh.Sum(nil)
+
+	eh := blake3.New()
+	eh.WriteString("eval-end:")
+	eh.WriteString(text)
+	endSum := eh.Sum(nil)
+
+	return "[" + hex.EncodeToString(startSum[:8]) + "]", "[" + hex.EncodeToString(endSum[:8]) + "]"
+}
+
 func evaluateTranslationOnce(ctx context.Context, l llm.Model, inputLang types.Lang, outputLang types.Lang, input string, output string) (float64, error) {
-	var b [8]byte
-	rand.Read(b[:])
-	startToken := "[" + hex.EncodeToString(b[:]) + "]"
-	rand.Read(b[:])
-	endToken := "[" + hex.EncodeToString(b[:]) + "]"
+	startToken, endToken := deterministicTokens(input)
 
 	originalBlock := fmt.Sprintf(originalBlockFmt, types.FullLangName(inputLang), input)
 	translatedBlock := fmt.Sprintf(translatedBlockFmt, types.FullLangName(outputLang), output, startToken, endToken)

@@ -320,27 +320,15 @@ func TestTranslatePreservesChunkWhitespace(t *testing.T) {
 				t.Errorf("expected non-empty SystemInstruction for prompt caching")
 			}
 
-			var inner, startTag, endTag string
-			if len(input.Parts) == 2 {
-				sourceBlock := string(input.Parts[0].(llm.Text))
-				instructionBlock := string(input.Parts[1].(llm.Text))
-				if !strings.HasSuffix(sourceBlock, "\n</source_text>\n\n") {
-					t.Errorf("expected sourceBlock to end with closing tag and blank line, got %q", sourceBlock)
-				}
-				inner = strings.TrimPrefix(sourceBlock, "<source_text>\n")
-				inner = strings.TrimSuffix(inner, "\n</source_text>\n\n")
-				idx1 := strings.Index(instructionBlock, "[")
-				startTag = instructionBlock[idx1 : idx1+18]
-				idx2 := strings.LastIndex(instructionBlock, "[")
-				endTag = instructionBlock[idx2 : idx2+18]
-			} else {
-				prompt := string(input.Parts[0].(llm.Text))
-				_, after, _ := strings.Cut(prompt, "<source_text>\n")
-				payload, _, _ := strings.Cut(after, "\n</source_text>")
-				startTag = payload[:18]
-				endTag = payload[len(payload)-18:]
-				inner = payload[18 : len(payload)-18]
+			if len(input.Parts) != 2 {
+				t.Fatalf("expected 2 content parts, got %d", len(input.Parts))
 			}
+			sourceBlock := string(input.Parts[0].(llm.Text))
+			payload := strings.TrimPrefix(sourceBlock, "INPUT_TEXT:\n")
+			payload = strings.TrimSuffix(payload, "\n\n")
+			startTag := payload[:18]
+			endTag := payload[len(payload)-18:]
+			inner := payload[18 : len(payload)-18]
 
 			if strings.HasPrefix(inner, "\n") || strings.HasSuffix(inner, "\n") {
 				t.Errorf("expected stripped inner payload without surrounding newlines, got %q", inner)
