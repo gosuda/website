@@ -1,0 +1,4 @@
+# The website's update workflow commits this generated file as a bot on every push to main. The grant is
+# per file: it lets that bot land its own push inbound and covers nothing else. Everything else here
+# inherits the parent owners.
+per-file data.json.zstd=@github-actions[bot]
