@@ -13,7 +13,8 @@ require (
 	github.com/lemon-mint/coord v0.5.0
 	github.com/pemistahl/lingua-go v1.4.0
 	github.com/rs/zerolog v1.35.1
-	github.com/tdewolff/minify/v2 v2.24.23
+	github.com/sashabaranov/go-openai v1.43.0
+	github.com/tdewolff/minify/v2 v2.24.24
 	github.com/wyatt915/goldmark-treeblood v0.0.1
 	github.com/yuin/goldmark v1.8.6
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
@@ -56,7 +57,6 @@ require (
 	github.com/mattn/go-colorable v0.1.16 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
-	github.com/sashabaranov/go-openai v1.43.0 // indirect
 	github.com/shopspring/decimal v1.6.0 // indirect
 	github.com/tdewolff/parse/v2 v2.8.20 // indirect
 	github.com/valyala/fastjson v1.6.10 // indirect
