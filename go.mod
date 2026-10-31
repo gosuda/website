@@ -1,6 +1,6 @@
 module gosuda.org/website
 
-go 1.26.1
+go 1.27.3
 
 require (
 	cloud.google.com/go/vertexai v0.19.0
