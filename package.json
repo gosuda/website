@@ -4,7 +4,7 @@
     "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/typography": "^0.5.20",
     "@types/bun": "^1.4.4",
-    "caniuse-lite": "^1.0.30001819",
+    "caniuse-lite": "^1.0.30001820",
     "markdownlint-cli2": "^0.24.0",
     "prettier": "^3.9.10",
     "tailwindcss": "^4.3.3",
