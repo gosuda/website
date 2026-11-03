@@ -9,15 +9,15 @@ path: /blog/posts/rethinking-the-git-monorepo-a-cas-native-architecture-for-huma
 category: lowlevel
 ---
 
-Every growing engineering organization eventually hits the same fork in the road. Start with dozens of small repositories, and life feels simple at first. Each library has its own issue tracker, its own CI pipeline, and a `git clone` that finishes before you take a sip of coffee. Then the tax arrives. You change a struct in a core networking package and spend the rest of the afternoon opening version-bump pull requests across six downstream repositories, waiting for CI queues to clear in topological order.
+Every growing engineering organization eventually chooses between many repositories and one. Start with dozens of small repositories, and life feels simple at first. Each library has its own issue tracker, its own CI pipeline, and a `git clone` that finishes in seconds. Then you change a struct in a core networking package and spend the rest of the afternoon opening version-bump pull requests across six downstream repositories, waiting for CI queues to clear in topological order.
 
-Move everything into a traditional Git monorepo, and you trade coordination pain for physics pain. As commit history deepens and binary assets accumulate in past revisions, `git fetch` slows down. Working trees swell to gigabytes. Before long, someone suggests standing up a custom virtual filesystem daemon, a dedicated code review server, or a fleet of remote build workers just to keep daily development bearable.
+Move everything into a traditional Git monorepo, and you trade cross-repository coordination for repository size. As commit history deepens and binary assets accumulate in past revisions, `git fetch` slows down. Working trees swell to gigabytes. Before long, someone suggests standing up a custom virtual filesystem daemon, a dedicated code review server, or a fleet of remote build workers just to keep daily development bearable.
 
 When autonomous coding agents join the team, both failure modes get worse. Polyrepos blind an agent to cross-project callers and force it to juggle credentials across repositories. Traditional monorepos drown the agent's container disk and network bandwidth on every task initialization, while concurrent agents stepping on the same branch create endless rebase races.
 
-We wanted a third option. Inspired by the `google3` architecture, we asked a simple question: **Can we get single-trunk atomic changes, sub-second sparse onboarding, hierarchical `OWNERS` governance, and standalone open-source mirrors using nothing but standard Git plumbing and commodity object storage?**
+Inspired by the `google3` architecture, we built single-trunk atomic changes, sub-second sparse onboarding, hierarchical `OWNERS` governance, and standalone open-source mirrors with standard Git plumbing and commodity object storage.
 
-The answer turned out to be yes, and it did not require a custom filesystem daemon or a third-party review appliance. It only required using Git for what it actually is under the hood: a Merkle-tree Content-Addressable Store (CAS).
+The design needs neither a custom filesystem daemon nor a third-party review appliance, because it treats Git as a Merkle-tree Content-Addressable Store (CAS).
 
 ## The Misconception at the Heart of Slow Git Monorepos
 
@@ -27,9 +27,9 @@ When developers complain that Git does not scale to large monorepos, they are ra
 2. **`tree`**: A directory listing that maps filenames and permissions to `blob` or child `tree` hashes.
 3. **`commit`**: A tiny text header (typically 200 to 300 bytes) pointing to a single root `tree` hash, zero or more parent `commit` hashes, and author metadata.
 
-As a content-addressable store, this design is remarkably efficient. If a monorepo contains 50,000 files and you edit a single line in one file, the new commit reuses the exact `blob` and `tree` hashes for the other 49,999 files.
+If a monorepo contains 50,000 files and you edit a single line in one file, the new commit reuses the exact `blob` and `tree` hashes for the other 49,999 files.
 
-Why, then, does a traditional Git monorepo feel heavy? Because convention overloads a single reference, `refs/heads/main`, with three conflicting jobs:
+A traditional Git monorepo feels heavy because convention overloads a single reference, `refs/heads/main`, with three conflicting jobs:
 
 - It holds the **entire unified directory tree** of every project.
 - It drags along the **entire parent-linked chain of historical commits** back to day one.
@@ -37,18 +37,19 @@ Why, then, does a traditional Git monorepo feel heavy? Because convention overlo
 
 Every time a developer or CI runner fetches `refs/heads/main`, the client and server negotiate commit graph reachability across thousands of historical revisions. If someone accidentally committed a 100 MB archive three years ago and deleted it the next day, its `blob` still hangs off a historical `tree` reachable from `refs/heads/main`.
 
-## Separating the Reference Namespace into Four Layers
+## Separating the Reference Namespace
 
 Git's wire protocol only advertises `refs/heads/*` and `refs/tags/*` during a standard clone. References under custom namespaces such as `refs/trunk/*` or `refs/ws/*` live in the exact same object store on the server, benefit from the same packfile delta compression, and can be fetched or pushed explicitly, yet they impose zero overhead on default clones.
 
-By splitting responsibilities across four reference namespaces inside a single repository, the bottleneck disappears:
+Splitting these jobs across separate references in a single repository removes the bottleneck:
 
 ```
-refs/heads/main          Control plane only (~20 KB: rules, .gitconfig, sync config, scripts)
-refs/trunk/main          Parentless snapshot commit pointing to the latest unified root tree
-refs/trunk/history       Linear parent-linked commit chain sharing the exact root tree SHA-1
-refs/ws/<actor>/<id>     Isolated workspace snapshots (changelists) per developer or agent
-refs/heads/land/<id>     Ephemeral merge-queue trigger deleted immediately upon landing
+refs/heads/main               Control plane only (~20 KB: rules, .gitconfig, sync config, scripts)
+refs/trunk/main               Parentless snapshot commit pointing to the latest unified root tree
+refs/trunk/history            Linear parent-linked commit chain sharing the exact root tree SHA-1
+refs/ws/<actor>/<id>          Isolated workspace snapshots (changelists) per developer or agent
+refs/ws/cl/<change-id>/<tip>  Immutable patchsets: every tip of a change sent for review
+refs/heads/land/<id>          Ephemeral merge-queue trigger deleted immediately upon landing
 ```
 
 ### 1. The Control Plane (`refs/heads/main`)
@@ -57,7 +58,7 @@ The default branch contains no application source code. It tracks only the repos
 
 ### 2. The Parentless Trunk Snapshot (`refs/trunk/main`)
 
-`refs/trunk/main` points to the complete, unified source tree of the entire organization (`//web/*`, `//net/*`, `//ipc/*`, `//devtools/*`, `//corp/*`, `//third_party/*`, `//experimental/*`), but its commit object is created **without a `-p` parent flag**.
+`refs/trunk/main` points to the complete, unified source tree of the entire organization (`//web/*`, `//net/*`, `//ipc/*`, `//storage/*`, `//crypto/*`, `//ai/*`, `//devtools/*`, `//corp/*`, `//third_party/*`, `//experimental/*`), but its commit object is created **without a `-p` parent flag**.
 
 Because `refs/trunk/main` has zero parents (`parents = []`), fetching it requires zero commit-graph negotiation. The Git server does not walk history; it sends the single head commit and its current directory `tree` objects. Historical binaries or deleted files from last month are unreachable from `refs/trunk/main` and are never transferred.
 
@@ -79,15 +80,15 @@ git push --atomic origin \
   "${HIST}:refs/trunk/history"
 ```
 
-Does maintaining both `refs/trunk/main` and `refs/trunk/history` double the repository's storage footprint? **Not at all.** Because both commits reference the identical `$NEW_TREE` hash, Git's content-addressable store deduplicates 100% of the `tree` and `blob` objects. The extra storage cost of the parentless snapshot is a single 250-byte commit header.
+Keeping both `refs/trunk/main` and `refs/trunk/history` does not double the storage footprint. Because both commits reference the identical `$NEW_TREE` hash, Git's content-addressable store deduplicates 100% of the `tree` and `blob` objects. The extra storage cost of the parentless snapshot is a single 250-byte commit header.
 
 ### 4. Isolated Workspaces (`refs/ws/<actor>/<id>`)
 
 Work-in-progress branches are pushed to `refs/ws/<actor>/<id>` rather than `refs/heads/*`. A hundred coding agents can save checkpoints every minute without polluting branch dropdowns or slowing down `git fetch` for human engineers.
 
-## Onboarding in Five Commands: How Sparse + Blobless Checkout Works
+## Onboarding in Four Steps: How Sparse + Blobless Checkout Works
 
-With this reference layout, a new developer or an ephemeral coding-agent container does not install a custom CLI or FUSE driver. Onboarding takes five standard Git commands:
+With this reference layout, a new developer or an ephemeral coding-agent container does not install a custom CLI or FUSE driver. Onboarding takes four steps with standard Git and the repository's aliases:
 
 ```bash
 # 1. Clone the 20 KB control plane with blob filtering and sparse mode enabled
@@ -105,12 +106,12 @@ git sparse-checkout set net/relay ipc/codec
 git ws-new alice/optimize-framing
 ```
 
-Under the hood, each step does only the minimum work required:
+Each step fetches only what it needs:
 
 1. `git clone --filter=blob:none --sparse` downloads the 20 KB control plane on `refs/heads/main`.
 2. `git trunk-init` configures `+refs/trunk/*:refs/remotes/origin/trunk/*` and runs a blobless fetch. Git downloads the `tree` metadata for `refs/trunk/main` (typically a few dozen kilobytes) and **zero file blobs**.
 3. `git sparse-checkout set net/relay ipc/codec` instructs Git's cone-mode index filter to materialize only the root directory and those two subtrees.
-4. `git ws-new` switches to a new branch rooted at `origin/trunk/main`. At that exact moment, Git requests on demand only the `blob` objects inside `net/relay` and `ipc/codec`. The remaining 95% of the monorepo is never downloaded to disk.
+4. `git ws-new` switches to a new branch rooted at `origin/trunk/main`. Git then requests on demand only the `blob` objects inside `net/relay` and `ipc/codec`. The remaining 95% of the monorepo is never downloaded to disk.
 
 ### Future Horizon: Mounting `refs/trunk/main` as a Virtual Filesystem (VFS)
 
@@ -122,7 +123,7 @@ Sparse checkout with blobless clones covers daily workflows without extra client
 
 ## The Changelist Model on Pure Git: In-Memory Server-Side Landing
 
-In a traditional Git workflow, merging a feature branch either creates a two-parent merge commit (turning history into a tangled railway yard) or requires developers to manually rebase and race against other engineers pushing to `main`.
+In a traditional Git workflow, merging a feature branch either creates a two-parent merge commit, which makes history non-linear, or requires developers to rebase manually and race against concurrent pushes to `main`.
 
 Inspired by the `google3` Changelist (CL) model, every workspace in our architecture represents a **single atomic change** against the trunk snapshot. While working locally in `ws/alice/optimize-framing`, a developer or agent might make ten incremental commits (`wip`, `fix tests`, `lint`). When the change is ready to land, the server collapses the workspace delta into a single linear trunk revision without ever checking out a working directory on the CI runner.
 
@@ -147,11 +148,11 @@ else
 fi
 ```
 
-Look closely at step 2:
+In step 2:
 
 - Regardless of how many local commits were made on the workspace branch, the script compares only three tree hashes: the original base snapshot (`$BASE_TREE`), the current trunk snapshot (`$MAIN_TREE`), and the final workspace tree (`$WORK_TREE`).
-- If `refs/trunk/main` advanced in `//web/blog` while Alice edited `//net/relay`, `git merge-tree --write-tree` computes the combined root tree `$NEW_TREE` directly inside the Git object store in milliseconds. No files are written to the runner's filesystem.
-- Finally, `git push --atomic` with `--force-with-lease` updates `refs/trunk/main`, appends one linear commit to `refs/trunk/history`, and deletes the landing trigger `refs/heads/land/<id>` in a single transaction.
+- If `refs/trunk/main` advanced in `//web/blog` while Alice edited `//net/relay`, `git merge-tree --write-tree` computes the combined root tree `$NEW_TREE` directly inside the Git object store in milliseconds, without writing files to the runner's filesystem.
+- After the policy checks below pass, one `git push --atomic` with `--force-with-lease` updates `refs/trunk/main` and appends one linear commit to `refs/trunk/history`, and the landing trigger `refs/heads/land/<id>` is deleted.
 
 ## Enforcing Architecture Boundaries: Four-Tier Visibility and Hierarchical `OWNERS`
 
@@ -172,7 +173,7 @@ If a public package in `//web/*` attempts to import an internal package from `//
 
 ### 2. Hierarchical `OWNERS` Verification Without a Gerrit Server
 
-You do not need a dedicated Gerrit instance to enforce directory-level `OWNERS` files with inheritance rules:
+The verifier enforces directory-level `OWNERS` files with inheritance rules:
 
 - For every path modified between `$MAIN_TREE` and `$NEW_TREE`, the verifier walks upward from the file's directory to `//OWNERS`.
 - Any `OWNERS` file can declare `set noparent` to block inherited approvals from parent directories, or `per-file *.sql=@dba-team` to scope approvals by filename glob.
@@ -186,9 +187,17 @@ Because `refs/heads/main` holds only the control plane and `refs/trunk/main` is 
 1. **Instant Two-Dot Workspace Diffs (`git ws-save` + Edge Diff Router)**
    Pushing a workspace with `git ws-save` exposes `refs/ws/<actor>/<id>` through a lightweight edge worker. This worker resolves `refs/trunk/main` and the workspace reference to their commit SHAs and redirects to GitHub's two-dot compare view (`/compare/<trunk-sha>..<ws-sha>`). For small patches or agent-generated changes, reviewers can inspect the diff and click **Land** directly in the web UI.
 2. **Ephemeral GitHub Pull Requests (`git ws-pr`)**
-   For line-by-line review on GitHub, `git ws-pr` pushes the root snapshot commit (`$(git rev-list --max-parents=0 HEAD)`) to `refs/heads/base/<id>` and the workspace tip to `refs/heads/review/<id>`. It then opens a GitHub Pull Request comparing `review/<id>` against `base/<id>`. Because the base branch is the exact snapshot the workspace branched from, GitHub's **Files changed** tab shows only the exact lines modified in the workspace. When the reviewer clicks **Merge pull request**, a webhook promotes the head commit to `refs/heads/land/<id>`, runs the in-memory landing pipeline, and automatically deletes both `refs/heads/base/<id>` and `refs/heads/review/<id>`.
+   For line-by-line review on GitHub, `git ws-pr` pushes the root snapshot commit (`$(git rev-list --max-parents=0 HEAD)`) to `refs/heads/base/<id>` and the workspace tip to `refs/heads/review/<id>`. It then opens a GitHub Pull Request comparing `review/<id>` against `base/<id>`. Because the base branch is the snapshot the workspace branched from, GitHub's **Files changed** tab shows only the workspace delta. When the reviewer clicks **Merge pull request**, a webhook promotes the head commit to `refs/heads/land/<id>`, runs the in-memory landing pipeline, and automatically deletes both `refs/heads/base/<id>` and `refs/heads/review/<id>`.
 3. **External Mirror Pull Requests**
    Open-source contributors never have to learn the monorepo workflow. They fork and open pull requests against standalone mirror repositories as usual.
+
+### Changes, Patchsets, and Approval Carry-Over
+
+A branch name cannot identify a change. An agent may rename its branch, amend the tip, or rebase onto a newer trunk several times before landing. As in Gerrit, the workflow identifies a change by a `Change-Id: I<40 hex>` trailer in the tip commit message. `git ws-save`, `git ws-pr`, and `git ws-land` add the trailer when the tip has none and keep it otherwise, so the id survives amends, rebases, and renames. The landed trunk commit keeps the trailer and records the number of its review pull request, so `git trunk-cl <number|Change-Id>` finds it in `refs/trunk/history`.
+
+Every tip sent for review becomes a patchset. `git ws-pr` pushes it to the immutable reference `refs/ws/cl/<change-id>/<tip>` next to the review branches. Running `git ws-pr` again after an amend or a `git ws-sync` adds a patchset to the same pull request. `git ws-ps` lists the patchsets of the current change, and `git ws-psdiff <a> <b>` prints the interdiff between two of them, so a reviewer reads only what changed since the last round.
+
+GitHub binds an approval to a single commit, so every rebase would normally require a new review. The landing pipeline also accepts an approval given to another patchset of the same change when both patchsets make the same patch to their own base snapshot. It compares `git patch-id --verbatim` over the full binary diff. A clean rebase onto a newer trunk lands without another review, while any content edit, including a whitespace or file-mode change, needs a new approval.
 
 ## O(delta) Bidirectional Synchronization and Separate Production Branches
 
@@ -196,10 +205,10 @@ Many organizations publish individual packages as standalone GitHub repositories
 
 Our Starlark synchronization engine handles both outbound exports and inbound contributions in **O(delta)** time proportional to the files changed in a commit rather than the size of the monorepo:
 
-- **Blobless Index Splicing**: When splicing a mirror repository's subtree into or out of the monorepo root tree, the engine sets `GIT_NO_LAZY_FETCH=1` and runs `git update-index --index-info` followed by `git write-tree --missing-ok`. Unmodified subtrees and blobs are referenced purely by their SHA-1 hashes without ever being downloaded to the CI runner.
+- **Blobless Index Splicing**: When splicing a mirror repository's subtree into or out of the monorepo root tree, the engine sets `GIT_NO_LAZY_FETCH=1` and runs `git update-index --index-info` followed by `git write-tree --missing-ok`. Unmodified subtrees and blobs stay referenced by SHA-1 and are never downloaded to the CI runner.
 - **Delta-Only Blob Prefetching**: Before pushing an exported commit to a standalone mirror, the script runs `git diff-tree -r --diff-filter=AM "$ext_parent" "$export_tree"` and prefetches only the old and new blobs of the modified files via `git cat-file --batch`. Git can then compute a thin delta pack and push to the mirror repository in seconds.
 - **Workflow and Release Branch Preservation**: During outbound export, the synchronizer preserves each standalone repository's own `.github/workflows/` directory so public CI runners execute project tests on the mirror. Each workflow in the Starlark config targets an explicit branch such as `main`, which preserves release gates for repositories that deploy from a separate `production` branch. Monorepo landings synchronize with the mirror's `main` branch, and automated metadata or translation commits on `main` sync back into `refs/trunk/main` via webhook. Promoting `main` to `production` remains an explicit release step.
 
 ## Closing Thoughts
 
-Building a high-velocity monorepo does not require abandoning standard Git or operating a complex fleet of bespoke infrastructure servers. This architecture treats Git's object store as a Content-Addressable Store, separates `refs/heads/main` from `refs/trunk/main` and `refs/trunk/history`, and merges trees in memory with `git merge-tree --write-tree`. As a result, both human engineers and autonomous coding agents can clone a workspace in under a second and scale cleanly across hundreds of projects.
+This architecture treats Git's object store as a Content-Addressable Store, separates `refs/heads/main` from `refs/trunk/main` and `refs/trunk/history`, identifies each change by a `Change-Id` with immutable patchsets, and merges trees in memory with `git merge-tree --write-tree`. Onboarding cost grows with the directories a task needs, and landing and mirror sync cost grows with the size of a change, not with the size of the repository.
