@@ -51,6 +51,7 @@
     --leading-tight: 1.25;
     --leading-snug: 1.375;
     --leading-relaxed: 1.625;
+    --radius-md: calc(var(--radius) - 2px);
     --drop-shadow-2xl: 0 25px 25px rgb(0 0 0 / 0.15);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -887,6 +888,9 @@
   .max-w-xl {
     max-width: var(--container-xl);
   }
+  .min-w-0 {
+    min-width: 0px;
+  }
   .flex-1 {
     flex: 1;
   }
@@ -1195,6 +1199,9 @@
   .tracking-tight {
     --tw-tracking: var(--tracking-tight);
     letter-spacing: var(--tracking-tight);
+  }
+  .break-words {
+    overflow-wrap: break-word;
   }
   .whitespace-nowrap {
     white-space: nowrap;
@@ -1588,6 +1595,7 @@ pre {
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
   }
   *, ::before, ::after {
     border-color: var(--border);
@@ -1630,6 +1638,85 @@ pre {
     --tw-prose-code: var(--foreground);
     --tw-prose-th-borders: var(--border);
     --tw-prose-td-borders: var(--border);
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+  }
+  .prose :where(p, li, blockquote, h1, h2, h3, h4, dt, dd) {
+    overflow-wrap: break-word;
+    min-inline-size: 0;
+  }
+  .prose :where(a) {
+    overflow-wrap: anywhere;
+  }
+  .prose :not(pre):not(th):not(td) > code {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .prose pre {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .prose pre > code {
+    display: inline-block;
+    min-inline-size: 100%;
+  }
+  .prose :where(img, svg, video, canvas, iframe) {
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+  .prose math[display="block"] {
+    display: block;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+  }
+  .prose .table-wrapper {
+    overflow-x: auto;
+    max-inline-size: 100%;
+    container-type: inline-size;
+    overscroll-behavior-x: contain;
+    scrollbar-gutter: stable;
+    margin-block: 2em;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    -webkit-overflow-scrolling: touch;
+  }
+  .prose .table-wrapper:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  .prose .table-wrapper > table {
+    inline-size: 100%;
+    margin-block: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .prose .table-wrapper thead {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    background-color: var(--muted);
+  }
+  .prose .table-wrapper th, .prose .table-wrapper td {
+    padding: 0.625rem 0.875rem;
+    border-block-end: 1px solid var(--border);
+  }
+  .prose .table-wrapper thead th {
+    white-space: nowrap;
+  }
+  .prose .table-wrapper tbody tr:last-child td, .prose .table-wrapper tbody tr:last-child th {
+    border-block-end: 0;
+  }
+  .prose > table {
+    display: block;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
   }
   .dark pre {
     background: var(--code-bg);
@@ -1794,16 +1881,15 @@ pre {
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
+    inset-inline-end: 0;
+    transform: translateY(10px);
   }
   .show {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
   }
   @keyframes slideIn {
     from {

@@ -1,0 +1,56 @@
+direction: down
+
+vars: {
+  d2-config: {
+    layout-engine: dagre
+    theme-id: 4
+    pad: 20
+  }
+}
+
+grid-columns: 1
+vertical-gap: 24
+
+stage1: "Phase 1: Pre-Lockdown Handle Setup (Unprivileged User)" {
+  style.fill: "#eff6ff"
+  style.stroke: "#1d4ed8"
+  style.stroke-width: 2
+  style.border-radius: 8
+  grid-columns: 1
+  vertical-gap: 10
+
+  s1_oci: "1. pkg/oci Image Compiler\nStreams .tar.gz / .tar.zst layers in memory into\ncached read-only <sha256>.erofs image files"
+  s1_fds: "2. Pre-Open Storage Handles\nPins read-only .erofs layer FDs, single-file\n<name>.ext4 volume FD, and /workspace *os.Root"
+  s1_net: "3. Pre-Bind Network Endpoints\nOpens -p host port forward listeners or\n1 host UDP socket for -net=wg"
+  s1_eng: "4. Initialize Execution Engine\nOpens WHPX partition / HVF VM, or pre-spawns\nisolated systrap stub process and sysmsg pages"
+}
+
+stage2: "Phase 2: Irreversible Host Lockdown (pkg/hostlockdown)" {
+  style.fill: "#fef2f2"
+  style.stroke: "#b91c1c"
+  style.stroke-width: 2
+  style.border-radius: 8
+  grid-columns: 1
+  vertical-gap: 10
+
+  win: "Windows NT (lockdown_windows.go)\nAdjustTokenPrivileges(SE_PRIVILEGE_REMOVED) +\nLow-Integrity Token (S-1-16-4096) +\nJobObject(ACTIVE_PROCESS=1) + DisallowWin32kSystemCalls=1"
+  mac: "macOS XNU (lockdown_darwin.go)\nsetrlimit(RLIMIT_NPROC=0) + Seatbelt sandbox_init\n(deny default: blocks fork, exec, and new file opens)"
+  lin: "Linux (lockdown_linux.go + syscallfilter_linux.go)\nprctl(PR_SET_NO_NEW_PRIVS) + seccomp(TSYNC) allowlist\nblocking execve, execveat, clone, openat, and socket"
+}
+
+stage3: "Phase 3: In-Process Linux Kernel Execution Loop" {
+  style.fill: "#f0fdf4"
+  style.stroke: "#15803d"
+  style.stroke-width: 2
+  style.border-radius: 8
+  grid-columns: 1
+  vertical-gap: 10
+
+  guest: "Guest Linux Process (ELF64)\nRuns natively on CPU; issues Linux syscalls\n(openat, clone, mount, socket, epoll_wait)"
+  trap: "Platform Engine (whpx / hvf / systrap)\nTraps SYSCALL / SVC #0 and page faults;\nexchanges registers via 4 KB CommPage / sysmsg"
+  sentry: "Go Sentry Kernel (~370 Linux Syscalls)\nServices tasks, signals, mm, VFS2 (erofs, ext4lite,\nhostfs), and Netstack (NAT / WireGuard) in Go"
+  io: "Pre-Opened Host Handles Only\npread/pwrite on .erofs and .ext4 FDs;\nos.Root relative opens; host TCP/UDP sockets"
+}
+
+stage1 -> stage2: "All required FDs pinned; block new host opens"
+stage2 -> stage3: "Enter guest ELF entrypoint"

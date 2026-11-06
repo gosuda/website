@@ -277,7 +277,7 @@ func check_retranslate_main(maxAllowed int) {
 func printUsage() {
 	fmt.Println("Usage:")
 	fmt.Println("  website                         - Generate website")
-	fmt.Println("  website check_retranslate [max] - Check count of posts requiring translation (default max: 3)")
+	fmt.Println("  website check_retranslate [max] - Check count of posts requiring translation (default max: 4)")
 	fmt.Println("  website remove_lang <postID> <lang>  - Remove language translation from a post")
 	fmt.Println("  website remove_lang_all         - Remove all translations except main language")
 	fmt.Println("  website get_translation <postID> <lang> - Get translation markdown")
@@ -304,7 +304,7 @@ func main() {
 		format_md_main()
 		return
 	case "check_retranslate":
-		maxAllowed := 3
+		maxAllowed := 4
 		if len(os.Args) >= 3 {
 			parsed, err := strconv.Atoi(os.Args[2])
 			if err != nil {

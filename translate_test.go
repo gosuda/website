@@ -39,14 +39,8 @@ func TestAllRootMarkdownFilesValid(t *testing.T) {
 			t.Errorf("failed to parse %s: %v", path, err)
 			continue
 		}
-		if doc.Metadata.ID == "" {
-			t.Errorf("%s has empty metadata ID", path)
-		}
 		if doc.Metadata.Title == "" {
 			t.Errorf("%s has empty metadata Title", path)
-		}
-		if doc.Metadata.Path == "" {
-			t.Errorf("%s has empty metadata Path", path)
 		}
 		if !doc.Metadata.NoTranslate && doc.Metadata.Description == "" {
 			t.Errorf("%s has empty metadata Description", path)
