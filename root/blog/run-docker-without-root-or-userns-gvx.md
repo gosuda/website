@@ -1,8 +1,10 @@
 ---
+id: 40e9d44f33fa847eb498f09bac5bf144
 author: Lemon Mint
 title: Running Docker, docker build, and docker compose Without Root or User Namespaces
 description: How to securely run a complete Docker Engine (dockerd, BuildKit, overlayfs, and docker compose) inside an isolated gVisor user-space sandbox as an unprivileged user when root, sudo, unshare(CLONE_NEWUSER), mount(2), and /dev/fuse are blocked.
 language: en
+date: 2026-11-06T12:02:56.050897958Z
 path: /blog/posts/run-docker-without-root-or-userns-gvx-z48916d02
 go_package: z.gfire.dev/gvx
 go_repourl: https://github.com/gfire-sigs/gvx.git

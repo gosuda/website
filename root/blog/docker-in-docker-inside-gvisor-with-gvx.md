@@ -1,8 +1,10 @@
 ---
+id: 83fb2c108243a7df80db3a6e78290daf
 author: Lemon Mint
 title: Running Docker-in-Docker Inside gVisor and Nested Sandboxes with gvx
 description: Why installing docker.io or nesting runsc inside a gVisor container fails across modprobe, iptables-nft, overlay2, cgroups, and seccomp EBUSY, and how gvx securely runs nested docker:dind inside an isolated user-space kernel without --privileged.
 language: en
+date: 2026-11-06T12:02:55.931762327Z
 path: /blog/posts/docker-in-docker-inside-gvisor-with-gvx-z48916d03
 go_package: z.gfire.dev/gvx
 go_repourl: https://github.com/gfire-sigs/gvx.git

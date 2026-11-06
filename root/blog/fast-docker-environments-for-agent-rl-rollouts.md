@@ -1,8 +1,10 @@
 ---
+id: 517bf76b20da9b1bac643f4bac1bfd6b
 author: Lemon Mint
 title: Fast Isolated Docker Environments for AI Agent RL Rollouts with gvx
 description: How to securely run hundreds of parallel, strongly isolated unprivileged Docker and Kubernetes environments for SWE-bench and coding agent reinforcement learning rollouts with 100-millisecond copy-on-write ext4lite volume resets.
 language: en
+date: 2026-11-06T12:02:55.95126412Z
 path: /blog/posts/fast-docker-environments-for-agent-rl-rollouts-z48916d04
 go_package: z.gfire.dev/gvx
 go_repourl: https://github.com/gfire-sigs/gvx.git

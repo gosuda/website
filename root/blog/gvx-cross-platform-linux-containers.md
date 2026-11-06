@@ -1,8 +1,10 @@
 ---
+id: e62d78ef5850c982dbddc9d3ff9134ae
 author: Lemon Mint
 title: 'gvx: Running Linux Containers, Docker, and Kubernetes in One Unprivileged Process'
 description: Technical overview of gvx, a security-hardened, cross-platform container runtime and Go SDK built on the gVisor user-space kernel that safely runs Linux containers, Docker-in-Docker, and multi-node HA Kubernetes in a single unprivileged process across Windows, macOS, and Linux.
 language: en
+date: 2026-11-06T12:02:56.008516536Z
 path: /blog/posts/gvx-cross-platform-linux-containers-z48916d01
 go_package: z.gfire.dev/gvx
 go_repourl: https://github.com/gfire-sigs/gvx.git
