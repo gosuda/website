@@ -27,6 +27,7 @@ func init() {
 	minifier.AddFunc("image/svg+xml", svg.Minify)
 	minifier.AddFunc("application/javascript", js.Minify)
 	minifier.AddFunc("application/json", mjson.Minify)
+	minifier.AddFunc("application/ld+json", mjson.Minify)
 	minifier.AddFunc("application/xml", xml.Minify)
 }
 

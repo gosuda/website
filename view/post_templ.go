@@ -76,7 +76,7 @@ func PostPage(m *layout.Metadata, doc *types.Document, cover string) templ.Compo
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = layout.Footer().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Footer(m).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

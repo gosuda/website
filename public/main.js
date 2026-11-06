@@ -1111,17 +1111,21 @@ function createDropdownItem(
   index,
   isActive = false
 ) {
-  const button = document.createElement('button');
-  button.className = 'dropdown-item';
-  button.href = href;
-  button.style.setProperty('--order', index);
-  button.innerHTML = languageName;
+  const li = document.createElement('li');
+  const link = document.createElement('a');
+  link.className = 'dropdown-item';
+  link.href = href;
+  link.hreflang = languageCode;
+  link.lang = languageCode;
+  link.style.setProperty('--order', index);
+  link.textContent = languageName;
 
   if (isActive) {
-    button.classList.add('active');
+    link.classList.add('active');
   }
 
-  return button;
+  li.appendChild(link);
+  return li;
 }
 
 // Helper function to handle language selection
@@ -1135,6 +1139,7 @@ function handleLanguageSelection(
   return function () {
     updateDropdownButtonText(dropdownButton, languageName);
     dropdownContent.classList.remove('show');
+    dropdownButton.setAttribute('aria-expanded', 'false');
     window.location.href = href;
   };
 }
@@ -1146,6 +1151,7 @@ function handleDropdownToggle(dropdownButton, dropdownContent) {
 
     // Update arrow direction
     const isOpen = dropdownContent.classList.contains('show');
+    dropdownButton.setAttribute('aria-expanded', String(isOpen));
     const currentLanguageName = dropdownButton.innerHTML
       .replace(/[▲▼]/g, '')
       .trim();
@@ -1178,34 +1184,40 @@ function initDropdown() {
   const languageName = languageMap[activeLanguageCode] || languageMap['en'];
   updateDropdownButtonText(dropdownButton, languageName);
 
-  // Create dropdown items
-  Object.entries(alternateLinks).forEach(([languageCode, href], index) => {
-    const languageName = languageMap[languageCode];
-    if (!languageName) return;
+  const existingItems = dropdownContent.querySelectorAll('.dropdown-item');
+  if (existingItems.length > 0) {
+    existingItems.forEach((item, index) => {
+      item.style.setProperty('--order', index);
+    });
+  } else {
+    // Fallback: create dropdown items dynamically if not pre-rendered
+    Object.entries(alternateLinks).forEach(([languageCode, href], index) => {
+      const languageName = languageMap[languageCode];
+      if (!languageName) return;
 
-    const isActive = languageCode === activeLanguageCode;
-    const dropdownItem = createDropdownItem(
-      languageCode,
-      languageName,
-      href,
-      index,
-      isActive
-    );
-
-    // Add click handler
-    dropdownItem.addEventListener(
-      'click',
-      handleLanguageSelection(
+      const isActive = languageCode === activeLanguageCode;
+      const dropdownItem = createDropdownItem(
         languageCode,
         languageName,
         href,
-        dropdownButton,
-        dropdownContent
-      )
-    );
+        index,
+        isActive
+      );
 
-    dropdownContent.appendChild(dropdownItem);
-  });
+      dropdownItem.addEventListener(
+        'click',
+        handleLanguageSelection(
+          languageCode,
+          languageName,
+          href,
+          dropdownButton,
+          dropdownContent
+        )
+      );
+
+      dropdownContent.appendChild(dropdownItem);
+    });
+  }
 
   // Add dropdown toggle handler
   dropdownButton.addEventListener(

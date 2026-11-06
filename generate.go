@@ -100,6 +100,11 @@ func generate(gc *GenerationContext) error {
 		}
 	}
 
+	err = generateLLMsTxt(gc)
+	if err != nil {
+		return err
+	}
+
 	err = minifyDir(distDir)
 	if err != nil {
 		return err
@@ -156,6 +161,19 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 		}
 
 		url := baseURL + "/" + lang + post.Path
+		mdSuffix := ".md"
+		if strings.HasSuffix(post.Path, "/") {
+			mdSuffix = "index.md"
+		}
+
+		createdAt := post.CreatedAt
+		if !pm.Date.IsZero() {
+			createdAt = pm.Date
+		}
+		updatedAt := post.UpdatedAt
+		if updatedAt.IsZero() || updatedAt.Before(createdAt) {
+			updatedAt = createdAt
+		}
 
 		meta := &layout.Metadata{
 			Language:    lang,
@@ -165,12 +183,18 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			Image:       baseURL + "/assets/" + post.ID + "_" + lang + ".png",
 			URL:         url,
 			Canonical:   url,
+			MarkdownURL: url + mdSuffix,
 			BaseURL:     baseURL,
-			CreatedAt:   post.CreatedAt,
-			UpdatedAt:   post.UpdatedAt,
+			CreatedAt:   createdAt,
+			UpdatedAt:   updatedAt,
+			GoPackage:   post.Main.Metadata.GoPackage,
+			GoRepoURL:   post.Main.Metadata.GoRepoURL,
+			Category:    post.Main.Metadata.Category,
 		}
 
-		alt := &layout.Alternate{}
+		alt := &layout.Alternate{
+			Default: baseURL + post.Path,
+		}
 		for _, lang := range languages {
 			if lang == types.LangEnglish {
 				alt.Versions = append(alt.Versions, layout.KV{
@@ -189,6 +213,7 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 		if lang == types.LangEnglish {
 			meta.URL = baseURL + post.Path
 			meta.Canonical = meta.URL
+			meta.MarkdownURL = meta.URL + mdSuffix
 		}
 
 		if post.Main.Metadata.Canonical != "" {
@@ -204,8 +229,13 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			meta.GoImport = fmt.Sprintf("%s git %s", post.Main.Metadata.GoPackage, post.Main.Metadata.GoRepoURL)
 		}
 
+		doc := post.Translated[lang]
+		if doc == nil && lang == post.Main.Metadata.Language {
+			doc = post.Main
+		}
+
 		b.Reset()
-		err = view.PostPage(meta, post.Translated[lang], coverURL(post)).Render(ctx, &b)
+		err = view.PostPage(meta, doc, coverURL(post)).Render(ctx, &b)
 		if err != nil {
 			return err
 		}
@@ -215,8 +245,16 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 			if err != nil {
 				return err
 			}
+			err = os.WriteFile(fp+"index.md", []byte(doc.Markdown), 0644)
+			if err != nil {
+				return err
+			}
 		} else {
 			err = os.WriteFile(fp+".html", b.Bytes(), 0644)
+			if err != nil {
+				return err
+			}
+			err = os.WriteFile(fp+".md", []byte(doc.Markdown), 0644)
 			if err != nil {
 				return err
 			}
@@ -234,8 +272,16 @@ func generatePostPages(gc *GenerationContext, lang types.Lang) error {
 				if err != nil {
 					return err
 				}
+				err = os.WriteFile(fp+"index.md", []byte(doc.Markdown), 0644)
+				if err != nil {
+					return err
+				}
 			} else {
 				err = os.WriteFile(fp+".html", b.Bytes(), 0644)
+				if err != nil {
+					return err
+				}
+				err = os.WriteFile(fp+".md", []byte(doc.Markdown), 0644)
 				if err != nil {
 					return err
 				}
@@ -285,17 +331,22 @@ func generateIndex(gc *GenerationContext, lang types.Lang, gh *home.GitHubStats)
 		Image:       baseURL + "/assets/images/ogp_placeholder.png",
 		URL:         baseURL + "/",
 		Canonical:   baseURL + "/",
+		MarkdownURL: baseURL + "/llms.txt",
 		BaseURL:     baseURL,
 		CreatedAt:   time.Date(2024, 10, 07, 0, 0, 0, 0, time.UTC),
 		UpdatedAt:   time.Now().UTC(),
+		IsIndex:     true,
 	}
 
 	if lang != "en" {
 		meta.URL = baseURL + "/" + lang + "/"
 		meta.Canonical = baseURL + "/" + lang + "/"
+		meta.MarkdownURL = baseURL + "/" + lang + "/llms.txt"
 	}
 
-	alt := &layout.Alternate{}
+	alt := &layout.Alternate{
+		Default: baseURL + "/",
+	}
 	for _, lang := range types.SupportedLanguages {
 		if lang == types.LangEnglish {
 			alt.Versions = append(alt.Versions, layout.KV{

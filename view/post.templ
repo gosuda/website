@@ -15,7 +15,7 @@ templ PostPage(m *layout.Metadata, doc *types.Document, cover string) {
 			<main>
 				@post.Article(doc, "https://gosuda.org"+doc.Metadata.Path, cover)
 			</main>
-			@layout.Footer()
+			@layout.Footer(m)
 		</body>
 	</html>
 }

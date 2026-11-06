@@ -1,8 +1,11 @@
 package layout
 
-import "gosuda.org/website/view/ui"
+import (
+	"gosuda.org/website/internal/types"
+	"gosuda.org/website/view/ui"
+)
 
-templ Footer() {
+templ Footer(m *Metadata) {
 	<footer class="mt-24 border-t">
 		<div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 py-10 text-sm text-muted-foreground sm:flex-row">
 			<div class="flex items-center gap-2">
@@ -15,10 +18,32 @@ templ Footer() {
 					GitHub
 				</a>
 				<a href="https://gosuda.org/editor" target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-foreground">Editor</a>
-				<a href="/feed.rss" class="transition-colors hover:text-foreground">RSS</a>
+				<a href={ templ.SafeURL(m.FeedURL()) } class="transition-colors hover:text-foreground">RSS</a>
+				<a href={ templ.SafeURL(m.LLMsTxtURL()) } class="transition-colors hover:text-foreground">LLMs.txt</a>
 				<div class="dropdown">
-					<button class="dropdown-button" dropdown-button></button>
-					<ul class="dropdown-content" dropdown-content></ul>
+					<button type="button" class="dropdown-button" dropdown-button aria-expanded="false" aria-label="Select language">
+						if m != nil && m.Language != "" {
+							{ types.FullLangName(m.Language) } ▲
+						} else {
+							English ▲
+						}
+					</button>
+					<ul class="dropdown-content" dropdown-content>
+						if m != nil && m.Alternate != nil {
+							for _, v := range m.Alternate.Versions {
+								<li>
+									<a
+										href={ templ.SafeURL(m.AlternatePath(v.Value)) }
+										hreflang={ v.Key }
+										lang={ v.Key }
+										class={ "dropdown-item", templ.KV("active", v.Key == m.Language) }
+									>
+										{ types.FullLangName(v.Key) }
+									</a>
+								</li>
+							}
+						}
+					</ul>
 				</div>
 			</div>
 		</div>
