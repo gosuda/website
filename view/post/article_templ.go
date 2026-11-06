@@ -34,7 +34,7 @@ func Article(doc *types.Document, canonical string, cover string) templ.Componen
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<article class=\"mx-auto w-full max-w-3xl min-w-0 px-4 pt-10\"><header class=\"mb-10\"><h1 class=\"break-words text-4xl font-bold leading-tight tracking-tight sm:text-5xl\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<article class=\"mx-auto w-full max-w-4xl min-w-0 px-4 pt-10 sm:px-6 lg:max-w-5xl lg:px-8\"><header class=\"mb-10\"><h1 class=\"break-words text-4xl font-bold leading-tight tracking-tight sm:text-5xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

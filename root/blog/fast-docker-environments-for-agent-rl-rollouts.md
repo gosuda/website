@@ -32,7 +32,7 @@ At rollout scale (128 to 1,024 concurrent episodes per cluster), existing contai
 
 In `gvx`, every rollout worker is an ordinary unprivileged OS process with its own gVisor `Sentry` kernel, its own user-space `netstack` (`10.0.2.15/24`), and its own `ext4lite` block volume (`ep-N.ext4`), while sharing a read-only content-addressable `erofs` OCI image cache across the host page cache.
 
-![Parallel Agent RL Rollout Architecture with gvx](/assets/images/gvx/gvx-rl-rollout-snapshot.svg)
+![Parallel Agent RL Rollout Architecture with gvx](/assets/images/gvx/gvx-rl-rollout-snapshot.png)
 
 ### Why Single-File `ext4lite` Volumes Change RL Reset Economics
 
