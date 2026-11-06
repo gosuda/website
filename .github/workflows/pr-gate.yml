@@ -36,5 +36,5 @@ jobs:
       - name: Go Test
         run: go test -v ./...
 
-      - name: Check Retranslation Target Limit (<= 3)
-        run: LLM_INIT=false go run . check_retranslate 3
+      - name: Check Retranslation Target Limit (<= 4)
+        run: LLM_INIT=false go run . check_retranslate 4

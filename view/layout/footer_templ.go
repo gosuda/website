@@ -34,7 +34,7 @@ func Footer(m *Metadata) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<footer class=\"mt-24 border-t\"><div class=\"mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 py-10 text-sm text-muted-foreground sm:flex-row\"><div class=\"flex items-center gap-2\"><img src=\"/assets/gosuda.webp\" alt=\"\" width=\"28\" height=\"28\" class=\"size-7\"> <span>© 2024 GoSuda. Built in the open.</span></div><div class=\"flex items-center gap-4\"><a href=\"https://github.com/gosuda\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"flex items-center gap-1.5 transition-colors hover:text-foreground\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<footer class=\"mt-24 border-t\"><div class=\"mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 py-10 text-sm text-muted-foreground sm:flex-row\"><div class=\"flex items-center gap-2\"><img src=\"/assets/gosuda.webp\" alt=\"\" width=\"28\" height=\"28\" class=\"size-7\"> <span>© 2024 GoSuda. Built in the open.</span></div><div class=\"flex flex-wrap items-center justify-center gap-4\"><a href=\"https://github.com/gosuda\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"flex items-center gap-1.5 transition-colors hover:text-foreground\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
