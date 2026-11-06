@@ -112,7 +112,7 @@ Both the Linux kernel and the gVisor Sentry allow **at most one** `SECCOMP_FILTE
 
 `gvx` addresses all five barriers inside its own user-space kernel and platform layer, enabling `rungv` to run inside an outer `gVisor` (`runsc`) container or even recursively inside another `gvx` container (`gvx` in `gvx`).
 
-![Nested gvx Execution Inside Outer gVisor](/assets/images/gvx/gvx-nested-seccomp-futex.svg)
+![Nested gvx Execution Inside Outer gVisor](/assets/images/gvx/gvx-nested-seccomp-futex.png)
 
 ### 1. Automatic `systrap` Fallback from `EBUSY` to the `_RUN_SYSCALL_LOOP` Futex Loop
 

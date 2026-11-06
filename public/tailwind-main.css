@@ -173,6 +173,14 @@ pre {
     background-color: transparent !important;
   }
 
+  .dark pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+  }
+}
+
+@layer utilities {
   .prose {
     --tw-prose-body: var(--foreground);
     --tw-prose-headings: var(--foreground);
@@ -192,7 +200,14 @@ pre {
     overflow-wrap: break-word;
   }
 
-  .prose :where(p, li, blockquote, h1, h2, h3, h4, dt, dd) {
+  .prose :where(h1, h2, h3, h4) {
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    min-inline-size: 0;
+  }
+
+  .prose :where(p, li, blockquote, dt, dd) {
+    text-wrap: pretty;
     overflow-wrap: break-word;
     min-inline-size: 0;
   }
@@ -237,9 +252,11 @@ pre {
     container-type: inline-size;
     overscroll-behavior-x: contain;
     scrollbar-gutter: stable;
-    margin-block: 2em;
+    margin-block: 2rem;
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
+    background-color: var(--card);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04);
     -webkit-overflow-scrolling: touch;
   }
 
@@ -253,6 +270,8 @@ pre {
     margin-block: 0;
     border-collapse: separate;
     border-spacing: 0;
+    font-size: 0.925rem;
+    line-height: 1.6;
   }
 
   .prose .table-wrapper thead {
@@ -260,21 +279,42 @@ pre {
     inset-block-start: 0;
     z-index: 1;
     background-color: var(--muted);
+    border-bottom-width: 0;
   }
 
-  .prose .table-wrapper th,
-  .prose .table-wrapper td {
-    padding: 0.625rem 0.875rem;
-    border-block-end: 1px solid var(--border);
+  .prose .table-wrapper :is(th, td) {
+    padding-block: 0.875rem;
+    padding-inline: 1.125rem;
+    vertical-align: top;
+  }
+
+  .prose .table-wrapper :is(th, td):first-child {
+    padding-inline-start: 1.5rem;
+  }
+
+  .prose .table-wrapper :is(th, td):last-child {
+    padding-inline-end: 1.5rem;
   }
 
   .prose .table-wrapper thead th {
+    font-weight: 600;
+    text-align: start;
+    vertical-align: middle;
     white-space: nowrap;
+    color: var(--foreground);
+    border-block-end: 1px solid var(--border);
   }
 
-  .prose .table-wrapper tbody tr:last-child td,
-  .prose .table-wrapper tbody tr:last-child th {
-    border-block-end: 0;
+  .prose .table-wrapper tbody tr {
+    border-bottom-width: 0;
+  }
+
+  .prose .table-wrapper tbody tr:not(:last-child) > :is(td, th) {
+    border-block-end: 1px solid var(--border);
+  }
+
+  .prose .table-wrapper tbody tr:hover > :is(td, th) {
+    background-color: color-mix(in oklab, var(--muted) 50%, transparent);
   }
 
   .prose > table {
@@ -283,12 +323,6 @@ pre {
     overflow-x: auto;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
-  }
-
-  .dark pre {
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
   }
 }
 

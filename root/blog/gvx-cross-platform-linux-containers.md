@@ -37,7 +37,7 @@ No Linux VM kernel boots on Windows or macOS. No background daemon runs on the h
 
 Every `gvx` sandbox runs inside one unprivileged host process and enforces a three-phase lifecycle: pre-opening all required host file descriptors and sockets, locking down the host OS process via `pkg/hostlockdown`, and entering the in-process `Sentry` execution loop.
 
-![gvx Container Lifecycle and Host Self-Lockdown](/assets/images/gvx/gvx-lifecycle-lockdown.svg)
+![gvx Container Lifecycle and Host Self-Lockdown](/assets/images/gvx/gvx-lifecycle-lockdown.png)
 
 Before transferring control to the first guest instruction, `gvx` pre-opens its cached `.erofs` image layer descriptors, `.ext4` volume file descriptors, `/workspace` `*os.Root` handle, and host network sockets, then invokes `hostlockdown.Apply()`:
 
@@ -53,7 +53,7 @@ Linux ELF64 binaries assume 4 KB (`0x1000`) memory page granularity for `mmap(MA
 
 `gvx` solves both problems across four execution backends that implement `pkg/sentry/platform.Context`:
 
-![gvx Platform Syscall Interception and 4KB Paging Mechanics](/assets/images/gvx/gvx-platform-syscalls.svg)
+![gvx Platform Syscall Interception and 4KB Paging Mechanics](/assets/images/gvx/gvx-platform-syscalls.png)
 
 ### 1. Windows Hardware Engine: `platform/whpx` (`WinHvPlatform.dll`)
 
@@ -84,11 +84,28 @@ On `linux/amd64` and `linux/arm64`, `systrap` runs guest threads (`sysmsg`) that
 
 ---
 
+## How `gvx` Maps Guest Linux System Calls to Virtual Subsystems and Host Handles
+
+Once a platform engine traps a guest `SYSCALL` (`amd64`) or `SVC #0` (`arm64`) instruction and writes the guest registers into the 4 KB shared page (`CommPage`, `sysmsg`, or `winSysmsg`), control returns to the Go `Sentry` task goroutine (`pkg/sentry/kernel/task_syscall.go`). Rather than forwarding Linux system calls to the underlying host OS kernel, `Task.doSyscall()` saves the original register state (`SyscallSaveOrig()`), evaluates any in-guest BPF `seccomp` filters and `ptrace` stops, and dispatches the system call number through `linux.AMD64` or `linux.ARM64` (`pkg/sentry/syscalls/linux/linux64.go`, covering ~370 Linux system calls) into four internal domains:
+
+![How gvx Maps Guest Linux Syscalls to Subsystems and Host OS](/assets/images/gvx/gvx-syscall-mapping.png)
+
+| Syscall Domain | Representative Guest Linux Syscalls | Internal `gvx` Subsystem (`pkg/sentry`) | Host OS Boundary Interaction (After `hostlockdown`) |
+| :--- | :--- | :--- | :--- |
+| **A. Process, Namespace, Mount & Sync** | `clone`, `execve`, `unshare`, `setns`, `mount`, `umount2`, `pivot_root`, `setuid`, `capset`, `futex`, `epoll_wait`, `pipe2` | `kernel.Task`, virtual credentials, futex table, and in-memory `VFS2` (`procfs`, `sysfs`, `cgroupfs` v2, `tmpfs`, `overlayfs`) | **Zero host syscalls** (100% in-memory Go state; completely invisible to the host OS) |
+| **B. Virtual Memory (`MM`)** | `mmap`, `munmap`, `mremap`, `mprotect`, `brk`, `madvise`, `memfd_create` | `mm.MemoryManager` (4 KB VMA tree) & `pgalloc.MemoryFile` | Bidirectional 4 KB page-table updates via `WHvMapGpaRange`, `hv_vm_map` + `TTBR0_EL1`, or stub `mmap`/`mprotect` |
+| **C. File & Storage (`VFS2`)** | `openat`, `pread64`, `pwrite64`, `getdents64`, `statx`, `renameat2`, `setxattr`, `mknod`, `inotify_add_watch` | `vfs.VirtualFilesystem` mount table router (`fsimpl/erofs`, `fsimpl/ext4lite`, `fsimpl/hostfs` v2) | Bidirectional `pread`/`pwrite` on 1 pinned `.erofs` FD or 1 `.ext4` FD, or scoped relative walks on `*os.Root` |
+| **D. Networking & Netfilter** | `socket`, `bind`, `listen`, `connect`, `sendmsg`, `recvmsg`, `netlink`, `setsockopt(IPT_SO_SET_REPLACE)` | User-space `pkg/tcpip` (`lo`, `eth0`, `docker0`, `veth`, `vxlan`, `wireguard`, `ipset`, `iptables-legacy`) | Intra-sandbox traffic uses **zero host syscalls**; external traffic maps to `net.Dial`/`net.Listen` (`-net=nat`) or 1 UDP socket (`-net=wg`) |
+
+When the handler returns `(rval, ctrl, err)`, `Task.doSyscallInvoke()` converts any error into a negative Linux `errno` (`-ExtractErrno(err, sysno)`), writes the return value back to the shared register page (`RAX` on `amd64`, `X0` on `arm64`), and resumes guest execution.
+
+---
+
 ## Storage (`VFS2`) and Dual-Track User-Space Networking (`netstack`)
 
 All guest file and network operations are serviced inside the Go `Sentry` through three `VFS2` filesystems and two `pkg/netbackend` tracks:
 
-![gvx VFS2 Storage Engines and Dual-Track Netstack](/assets/images/gvx/gvx-storage-netstack.svg)
+![gvx VFS2 Storage Engines and Dual-Track Netstack](/assets/images/gvx/gvx-storage-netstack.png)
 
 | Storage Engine         | Mount Role in `gvx`                              | Backing Host Resource                  | Host `openat` / `NtCreateFile` Calls at Run Time | Windows Defender (`WdFilter.sys`) Per-File Scans |
 | :--------------------- | :----------------------------------------------- | :------------------------------------- | -----------------------------------------------: | -----------------------------------------------: |

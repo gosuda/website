@@ -117,7 +117,7 @@ error initializing graphdriver: driver not supported: fuse-overlayfs
 
 `gvx` bypasses all five kernel barriers because it does not ask the host Linux kernel to create namespaces, mount filesystems, or configure network interfaces. Instead, `rungv` runs an internal user-space Linux kernel (the gVisor `Sentry`) and a user-space network stack (`netstack`) inside one ordinary unprivileged process.
 
-![Running Unprivileged Docker-in-Docker with gvx](/assets/images/gvx/gvx-unprivileged-dind.svg)
+![Running Unprivileged Docker-in-Docker with gvx](/assets/images/gvx/gvx-unprivileged-dind.png)
 
 ### 1. In-Memory Namespaces and Mount Table (`VFS2`)
 
