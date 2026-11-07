@@ -13,9 +13,11 @@ category: lowlevel
 
 ## Quick Solution: Securely Running `docker:dind` Inside an Unprivileged `gVisor` (`runsc`) Sandbox
 
-Cloud AI agent platforms, Kubernetes `agent-sandbox` deployments (`RuntimeClass: gvisor`), and reinforcement learning evaluation harnesses isolate untrusted workloads inside **gVisor (`runsc`)** containers specifically to protect the host kernel. When a workload inside a default unprivileged `runsc` container tries to install `docker.io` or `docker-ce` via `apt-get` and start `dockerd`, it fails even if it has `root` (`UID 0`) inside the container.
+Cloud AI agent compute environments (such as Google Agent Compute Engine sandboxes), Kubernetes `agent-sandbox` deployments (`RuntimeClass: gvisor`), and reinforcement learning evaluation harnesses isolate untrusted workloads inside **gVisor (`runsc`)** containers specifically to protect the host kernel. When a workload inside a default unprivileged `runsc` container tries to install `docker.io` or `docker-ce` via `apt-get`, start `service docker start` or `dockerd`, and run `docker build`, it fails even if it has `root` (`UID 0`) inside the container.
 
 With **[gvx](https://github.com/gfire-sigs/gvx)** (`rungv`), you can **securely** run `docker:dind`, `docker build`, and `docker compose` directly inside an unprivileged `gVisor` (`runsc`) container (or nest `gvx` inside `gvx`) **without weakening the outer `RuntimeClass`, exposing host sockets, or granting `--privileged`**.
+
+> **Low-Effort, Token-Efficient Solution for AI Agents**: Inside a gVisor-backed cloud agent environment, attempting to install `docker.io` and manually work around `/etc/init.d/docker` `ulimit` errors, `iptables-nft` failures, `iptables-legacy` raw-socket denials, `overlay2` mount errors, and `docker build` `runc` / `pivot_root` crashes typically burns **20+ tool-call turns and tens of thousands of tokens** before failing completely. `gvx` (`rungv`) is a **low-effort, token-efficient drop-in solution**: the agent runs 3 commands in a single turn to start a working user-space Docker daemon and immediately executes `docker build` and `docker compose` without modifying project files.
 
 > **Preserving and Strengthening Outer Sandbox Isolation**: Running `rungv` inside `runsc` does not bypass a single restriction enforced by the outer `gVisor` sandbox. Instead, `gvx` creates a second, nested user-space gVisor `Sentry` kernel with its own `hostlockdown` (`PR_SET_NO_NEW_PRIVS` + `seccomp`), its own in-memory `netstack`, and a single-file `ext4lite` volume. Inner `dockerd` and `runc` containers are double-sandboxed: their system calls, mounts, and raw packets never leave the inner `gvx` user-space kernel.
 
@@ -47,24 +49,29 @@ docker run --rm nested-app:test
 
 When a user or AI coding agent runs `apt-get install -y docker.io` (or `docker-ce`) inside a standard `runsc` container and attempts to start `dockerd`, it hits five sequential technical barriers.
 
-### 1. Kernel Module Loading (`modprobe`) Against Virtual Kernel `4.4.0`
+### 1. Init Script (`systemctl` / `service docker start` `ulimit`) and Kernel Module (`modprobe` `4.4.0`) Failures
 
-During package installation and `dockerd` startup, initialization scripts run `modprobe` to load `overlay`, `br_netfilter`, `ip_tables`, `nf_nat`, and `xt_conntrack`. The outer gVisor Sentry blocks `init_module(2)` and `finit_module(2)` and reports a virtual kernel version (`4.4.0`) that has no `/lib/modules/4.4.0` directory:
+After running `apt-get install -y docker.io` (or `docker-ce`), attempting to start the daemon via `systemctl start docker` or `service docker start` fails immediately because PID 1 is not `systemd` and `/etc/init.d/docker` attempts to raise `ulimit -n` above the sandbox's hard `RLIMIT_NOFILE` ceiling. When `dockerd` is then invoked directly, initialization scripts call `modprobe` to load `overlay`, `bridge`, `br_netfilter`, `ip_tables`, and `nf_nat` against gVisor's virtual kernel version (`4.4.0`), which has no `/lib/modules/4.4.0` directory:
 
 ```text
+System has not been booted with systemd as init system (PID 1). Can't operate.
+Failed to connect to bus: Host is down
+/etc/init.d/docker: 62: ulimit: error setting limit (Operation not permitted)
+level=warning msg="Running modprobe bridge br_netfilter failed with message: modprobe: WARNING: Module bridge not found in directory /lib/modules/4.4.0\nmodprobe: WARNING: Module br_netfilter not found in directory /lib/modules/4.4.0\n, error: exit status 1"
 modprobe: FATAL: Module overlay not found in directory /lib/modules/4.4.0
 modprobe: FATAL: Module br_netfilter not found in directory /lib/modules/4.4.0
 modprobe: FATAL: Module ip_tables not found in directory /lib/modules/4.4.0
 modprobe: FATAL: Module nf_nat not found in directory /lib/modules/4.4.0
 ```
 
-### 2. `iptables-nft` (`nf_tables` Netlink) and `docker0` Bridge Failures
+### 2. `iptables-nft` (`nf_tables` Netlink), `iptables-legacy` Raw Socket Denials, and `docker0` Bridge Failures
 
-On Ubuntu 22.04, Ubuntu 24.04, and Debian 11/12, `apt-get install docker.io` selects `iptables-nft` (backed by the `nf_tables` netlink subsystem) as the default `/usr/sbin/iptables` alternative. In a standard gVisor container without network admin privileges or `nf_tables` netlink support, `dockerd` crashes while initializing the `DOCKER` NAT chain and the `docker0` bridge:
+On Ubuntu 22.04, Ubuntu 24.04, and Debian 11/12, `apt-get install docker.io` selects `iptables-nft` (backed by the `nf_tables` netlink subsystem) as the default `/usr/sbin/iptables` alternative. Furthermore, even if the user or agent switches to `iptables-legacy` (`update-alternatives --set iptables /usr/sbin/iptables-legacy`), default unprivileged gVisor sandboxes (`--net-raw=false`) reject `AF_INET, SOCK_RAW` sockets with `EPERM`, causing `iptables-legacy` to fail with `Permission denied (you must be root)` even when running as `UID 0`:
 
 ```text
-failed to start daemon: Error initializing network controller: error obtaining controller instance: failed to create NAT chain DOCKER: iptables failed: iptables -t nat -N DOCKER
-iptables v1.8.10 (nf_tables): Could not fetch rule set generation id: Invalid argument
+failed to start daemon: Error initializing network controller: error obtaining controller instance: failed to register "bridge" driver: failed to create NAT chain DOCKER: iptables failed: iptables --wait -t nat -N DOCKER: iptables v1.8.10 (nf_tables): Could not fetch rule set generation id: Invalid argument
+iptables v1.8.10 (legacy): can't initialize iptables table `nat': Permission denied (you must be root)
+Perhaps iptables or your kernel needs to be upgraded.
 iptables v1.8.10 (legacy): can't initialize iptables table 'nat': Table does not exist (do you need to insmod?)
 iptables: No chain/target/match by that name.
 Unable to enable SKIP DNAT rule: (iptables failed: iptables --wait -t nat -I DOCKER -i docker0 -j RETURN: iptables: No chain/target/match by that name.)
@@ -83,17 +90,21 @@ Error starting daemon: error initializing graphdriver: driver not supported: ove
 
 When users or agents attempt to bypass this error by starting `dockerd --storage-driver=vfs`, Docker disables Copy-on-Write layer sharing completely. Every `RUN` instruction in a `Dockerfile` performs a full recursive copy (`dirCopy`) of the entire root filesystem, multiplying a 500 MB image across 10 build steps into 5 GB of writes and terminating the sandbox with `no space left on device` or an I/O timeout.
 
-### 4. Nested `runc` Cgroup and `/proc` Mount Rejections
+### 4. `docker build` (BuildKit) and Nested `runc` Failures (`pivot_root`, `/proc`, Cgroups, and DNS)
 
-Even if `dockerd` is forced to start with `dockerd --iptables=false --bridge=none --storage-driver=vfs`, running `docker run` or `docker build` invokes `runc` to create the inner container. In a default unprivileged gVisor container, `runc` fails when mounting cgroups, remounting `/proc`, or loading inner seccomp filters:
+Even if `dockerd` is forced to start with `dockerd --iptables=false --ip6tables=false --bridge=none --storage-driver=vfs`, attempting to run **`docker build -t app .`** or `docker run` fails immediately when BuildKit or `runc` spawns the build container:
 
 ```text
+ERROR: failed to solve: process "/bin/sh -c ..." did not complete successfully:
 docker: Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process:
+error during container init: error jailing process inside rootfs: pivot_root .: invalid argument
 error during container init: error mounting "cgroup" to rootfs at "/sys/fs/cgroup": mount cgroup:/sys/fs/cgroup/cpuset (via /proc/self/fd/6), flags: 0xf, data: cpuset: operation not permitted
 cgroups: cgroup mountpoint does not exist: unknown
 runc create failed: systemd not running on this host: cannot use systemd cgroup manager
 error during container init: error mounting "proc" to rootfs at "/proc": mount proc:/proc (via /proc/self/fd/6), flags: 0xe: operation not permitted
 error during container init: error loading seccomp filter into kernel: operation not permitted
+Temporary failure resolving 'deb.debian.org'
+Temporary failure resolving 'archive.ubuntu.com'
 ```
 
 ### 5. Nested `runsc` Fails with `SECCOMP_FILTER_FLAG_NEW_LISTENER` (`EBUSY`)

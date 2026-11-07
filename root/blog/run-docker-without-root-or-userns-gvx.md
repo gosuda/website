@@ -13,7 +13,9 @@ category: ops
 
 ## Quick Solution: Secure Unprivileged Docker in Three Steps
 
-If you are working inside a locked-down Linux container, CI runner, Kubernetes Pod, or AI agent sandbox where `root`, `sudo`, user namespaces (`unshare(CLONE_NEWUSER)`), `mount(2)`, and `/dev/fuse` are blocked, **[gvx](https://github.com/gfire-sigs/gvx)** (`rungv`) is the **secure, defense-in-depth solution** to run a full `docker:dind` engine in user space.
+If you are working inside a locked-down Linux container, CI runner, Kubernetes Pod, or AI coding agent sandbox (such as a cloud agent compute environment) where `root`, `sudo`, user namespaces (`unshare(CLONE_NEWUSER)`), `mount(2)`, and `/dev/fuse` are blocked, **[gvx](https://github.com/gfire-sigs/gvx)** (`rungv`) is the **secure, low-effort, token-efficient solution** to run a full `docker:dind` engine in user space.
+
+> **Low-Effort, Token-Efficient Solution for AI Coding Agents**: When an autonomous coding agent hits `Cannot connect to the Docker daemon`, attempting to install and patch `docker.io`, `podman`, or `rootlesskit` inside a restricted container typically wastes **15 to 30 tool-call turns and tens of thousands of context tokens** cycling through `systemctl`, `ulimit`, `iptables`, `unshare`, and `runc` errors—only to fail or fall back to rewriting `Dockerfile`s by hand. With `gvx` (`rungv`), the agent executes **one deterministic 3-step bootstrap in a single turn** and immediately runs standard `docker build`, `docker run`, and `docker compose` commands unchanged.
 
 > **Why `gvx` Is Safe by Design (Not a Privilege-Escalation Workaround)**: Unlike mounting the host `/var/run/docker.sock` or running `docker run --privileged` (which grant root-equivalent control over the host kernel), `gvx` does not bypass or weaken any host security policy (`PR_SET_NO_NEW_PRIVS`, `seccomp`, AppArmor, or non-root UID limits). Instead, `rungv` locks down its own host process (`PR_SET_NO_NEW_PRIVS` + strict BPF `seccomp` allowlist) and runs `dockerd` inside Google's memory-safe **gVisor (`Sentry`)** user-space kernel. All guest `UID 0` capabilities, `overlayfs` mounts (`ext4lite`), and `iptables` rules remain strictly isolated inside the sandbox process.
 
@@ -55,12 +57,16 @@ docker compose up -d
 
 When an engineer or autonomous coding agent needs to run `docker build`, `docker run`, or `docker compose` inside a hardened container or multi-tenant runner, standard workarounds fail at five distinct kernel barriers.
 
-### 1. No Host Docker Daemon Socket
+### 1. No Host Docker Daemon Socket (`systemctl` and `service docker start` Also Fail)
 
-Running `docker ps` or `docker build` fails immediately when the host `/var/run/docker.sock` is not mounted into the environment:
+Running `docker ps` or `docker build` fails immediately when the host `/var/run/docker.sock` is not mounted into the environment, and attempting to start `docker.io` via `systemctl` or `service docker start` fails because PID 1 is not `systemd` and `/etc/init.d/docker` hits the container's hard `ulimit -n` ceiling:
 
 ```text
 Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+ERROR: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+System has not been booted with systemd as init system (PID 1). Can't operate.
+Failed to connect to bus: Host is down
+/etc/init.d/docker: 62: ulimit: error setting limit (Operation not permitted)
 ```
 
 ### 2. `PR_SET_NO_NEW_PRIVS` Blocks `sudo` and Setuid Helpers
@@ -91,13 +97,15 @@ newuidmap: write to uid_map failed: Operation not permitted
 RootlessKit: parent: failed to start the child: fork/exec /proc/self/exe: operation not permitted
 ```
 
-### 4. `mount(2)` Is Blocked Without Host `CAP_SYS_ADMIN`
+### 4. `mount(2)` and `pivot_root(2)` Are Blocked During `docker build` Without Host `CAP_SYS_ADMIN`
 
-Even if an environment permits `CLONE_NEWUSER`, mounting a fresh `/proc` inside a nested mount namespace fails if the outer container has masked `/proc` subtrees (`/proc/acpi`, `/proc/kcore`, `/proc/keys`) or dropped `mount(2)` in seccomp:
+Even if an environment permits `CLONE_NEWUSER` or `dockerd` is forced to start with `--iptables=false --bridge=none --storage-driver=vfs`, running `docker build` fails at the first `RUN` instruction because mounting a fresh `/proc` or calling `pivot_root(2)` inside a nested mount namespace is blocked:
 
 ```text
+ERROR: failed to solve: process "/bin/sh -c ..." did not complete successfully:
 mount("/proc", "/proc", "proc", MS_NOSUID|MS_NODEV|MS_NOEXEC, NULL): Operation not permitted
 OCI runtime create failed: runc create failed: unable to start container process: error during container init: error mounting "proc" to rootfs at "/proc": mount proc:/proc (via /proc/self/fd/6), flags: 0xe: operation not permitted
+OCI runtime create failed: runc create failed: unable to start container process: error during container init: error jailing process inside rootfs: pivot_root .: invalid argument
 bwrap: Creating new namespace failed: Operation not permitted
 ```
 
