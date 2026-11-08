@@ -1,9 +1,10 @@
 ---
+id: 6e0bce9e22a4bf7d9672c59e67bcf5ec
 author: Lemon Mint
 title: 'gosuda.org/chromenet: Chromium''s Network Stack for Go, Built Reproducibly from a Pinned Release'
 description: CGO_ENABLED=0 Go http.RoundTripper that sends requests through Chromium's own //net stack (HTTP/1.1, HTTP/2, QUIC/HTTP/3, BoringSSL) in an isolated HQQ worker, with source, toolchains, and six embedded binaries pinned by SHA-256 and built in gvx sandboxes.
 language: en
-date: 2026-11-09T00:00:00.000000000Z
+date: 2026-11-09T00:00:00Z
 path: /chromenet
 go_package: gosuda.org/chromenet
 go_repourl: https://github.com/gosuda/chromenet.git
