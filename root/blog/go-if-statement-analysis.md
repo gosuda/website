@@ -205,9 +205,10 @@ func main() {
 
         // 10를 기준으로 삼아 x < 10 구조를 유지하면 컴파일러는
         // main.go와 정확히 동일한 JGE 매커니즘 및 블록 배치를 채택합니다.
-        if x < 10 {
+        switch {
+        case x < 10:
                 println(s1)
-        } else {
+        default:
                 println(s2)
         }
 }
@@ -217,8 +218,8 @@ EOF
 echo "[4/6] Compiling both sources inside 'test_dir'..."
 cp main.go test_dir/main.go
 cd test_dir && go build -o ../main_orig main.go && cd ..
-
 rm test_dir/main.go
+
 cp main_from_asm.go test_dir/main.go
 cd test_dir && go build -o ../main_asm main.go && cd ..
 
@@ -235,7 +236,6 @@ awk '{print $4, $5, $6, $7}' asm.asm > asm_pure.asm
 # 6. 두 기계어 명령어 구조 diff 검증
 echo "[6/6] Verifying assembly structural integrity via diff..."
 echo "------------------------------------------------------------"
-
 if diff orig_pure.asm asm_pure.asm > /dev/null; then
     echo "===> [성공] 두 바이너리의 main.main 기계어 로직이 100% 일치합니다! <==="
     echo "컴파일러의 최적화 파이프라인 가이드라인을 완벽하게 동기화하여 동일한 어셈블리를 얻었습니다."
