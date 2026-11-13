@@ -4,7 +4,7 @@ go 1.27.3
 
 require (
 	cloud.google.com/go/vertexai v0.19.0
-	github.com/a-h/templ v0.3.1070
+	github.com/a-h/templ v0.3.1100
 	github.com/alecthomas/chroma/v2 v2.27.0
 	github.com/fogleman/gg v1.3.0
 	github.com/google/uuid v1.6.0
@@ -37,7 +37,7 @@ require (
 	cloud.google.com/go/longrunning v1.4.0 // indirect
 	cloud.google.com/go/texttospeech v1.24.0 // indirect
 	github.com/a-h/parse v0.0.0-20250122154542-74294addb73e // indirect
-	github.com/andybalholm/brotli v1.2.6 // indirect
+	github.com/andybalholm/brotli v1.2.7 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cli/browser v1.3.0 // indirect
