@@ -6,7 +6,7 @@
     "@types/bun": "^1.4.4",
     "caniuse-lite": "^1.0.30001819",
     "markdownlint-cli2": "^0.24.0",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2"
   },
