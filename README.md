@@ -58,3 +58,7 @@ export LLM_INIT="false"
    git commit -m "Add new blog post: my-new-post"
    git push origin my-branch
    ```
+
+---
+
+[![Built with Depot](https://depot.dev/badges/built-with-depot.svg)](https://depot.dev?utm_source=gosuda)
