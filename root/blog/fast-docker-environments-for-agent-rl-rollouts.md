@@ -22,11 +22,11 @@ At rollout scale (128 to 1,024 concurrent episodes per cluster), existing contai
 3. **Hardware Virtualization (`/dev/kvm`) Constraints**: MicroVM runtimes (`Firecracker`, `QEMU`, `Kata Containers`) isolate inner kernels cleanly, but they require `/dev/kvm`. Standard Kubernetes pods without nested virtualization, bare-metal cloud instances where KVM is disabled, and existing `gVisor` (`runsc`) sandboxes cannot launch KVM microVMs.
 4. **Slow Episode Reset (`env.reset()`) Latency**: Starting a fresh `docker:dind` environment and pulling or unpacking base images for every RL episode takes 10 to 60 seconds, leaving GPU training workers idle while waiting for environment resets.
 
-**[gvx](https://github.com/gfire-sigs/gvx)** (`rungv` CLI and `z.gfire.dev/gvx/pkg/gvx` Go SDK) provides a **secure, low-effort, token-efficient rollout runtime** that resolves all four bottlenecks. Each rollout environment runs as **a single unprivileged, self-locked user-space process** (isolated by Google's gVisor `Sentry` kernel, `pkg/hostlockdown`, and an in-memory `netstack`) whose entire `/var/lib/docker` state resides inside **a single copy-on-write `.ext4` file (`ext4lite`)**.
+**[gvx](https://github.com/gfire-sigs/gvx)** (`rungvx` CLI and `z.gfire.dev/gvx/pkg/gvx` Go SDK) provides a **secure, low-effort, token-efficient rollout runtime** that resolves all four bottlenecks. Each rollout environment runs as **a single unprivileged, self-locked user-space process** (isolated by Google's gVisor `Sentry` kernel, `pkg/hostlockdown`, and an in-memory `netstack`) whose entire `/var/lib/docker` state resides inside **a single copy-on-write `.ext4` file (`ext4lite`)**.
 
-> **Low-Effort, Token-Efficient Execution for Agents**: When `docker build` or `docker compose` works out-of-the-box inside every episode (or can be bootstrapped by the agent in a single 3-command turn via `rungv`), RL rollouts do not waste context window tokens or step budgets troubleshooting `service docker start` `ulimit` failures, `iptables-nft` errors, or `runc` `pivot_root` rejections. Every token in the trajectory goes toward solving the actual software engineering task.
-
-> **Zero-Privilege Security for Untrusted Agent Rollouts**: Every `gvx` episode locks down its own host OS process before running guest code (`PR_SET_NO_NEW_PRIVS` + BPF `seccomp` on Linux, Seatbelt `deny default` on macOS, Restricted Token + Job Object on Windows). Even if an RL agent executes `docker run --privileged` or destructive `rm -rf /` commands inside its episode, those operations remain strictly confined to that episode's user-space `Sentry` kernel and ephemeral `.ext4` volume file.
+> **Low-Effort, Token-Efficient Execution for Agents**: When `docker build` or `docker compose` works out-of-the-box inside every episode (or can be bootstrapped by the agent in a single 3-command turn via `rungvx`), RL rollouts do not waste context window tokens or step budgets troubleshooting `service docker start` `ulimit` failures, `iptables-nft` errors, or `runc` `pivot_root` rejections. Every token in the trajectory goes toward solving the actual software engineering task.
+>
+> **Zero-Privilege Security for Untrusted Agent Rollouts**: Every `gvx` episode locks down its own host OS process before running guest code (Landlock + `PR_SET_NO_NEW_PRIVS` + BPF `seccomp` on Linux, Seatbelt `deny default` on macOS, Untrusted/Restricted Token + Job Object on Windows). Even if an RL agent executes `docker run --privileged` or destructive `rm -rf /` commands inside its episode, those operations remain strictly confined to that episode's user-space `Sentry` kernel and ephemeral `.ext4` volume file.
 
 ---
 
@@ -43,15 +43,15 @@ Because `gvx`'s `ext4lite` filesystem stores an entire JBD2-journaled `ext4` vol
 1. **100-Millisecond `env.reset()` via `cp --reflink=always`**:
    - You build a `golden-docker.ext4` file once containing pre-pulled base images (`python:3.11`, `postgres:16`, `redis:7`, or task-specific `SWE-bench` base images).
    - At the start of each RL episode, `cp --reflink=always golden-docker.ext4 ep-0042.ext4` (on XFS, Btrfs, ZFS, or macOS APFS) creates an independent Copy-on-Write clone in under 100 milliseconds without copying underlying disk blocks.
-   - Only the 4 KiB blocks dirtied during that specific episode consume additional disk space.
+   - Only the 4 KiB blocks dirtied during that specific episode consume additional disk space, and `size=` caps per-episode volume growth so a runaway build cannot fill the worker disk.
 2. **Zero-Residue Teardown (`env.close()`)**:
-   - Terminating the `rungv` process (`sb.Close()` in Go) and unlinking `ep-0042.ext4` reclaims 100% of the episode's processes, network sockets, mounts, and storage in ~10 milliseconds. Nothing is ever mounted in the host kernel's mount table or registered in host cgroups.
+   - Terminating the `rungvx` process (`sb.Close()` in Go) and unlinking `ep-0042.ext4` reclaims 100% of the episode's processes, network sockets, mounts, and storage in ~10 milliseconds. Nothing is ever mounted in the host kernel's mount table or registered in host cgroups.
 
 ---
 
 ## Step-by-Step Workflow: Golden `.ext4` Snapshot and Fast Episode Reset
 
-You can install `rungv` on each rollout worker node either by downloading the SLSA-attested prebuilt binary from [GitHub Releases](https://github.com/gfire-sigs/gvx/releases) (`gh attestation verify rungv-v0.2.0-linux-amd64.tar.gz --repo gfire-sigs/gvx --signer-workflow gfire-sigs/gvx/.github/workflows/release.yml --deny-self-hosted-runners`) or by running `CGO_ENABLED=0 go install z.gfire.dev/gvx/cmd/rungv@latest`.
+You can install `rungvx` on each rollout worker node either by downloading the SLSA-attested prebuilt binary from [GitHub Releases](https://github.com/gfire-sigs/gvx/releases) (`VERSION=$(curl -fsSL https://api.github.com/repos/gfire-sigs/gvx/releases/latest | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p')` and verifying `rungvx-${VERSION}-linux-amd64.tar.gz` with `--bundle "rungvx-${VERSION}.sigstore.json"`) or by running `CGO_ENABLED=0 go install z.gfire.dev/gvx/cmd/rungvx@latest` (Go `1.27.4+`).
 
 ### Step 1: Create the Golden `docker:dind` Volume Once
 
@@ -59,7 +59,7 @@ You can install `rungv` on each rollout worker node either by downloading the SL
 mkdir -p /srv/rl-snapshots /srv/rl-episodes
 
 # 1. Start a seed docker:dind instance backed by golden-docker.ext4
-rungv run \
+rungvx run \
   -p unix:/srv/rl-snapshots/seed.sock:2375 \
   --mount type=volume,src=/srv/rl-snapshots/golden-docker.ext4,dst=/var/lib/docker \
   -e DOCKER_TLS_CERTDIR= \
@@ -92,11 +92,12 @@ cp --reflink=always \
   /srv/rl-snapshots/golden-docker.ext4 \
   "/srv/rl-episodes/${EPISODE_ID}.ext4"
 
-# Launch isolated unprivileged episode with 4 GiB RAM and 2 CPUs
-rungv run \
-  -m 4g --cpus 2 \
+# Launch isolated unprivileged episode with 4 GiB RAM, 2 CPUs, PID/disk caps, and LAN isolation
+rungvx run \
+  -m 4g --cpus 2 --pids-limit 512 \
+  -isolate-lan \
   -p "unix:${SOCK}:2375" \
-  --mount "type=volume,src=/srv/rl-episodes/${EPISODE_ID}.ext4,dst=/var/lib/docker" \
+  --mount "type=volume,src=/srv/rl-episodes/${EPISODE_ID}.ext4,dst=/var/lib/docker,size=10g" \
   -e DOCKER_TLS_CERTDIR= \
   docker:dind --tls=false &
 EP_PID=$!
@@ -111,6 +112,14 @@ docker images
 kill -KILL $EP_PID
 rm -f "/srv/rl-episodes/${EPISODE_ID}.ext4" "${SOCK}"
 ```
+
+### Beyond Disk Clones: Warm Checkpoints, CoW Volume Overlays, and Egress Control
+
+Recent `gvx` releases add three primitives tailored for high-density evaluation fleets:
+
+- **Warm Process Snapshots (`rungvx checkpoint` / `rungvx restore`)**: Pre-open `-checkpoint-dir` and a control socket (`-S`) to snapshot a live sandbox's memory, process tree, mounts, and network state into a bundle and resume it in a new locked-down process—avoiding cold startup for pre-warmed evaluation environments.
+- **Copy-on-Write Volume Overlays (`--mount type=overlay`) & Ephemeral Volumes**: For shared read-only benchmark repos, datasets, or package caches (even on filesystems without reflink support), hundreds of workers can share one `LOCK_SH` read-only base `.ext4` volume under an ephemeral `tmpfs` or persistent upper branch (`--mount type=overlay,src=/srv/rl-snapshots/repo-base.ext4,dst=/repo`). Keep `/var/lib/docker` itself on a direct reflinked `ext4lite` volume so Docker's inner `overlayfs` driver has a non-overlay upper filesystem. Use `--mount type=volume,ephemeral,size=4g,dst=/scratch` for auto-cleaned bounded scratch disks.
+- **Live Control (`gvx-ctrl/2`) & Host NAT Firewalls**: Attach `-S` to run `rungvx exec`, `cp`, `stats`, and live `update`, and enforce per-episode allowlists outside the guest with `--nat-policy-file` (plus `-isolate-lan` and `--net-tx-bps`/`--net-rx-bps` bandwidth caps).
 
 ---
 
@@ -152,6 +161,7 @@ func runEpisode(ctx context.Context, goldenExt4, scratchDir string, epID int) er
 	sb, err := gvx.New(epCtx, gvx.Config{
 		Platform:               gvx.PlatformAuto,
 		NetworkMode:            gvx.NetModeNAT,
+		IsolateLAN:             true,
 		NetRaw:                 true,
 		AllowPacketSocketWrite: true,
 		AllowSUID:              true,
@@ -169,11 +179,13 @@ func runEpisode(ctx context.Context, goldenExt4, scratchDir string, epID int) er
 				Kind:      gvx.MountVolume,
 				ImagePath: epExt4,
 				GuestPath: "/var/lib/docker",
+				SizeBytes: 10 << 30, // 10 GiB growth cap
 			},
 		},
 		Resources: gvx.Resources{
 			MemoryBytes: 4 << 30, // 4 GiB cap
 			CPUMillis:   2000,    // 2.0 CPUs
+			PidsLimit:   512,     // 512 guest tasks
 		},
 		Stdout: &stdout,
 		Stderr: &stderr,
@@ -204,14 +216,14 @@ func main() {
 
 ## Comparison of Agent RL Sandbox Runtimes
 
-| Metric / Requirement                                      | Shared Host `dockerd`             | Privileged `docker:dind` | Firecracker / KVM MicroVM      | Standard `gVisor` (`runsc`)       | `gvx` (`rungv` / `pkg/gvx`)                 |
-| :-------------------------------------------------------- | :-------------------------------- | :----------------------- | :----------------------------- | :-------------------------------- | :------------------------------------------ |
-| **Host `root` or `--privileged` required**                | Yes (`docker.sock` = root)        | Yes (`--privileged`)     | Needs `/dev/kvm` + `TAP` setup | Yes (or `userns` + `mount`)       | **No (single unprivileged process)**        |
-| **Works inside unprivileged K8s Pods / existing `runsc`** | No                                | No                       | No (no `/dev/kvm`)             | Fails (`EBUSY` on nested seccomp) | **Yes (automatic futex loop fallback)**     |
-| **Supports inner `docker build` & `docker compose`**      | Shares host daemon                | Yes                      | Yes                            | Fails without host DinD tuning    | **Yes (`overlayfs` on `ext4lite`)**         |
-| **Per-episode network isolation**                         | Shared `docker0` / `xtables` lock | Separate namespace       | Separate VM NIC                | Separate netns                    | **Isolated in-process `netstack`**          |
-| **Warm episode reset latency (`env.reset()`)**            | 5s to 30s (container/vol prune)   | 10s to 60s (cold daemon) | ~150 ms (VM snapshot)          | 5s to 20s                         | **~100 ms (`cp --reflink=always` `.ext4`)** |
-| **Cross-platform local dev (Windows / macOS / Linux)**    | Requires Linux VM                 | Requires Linux VM        | Linux KVM only                 | Linux only                        | **Native on Windows, macOS, and Linux**     |
+| Metric / Requirement                                      | Shared Host `dockerd`             | Privileged `docker:dind` | Firecracker / KVM MicroVM      | Standard `gVisor` (`runsc`)       | `gvx` (`rungvx` / `pkg/gvx`)                               |
+| :-------------------------------------------------------- | :-------------------------------- | :----------------------- | :----------------------------- | :-------------------------------- | :--------------------------------------------------------- |
+| **Host `root` or `--privileged` required**                | Yes (`docker.sock` = root)        | Yes (`--privileged`)     | Needs `/dev/kvm` + `TAP` setup | Yes (or `userns` + `mount`)       | **No (single unprivileged process)**                       |
+| **Works inside unprivileged K8s Pods / existing `runsc`** | No                                | No                       | No (no `/dev/kvm`)             | Fails (`EBUSY` on nested seccomp) | **Yes (automatic futex loop fallback)**                    |
+| **Supports inner `docker build` & `docker compose`**      | Shares host daemon                | Yes                      | Yes                            | Fails without host DinD tuning    | **Yes (`overlayfs` on `ext4lite`)**                        |
+| **Per-episode network isolation**                         | Shared `docker0` / `xtables` lock | Separate namespace       | Separate VM NIC                | Separate netns                    | **Isolated `netstack` + host NAT policy**                  |
+| **Warm episode reset latency (`env.reset()`)**            | 5s to 30s (container/vol prune)   | 10s to 60s (cold daemon) | ~150 ms (VM snapshot)          | 5s to 20s                         | **~100 ms (`cp --reflink=always` `.ext4`) / `checkpoint`** |
+| **Cross-platform local dev (Windows / macOS / Linux)**    | Requires Linux VM                 | Requires Linux VM        | Linux KVM only                 | Linux only                        | **Native on Windows, macOS, Linux, and Android**           |
 
 ---
 

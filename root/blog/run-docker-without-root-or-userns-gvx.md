@@ -13,29 +13,39 @@ category: ops
 
 ## Quick Solution: Secure Unprivileged Docker in Three Steps
 
-If you are working inside a locked-down Linux container, CI runner, Kubernetes Pod, or AI coding agent sandbox (such as a cloud agent compute environment) where `root`, `sudo`, user namespaces (`unshare(CLONE_NEWUSER)`), `mount(2)`, and `/dev/fuse` are blocked, **[gvx](https://github.com/gfire-sigs/gvx)** (`rungv`) is the **secure, low-effort, token-efficient solution** to run a full `docker:dind` engine in user space.
+If you are working inside a locked-down Linux container, CI runner, Kubernetes Pod, or AI coding agent sandbox (such as a cloud agent compute environment) where `root`, `sudo`, user namespaces (`unshare(CLONE_NEWUSER)`), `mount(2)`, and `/dev/fuse` are blocked, **[gvx](https://github.com/gfire-sigs/gvx)** (`rungvx`) is the **secure, low-effort, token-efficient solution** to run a full `docker:dind` engine in user space.
 
-> **Low-Effort, Token-Efficient Solution for AI Coding Agents**: When an autonomous coding agent hits `Cannot connect to the Docker daemon`, attempting to install and patch `docker.io`, `podman`, or `rootlesskit` inside a restricted container typically wastes **15 to 30 tool-call turns and tens of thousands of context tokens** cycling through `systemctl`, `ulimit`, `iptables`, `unshare`, and `runc` errors—only to fail or fall back to rewriting `Dockerfile`s by hand. With `gvx` (`rungv`), the agent executes **one deterministic 3-step bootstrap in a single turn** and immediately runs standard `docker build`, `docker run`, and `docker compose` commands unchanged.
-
-> **Why `gvx` Is Safe by Design (Not a Privilege-Escalation Workaround)**: Unlike mounting the host `/var/run/docker.sock` or running `docker run --privileged` (which grant root-equivalent control over the host kernel), `gvx` does not bypass or weaken any host security policy (`PR_SET_NO_NEW_PRIVS`, `seccomp`, AppArmor, or non-root UID limits). Instead, `rungv` locks down its own host process (`PR_SET_NO_NEW_PRIVS` + strict BPF `seccomp` allowlist) and runs `dockerd` inside Google's memory-safe **gVisor (`Sentry`)** user-space kernel. All guest `UID 0` capabilities, `overlayfs` mounts (`ext4lite`), and `iptables` rules remain strictly isolated inside the sandbox process.
+> **Low-Effort, Token-Efficient Solution for AI Coding Agents**: When an autonomous coding agent hits `Cannot connect to the Docker daemon`, attempting to install and patch `docker.io`, `podman`, or `rootlesskit` inside a restricted container typically wastes **15 to 30 tool-call turns and tens of thousands of context tokens** cycling through `systemctl`, `ulimit`, `iptables`, `unshare`, and `runc` errors—only to fail or fall back to rewriting `Dockerfile`s by hand. With `gvx` (`rungvx`), the agent executes **one deterministic 3-step bootstrap in a single turn** and immediately runs standard `docker build`, `docker run`, and `docker compose` commands unchanged.
+>
+> **Why `gvx` Is Safe by Design (Not a Privilege-Escalation Workaround)**: Unlike mounting the host `/var/run/docker.sock` or running `docker run --privileged` (which grant root-equivalent control over the host kernel), `gvx` does not bypass or weaken any host security policy (`PR_SET_NO_NEW_PRIVS`, `seccomp`, AppArmor, or non-root UID limits). Instead, `rungvx` locks down its own host process (Landlock + `PR_SET_NO_NEW_PRIVS` + strict BPF `seccomp` allowlist) and runs `dockerd` inside Google's memory-safe **gVisor (`Sentry`)** user-space kernel. All guest `UID 0` capabilities, `overlayfs` mounts (`ext4lite`), and `iptables` rules remain strictly isolated inside the sandbox process.
 
 ```sh
-# 1. Install rungv in user space (prebuilt SLSA-attested release or go install)
-# Option A: Verify and extract the SLSA-attested prebuilt binary from GitHub Releases
-gh attestation verify rungv-v0.2.0-linux-amd64.tar.gz --repo gfire-sigs/gvx \
-  --signer-workflow gfire-sigs/gvx/.github/workflows/release.yml \
-  --source-ref refs/tags/v0.2.0 --deny-self-hosted-runners
-tar -xzf rungv-v0.2.0-linux-amd64.tar.gz && install -m 0755 rungv-v0.2.0-linux-amd64/rungv ~/.local/bin/rungv
+# 1. Install rungvx in user space (prebuilt SLSA-attested release or go install)
+# Option A: Download, verify, and extract the SLSA-attested prebuilt binary from GitHub Releases
+VERSION=$(curl -fsSL https://api.github.com/repos/gfire-sigs/gvx/releases/latest | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p')
+TARGET=linux-amd64 # or linux-arm64, linux-arm64v8.2
+ARCHIVE="rungvx-${VERSION}-${TARGET}.tar.gz"
+BASE="https://github.com/gfire-sigs/gvx/releases/download/${VERSION}"
 
-# Option B: Or install directly from source with Go
-CGO_ENABLED=0 GOBIN=~/.local/bin go install z.gfire.dev/gvx/cmd/rungv@latest
+curl -fsSLO "${BASE}/${ARCHIVE}" "${BASE}/SHA256SUMS" "${BASE}/rungvx-${VERSION}.sigstore.json"
+grep " ${ARCHIVE}\$" SHA256SUMS | sha256sum -c -
+gh attestation verify "${ARCHIVE}" \
+  --bundle "rungvx-${VERSION}.sigstore.json" \
+  --repo gfire-sigs/gvx \
+  --signer-workflow gfire-sigs/gvx/.github/workflows/release.yml \
+  --source-ref "refs/tags/${VERSION}" --deny-self-hosted-runners
+tar -xzf "${ARCHIVE}" && install -m 0755 "rungvx-${VERSION}-${TARGET}/rungvx" ~/.local/bin/rungvx
+
+# Option B: Or install directly from source with Go 1.27.4+
+CGO_ENABLED=0 GOBIN=~/.local/bin go install z.gfire.dev/gvx/cmd/rungvx@latest
 
 # 2. Start docker:dind inside gvx with a single-file ext4lite volume
-#    Forwards ~/.gvx/docker.sock (mode 0600) to guest port 2375
+#    Forwards ~/.gvx/docker.sock (mode 0600) to guest port 2375 and
+#    dynamically publishes container ports on 127.0.0.1 (--auto-publish)
 mkdir -p ~/.gvx
-~/.local/bin/rungv run \
+~/.local/bin/rungvx run \
+  --auto-publish \
   -p unix:~/.gvx/docker.sock:2375 \
-  -p 127.0.0.1:9000-9019:9000-9019 \
   -v gvx-docker:/var/lib/docker \
   -e DOCKER_TLS_CERTDIR= \
   docker:dind --tls=false &
@@ -123,34 +133,35 @@ error initializing graphdriver: driver not supported: fuse-overlayfs
 
 ## How `gvx` Runs `docker:dind` Completely in User Space
 
-`gvx` bypasses all five kernel barriers because it does not ask the host Linux kernel to create namespaces, mount filesystems, or configure network interfaces. Instead, `rungv` runs an internal user-space Linux kernel (the gVisor `Sentry`) and a user-space network stack (`netstack`) inside one ordinary unprivileged process.
+`gvx` bypasses all five kernel barriers because it does not ask the host Linux kernel to create namespaces, mount filesystems, or configure network interfaces. Instead, `rungvx` runs an internal user-space Linux kernel (the gVisor `Sentry`) and a user-space network stack (`netstack`) inside one ordinary unprivileged process.
 
 ![Running Unprivileged Docker-in-Docker with gvx](/assets/images/gvx/gvx-unprivileged-dind.png)
 
 ### 1. In-Memory Namespaces and Mount Table (`VFS2`)
 
-When `dockerd`, `containerd`, and `runc` execute inside `rungv`, `systrap` intercepts their system calls and routes them to the in-process `Sentry` kernel rather than the host kernel:
+When `dockerd`, `containerd`, and `runc` execute inside `rungvx`, `systrap` intercepts their system calls and routes them to the in-process `Sentry` kernel rather than the host kernel:
 
-- `unshare(2)`, `clone(2)`, `pivot_root(2)`, `chroot(2)`, and `mount(2)` operate on the Sentry's in-memory task hierarchy and `VFS2` mount table (`procfs`, `sysfs`, `tmpfs`, `devpts`, `cgroupfs` v2) while the host `rungv` process runs under your unprivileged host UID.
+- `unshare(2)`, `clone(2)`, `pivot_root(2)`, `chroot(2)`, and `mount(2)` operate on the Sentry's in-memory task hierarchy and `VFS2` mount table (`procfs`, `sysfs`, `tmpfs`, `devpts`, `cgroupfs` v2) while the host `rungvx` process runs under your unprivileged host UID.
 
 ### 2. Native `overlayfs` on Single-File `ext4lite` Volumes
 
-When you pass `-v gvx-docker:/var/lib/docker` (or `--mount type=volume,src=/disk/gvx-docker.ext4,dst=/var/lib/docker`), `gvx` mounts its built-in **`ext4lite`** filesystem at `/var/lib/docker`.
+When you pass `-v gvx-docker:/var/lib/docker` (or `--mount type=volume,src=/disk/gvx-docker.ext4,dst=/var/lib/docker,size=20g`), `gvx` mounts its built-in **`ext4lite`** filesystem at `/var/lib/docker`.
 
-Because `ext4lite` implements a JBD2-journaled `ext4` filesystem inside a single host file (`gvx-docker.ext4`) with support for `trusted.overlay.*` extended attributes, character whiteout devices (`0:0`), `d_type`, and `RENAME_EXCHANGE`, `dockerd` uses its native **`overlayfs`** storage driver inside the guest. Multi-stage `docker build` operations share Copy-on-Write layers without `/dev/fuse` and without the disk-space explosion of Docker's `vfs` fallback driver.
+Because `ext4lite` implements a JBD2-journaled `ext4` filesystem inside a single host file (`gvx-docker.ext4`) with support for `trusted.overlay.*` extended attributes, character whiteout devices (`0:0`), `d_type`, `RENAME_EXCHANGE`, and online hole punching (`FITRIM`), `dockerd` uses its native **`overlayfs`** storage driver inside the guest. Multi-stage `docker build` operations share Copy-on-Write layers without `/dev/fuse` and without the disk-space explosion of Docker's `vfs` fallback driver. You can reclaim unused space or wipe engine state at any time with `rungvx volume compact gvx-docker` or `rungvx volume rm gvx-docker`.
 
-### 3. User-Space `docker0` Bridge and `iptables-legacy`
+### 3. User-Space `docker0` Bridge, `iptables-legacy`, and `--auto-publish`
 
 When `docker:dind` starts inside `gvx`:
 
 - Guest `dockerd` creates the `docker0` bridge (`172.17.0.1/16`), attaches virtual `veth` pairs for nested containers, and programs `NAT` (`DOCKER`, `POSTROUTING`) and `FILTER` chains with `addrtype` and `conntrack` matches inside `gvx`'s user-space `netstack`.
-- Passing `-p unix:~/.gvx/docker.sock:2375` binds a host Unix domain socket (mode `0600`) and forwards connections directly to port `2375` of `dockerd` inside the sandbox.
+- Passing `-p unix:~/.gvx/docker.sock:2375` binds an owner-only host Unix domain socket (mode `0600`) and forwards connections directly to port `2375` of `dockerd` inside the sandbox.
+- Passing `--auto-publish` dynamically binds each `docker run -p` and `docker compose` port onto host `127.0.0.1:<port>` under host lockdown (keeping port `2375` private). If you prefer zero post-boot loopback binds, omit `--auto-publish` and pre-declare static port ranges such as `-p 127.0.0.1:9000-9019:9000-9019`. Behind a corporate TLS-inspecting proxy, add `--host-ca-certs` so `dockerd` trusts host root CAs.
 
 ---
 
 ## Comparison with Existing Container Tools
 
-| Capability / Constraint                                      | Standard Docker (`dockerd`)  | Rootless Docker / Podman  | Kaniko / Buildah (Unprivileged) | `gvx` (`rungv` + `docker:dind`)     |
+| Capability / Constraint                                      | Standard Docker (`dockerd`)  | Rootless Docker / Podman  | Kaniko / Buildah (Unprivileged) | `gvx` (`rungvx` + `docker:dind`)    |
 | :----------------------------------------------------------- | :--------------------------- | :------------------------ | :------------------------------ | :---------------------------------- |
 | **Host `root` or `sudo` required**                           | Yes                          | No                        | No                              | **No**                              |
 | **Works with `PR_SET_NO_NEW_PRIVS=1`**                       | No                           | No (`newuidmap` fails)    | Partial                         | **Yes**                             |
@@ -164,7 +175,7 @@ When `docker:dind` starts inside `gvx`:
 
 ## Exact Host Kernel Requirements on Linux
 
-`gvx` requires zero elevated capabilities (`CapEff: 0000000000000000`) and zero user namespaces. On a Linux host, `rungv` relies on only three standard unprivileged kernel primitives:
+`gvx` requires zero elevated capabilities (`CapEff: 0000000000000000`) and zero user namespaces, and supports both 4 KiB and 16 KiB host pages on `linux/amd64` and `linux/arm64`. On a Linux host, `rungvx` relies on only three standard unprivileged kernel primitives:
 
 1. **`ptrace(PTRACE_ATTACH)` on its own child thread once during initialization**: `systrap` spawns a local stub helper thread at startup, attaches to it to initialize the shared-memory context, and detaches. If the host sets `kernel.yama.ptrace_scope = 3` (which disables all `ptrace` system-wide) or blocks `ptrace` in an outer seccomp filter, `systrap` initialization cannot complete. (Under `yama.ptrace_scope = 1`, the default on Ubuntu and Debian, `gvx` succeeds because parent-to-child tracing is permitted.)
 2. **`seccomp(SECCOMP_SET_MODE_FILTER)`**: Used to trap guest system calls from container stub threads. As covered in [Part 3 of this series](/blog/posts/docker-in-docker-inside-gvisor-with-gvx-z48916d03), `gvx` works both when `SECCOMP_FILTER_FLAG_NEW_LISTENER` is available and when it returns `EBUSY` inside a nested sandbox.
@@ -178,7 +189,8 @@ The following script runs a complete `docker build` and two-container integratio
 
 ```sh
 mkdir -p ~/.gvx
-rungv run \
+rungvx run \
+  --auto-publish \
   -p unix:~/.gvx/docker.sock:2375 \
   -v gvx-docker:/var/lib/docker \
   -e DOCKER_TLS_CERTDIR= \
@@ -214,7 +226,7 @@ kill -INT $DIND_PID
 
 ## Further Reading in This Series
 
-1. **[gvx: Running Linux Containers, Docker, and Kubernetes in One Unprivileged Process](/blog/posts/gvx-cross-platform-linux-containers-z48916d01)**: Architectural overview of `gvx`, its cross-platform execution engines (`whpx`, `hvf`, `systrap`), `VFS2` (`erofs`, `ext4lite`, `hostfs` v2), and `netstack`.
+1. **[gvx: Running Linux Containers, Docker, and Kubernetes in One Unprivileged Process](/blog/posts/gvx-cross-platform-linux-containers-z48916d01)**: Architectural overview of `gvx`, its cross-platform execution engines (`whpx`, `hvf`, `systrap`), `VFS2` (`erofs`, `ext4lite`, `hostfs`, `rpcfs`), and `netstack`.
 2. **[Running Docker, docker build, and docker compose Without Root or User Namespaces](/blog/posts/run-docker-without-root-or-userns-gvx-z48916d02)** (this post)
 3. **[Running Docker-in-Docker Inside gVisor and Nested Sandboxes with gvx](/blog/posts/docker-in-docker-inside-gvisor-with-gvx-z48916d03)**: How `gvx` solves `modprobe`, `iptables-nft`, `overlay2` on `gofer`, and nested `SECCOMP_FILTER_FLAG_NEW_LISTENER` (`EBUSY`) inside `gVisor` (`runsc`).
 4. **[Fast Isolated Docker Environments for AI Agent RL Rollouts with gvx](/blog/posts/fast-docker-environments-for-agent-rl-rollouts-z48916d04)**: Scaling parallel `SWE-bench` and RL rollout environments with 100-millisecond copy-on-write `.ext4` volume resets.
