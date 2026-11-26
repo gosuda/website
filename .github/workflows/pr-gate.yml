@@ -51,11 +51,13 @@ jobs:
       - name: Go Test
         run: |
           export GOENV=off GOCACHEPROG=''
-          test -z "$(go env GOCACHEPROG)"
+          effective_gocacheprog="$(go env GOCACHEPROG)"
+          test -z "$effective_gocacheprog"
           go test -v ./...
 
       - name: Check Retranslation Target Limit (<= 4)
         run: |
           export GOENV=off GOCACHEPROG=''
-          test -z "$(go env GOCACHEPROG)"
+          effective_gocacheprog="$(go env GOCACHEPROG)"
+          test -z "$effective_gocacheprog"
           LLM_INIT=false go run . check_retranslate 4
