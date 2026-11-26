@@ -4,28 +4,43 @@ on:
   pull_request:
     branches: ["main"]
 
+# A newer push supersedes older runs on the same pull request.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
 jobs:
   pr-gate:
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     permissions:
       contents: "read"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: "stable"
-          check-latest: true
+          go-version: "1.27"
+          cache: true
 
       - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
+          bun-version: 1.4.5
+
+      - name: Cache npm store
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Check Markdown Formatting
         run: npm run format:check
@@ -34,7 +49,13 @@ jobs:
         run: npm run lint:md
 
       - name: Go Test
-        run: go test -v ./...
+        run: |
+          export GOENV=off GOCACHEPROG=''
+          test -z "$(go env GOCACHEPROG)"
+          go test -v ./...
 
       - name: Check Retranslation Target Limit (<= 4)
-        run: LLM_INIT=false go run . check_retranslate 4
+        run: |
+          export GOENV=off GOCACHEPROG=''
+          test -z "$(go env GOCACHEPROG)"
+          LLM_INIT=false go run . check_retranslate 4
