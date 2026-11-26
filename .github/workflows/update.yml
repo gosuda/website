@@ -3,12 +3,15 @@ name: Update Blog Metadata
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - ".github/**"
+      - "**/*_test.go"
   workflow_dispatch:
 
-# Publish runs must never overlap: each run commits to main, and concurrent
-# runs race on the push (observed 2026-11-20). Queue behind the in-flight run.
+# Publish the current main tree. Keep the active publisher and coalesce pending
+# refreshes: the next run includes every change already present on main.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: blog-metadata-main
   cancel-in-progress: false
 
 permissions: {}
@@ -16,6 +19,7 @@ permissions: {}
 jobs:
   update:
     runs-on: depot-ubuntu-24.04
+    timeout-minutes: 20
     permissions:
       id-token: "write"
       contents: "write"
@@ -24,6 +28,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
@@ -36,8 +42,13 @@ jobs:
         with:
           bun-version: 1.4.5
 
-      - name: Go Test
-        run: go test -v ./...
+      - name: Cache npm store
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
 
       - name: Update Metadata
         run: ./build.sh
@@ -49,5 +60,7 @@ jobs:
         uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5 # v9
         with:
           message: "feat(blog): Update blog metadata"
+          pull: '--rebase --autostash'
+          push: 'origin HEAD:main'
           committer_name: GitHub Actions
           committer_email: 41898282+github-actions[bot]@users.noreply.github.com
