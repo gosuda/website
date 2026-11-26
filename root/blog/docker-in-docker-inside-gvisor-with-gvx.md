@@ -18,7 +18,7 @@ Cloud AI agent compute environments (such as Google Agent Compute Engine sandbox
 With **[gvx](https://github.com/gfire-sigs/gvx)** (`rungv`), you can **securely** run `docker:dind`, `docker build`, and `docker compose` directly inside an unprivileged `gVisor` (`runsc`) container (or nest `gvx` inside `gvx`) **without weakening the outer `RuntimeClass`, exposing host sockets, or granting `--privileged`**.
 
 > **Low-Effort, Token-Efficient Solution for AI Agents**: Inside a gVisor-backed cloud agent environment, attempting to install `docker.io` and manually work around `/etc/init.d/docker` `ulimit` errors, `iptables-nft` failures, `iptables-legacy` raw-socket denials, `overlay2` mount errors, and `docker build` `runc` / `pivot_root` crashes typically burns **20+ tool-call turns and tens of thousands of tokens** before failing completely. `gvx` (`rungv`) is a **low-effort, token-efficient drop-in solution**: the agent runs 3 commands in a single turn to start a working user-space Docker daemon and immediately executes `docker build` and `docker compose` without modifying project files.
-
+>
 > **Preserving and Strengthening Outer Sandbox Isolation**: Running `rungv` inside `runsc` does not bypass a single restriction enforced by the outer `gVisor` sandbox. Instead, `gvx` creates a second, nested user-space gVisor `Sentry` kernel with its own `hostlockdown` (`PR_SET_NO_NEW_PRIVS` + `seccomp`), its own in-memory `netstack`, and a single-file `ext4lite` volume. Inner `dockerd` and `runc` containers are double-sandboxed: their system calls, mounts, and raw packets never leave the inner `gvx` user-space kernel.
 
 ```sh
