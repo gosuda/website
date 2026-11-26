@@ -25,7 +25,7 @@ At rollout scale (128 to 1,024 concurrent episodes per cluster), existing contai
 **[gvx](https://github.com/gfire-sigs/gvx)** (`rungv` CLI and `z.gfire.dev/gvx/pkg/gvx` Go SDK) provides a **secure, low-effort, token-efficient rollout runtime** that resolves all four bottlenecks. Each rollout environment runs as **a single unprivileged, self-locked user-space process** (isolated by Google's gVisor `Sentry` kernel, `pkg/hostlockdown`, and an in-memory `netstack`) whose entire `/var/lib/docker` state resides inside **a single copy-on-write `.ext4` file (`ext4lite`)**.
 
 > **Low-Effort, Token-Efficient Execution for Agents**: When `docker build` or `docker compose` works out-of-the-box inside every episode (or can be bootstrapped by the agent in a single 3-command turn via `rungv`), RL rollouts do not waste context window tokens or step budgets troubleshooting `service docker start` `ulimit` failures, `iptables-nft` errors, or `runc` `pivot_root` rejections. Every token in the trajectory goes toward solving the actual software engineering task.
-
+>
 > **Zero-Privilege Security for Untrusted Agent Rollouts**: Every `gvx` episode locks down its own host OS process before running guest code (`PR_SET_NO_NEW_PRIVS` + BPF `seccomp` on Linux, Seatbelt `deny default` on macOS, Restricted Token + Job Object on Windows). Even if an RL agent executes `docker run --privileged` or destructive `rm -rf /` commands inside its episode, those operations remain strictly confined to that episode's user-space `Sentry` kernel and ephemeral `.ext4` volume file.
 
 ---
