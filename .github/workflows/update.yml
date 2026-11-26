@@ -5,6 +5,14 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+# Publish runs must never overlap: each run commits to main, and concurrent
+# runs race on the push (observed 2026-11-20). Queue behind the in-flight run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions: {}
+
 jobs:
   update:
     runs-on: depot-ubuntu-24.04
@@ -20,13 +28,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "stable"
-          check-latest: true
+          go-version: "1.27"
+          cache: true
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: 1.4.5
 
       - name: Go Test
         run: go test -v ./...
