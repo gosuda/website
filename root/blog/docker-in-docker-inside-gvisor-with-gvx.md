@@ -15,27 +15,48 @@ category: lowlevel
 
 Cloud AI agent compute environments (such as Google Agent Compute Engine sandboxes), Kubernetes `agent-sandbox` deployments (`RuntimeClass: gvisor`), and reinforcement learning evaluation harnesses isolate untrusted workloads inside **gVisor (`runsc`)** containers specifically to protect the host kernel. When a workload inside a default unprivileged `runsc` container tries to install `docker.io` or `docker-ce` via `apt-get`, start `service docker start` or `dockerd`, and run `docker build`, it fails even if it has `root` (`UID 0`) inside the container.
 
-With **[gvx](https://github.com/gfire-sigs/gvx)** (`rungvx`), you can **securely** run `docker:dind`, `docker build`, and `docker compose` directly inside an unprivileged `gVisor` (`runsc`) container (or nest `gvx` inside `gvx`) **without weakening the outer `RuntimeClass`, exposing host sockets, or granting `--privileged`**.
+With **[gvx](https://github.com/gfire-sigs/gvx)** (`rungvx`, renamed from `rungv` in `v0.23`), you can **securely** run `docker:dind`, `docker build`, and `docker compose` directly inside an unprivileged `gVisor` (`runsc`) container (or nest `gvx` inside `gvx`) **without weakening the outer `RuntimeClass`, exposing host sockets, or granting `--privileged`**.
 
 > **Low-Effort, Token-Efficient Solution for AI Agents**: Inside a gVisor-backed cloud agent environment, attempting to install `docker.io` and manually work around `/etc/init.d/docker` `ulimit` errors, `iptables-nft` failures, `iptables-legacy` raw-socket denials, `overlay2` mount errors, and `docker build` `runc` / `pivot_root` crashes typically burns **20+ tool-call turns and tens of thousands of tokens** before failing completely. `gvx` (`rungvx`) is a **low-effort, token-efficient drop-in solution**: the agent runs 3 commands in a single turn to start a working user-space Docker daemon and immediately executes `docker build` and `docker compose` without modifying project files.
 >
 > **Preserving and Strengthening Outer Sandbox Isolation**: Running `rungvx` inside `runsc` does not bypass a single restriction enforced by the outer `gVisor` sandbox. Instead, `gvx` creates a second, nested user-space gVisor `Sentry` kernel with its own `hostlockdown` (Landlock + `PR_SET_NO_NEW_PRIVS` + `seccomp`), its own in-memory `netstack`, and a single-file `ext4lite` volume. Inner `dockerd` and `runc` containers are double-sandboxed: their system calls, mounts, and raw packets never leave the inner `gvx` user-space kernel.
 
 ```sh
-# Inside an existing gVisor (runsc) container or Kubernetes Pod:
-# Install a statically linked rungvx binary from GitHub Releases or via Go 1.27.4+:
-CGO_ENABLED=0 go install z.gfire.dev/gvx/cmd/rungvx@latest
+# 1. Install a prebuilt statically linked rungvx binary inside gVisor (no Go toolchain needed)
+mkdir -p ~/.local/bin ~/.gvx
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+VERSION=$(curl -fsSL https://api.github.com/repos/gfire-sigs/gvx/releases/latest | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p')
+ARCHIVE="rungvx-${VERSION}-linux-${ARCH}.tar.gz"
+BASE="https://github.com/gfire-sigs/gvx/releases/download/${VERSION}"
 
-mkdir -p ~/.gvx
-rungvx run \
+TMP=$(mktemp -d)
+curl -fsSL "${BASE}/${ARCHIVE}" -o "${TMP}/${ARCHIVE}"
+curl -fsSL "${BASE}/SHA256SUMS" -o "${TMP}/SHA256SUMS"
+(cd "${TMP}" && grep " ${ARCHIVE}\$" SHA256SUMS | sha256sum -c -)
+tar -xzf "${TMP}/${ARCHIVE}" -C "${TMP}"
+install -m 0755 "${TMP}/rungvx-${VERSION}-linux-${ARCH}/rungvx" ~/.local/bin/rungvx
+rm -rf "${TMP}"
+# Alternative (if Go 1.27.4+ is installed):
+# CGO_ENABLED=0 GOBIN=~/.local/bin go install z.gfire.dev/gvx/cmd/rungvx@latest
+
+# 2. Start nested docker:dind with stdio detached (prevents agent bash tool hangs)
+#    Tip: add -lockdown=false if an older outer runsc rejects nested Landlock/seccomp stacking.
+~/.local/bin/rungvx run \
+  --backend=systrap \
+  --auto-publish \
   -p unix:~/.gvx/docker.sock:2375 \
   -v gvx-docker:/var/lib/docker \
   -e DOCKER_TLS_CERTDIR= \
-  docker:dind --tls=false &
+  docker:dind --tls=false >/tmp/gvx-dind.log 2>&1 </dev/null &
+DIND_PID=$!
 
-# Run standard Docker builds and containers against the inner gvx socket
+# 3. Run standard Docker builds and containers against the inner gvx socket (bounded wait)
 export DOCKER_HOST="unix://$HOME/.gvx/docker.sock"
-until docker info >/dev/null 2>&1; do sleep 0.5; done
+for i in $(seq 1 60); do
+  docker info >/dev/null 2>&1 && break
+  kill -0 "$DIND_PID" 2>/dev/null || { cat /tmp/gvx-dind.log >&2; exit 1; }
+  sleep 0.5
+done
 docker info --format '{{.Driver}} {{.OperatingSystem}}'
 # Output: overlayfs Alpine Linux ... (containerized)
 
@@ -206,14 +227,19 @@ You can verify both scenarios (`rungvx` inside `runsc` on `linux/amd64`, or `run
 mkdir -p ~/.gvx
 rungvx run \
   --backend=systrap \
+  --auto-publish \
   -p unix:~/.gvx/docker.sock:2375 \
   -v gvx-docker:/var/lib/docker \
   -e DOCKER_TLS_CERTDIR= \
-  docker:dind --tls=false &
+  docker:dind --tls=false >/tmp/gvx-dind.log 2>&1 </dev/null &
 DIND_PID=$!
 
 export DOCKER_HOST="unix://$HOME/.gvx/docker.sock"
-until docker info >/dev/null 2>&1; do sleep 0.5; done
+for i in $(seq 1 60); do
+  docker info >/dev/null 2>&1 && break
+  kill -0 "$DIND_PID" 2>/dev/null || { cat /tmp/gvx-dind.log >&2; exit 1; }
+  sleep 0.5
+done
 
 # Verify that the inner Docker daemon is using native overlayfs (not vfs)
 docker info --format 'Storage Driver: {{.Driver}}'
