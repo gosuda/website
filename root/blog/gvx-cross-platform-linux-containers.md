@@ -117,7 +117,7 @@ All guest file and network operations are serviced inside the Go `Sentry` throug
 
 Extracting or writing tens of thousands of container files directly onto Windows NTFS or macOS APFS triggers antivirus minifilter scans (`WdFilter.sys`), case-sensitivity collisions, and missing POSIX extended attributes.
 
-`pkg/sentry/fsimpl/ext4lite` implements a pure-Go `ext4` filesystem inside one pre-opened host file (`%LOCALAPPDATA%\gvx\cache\volumes\<name>.ext4` on Windows, `~/Library/Caches/gvx/volumes/<name>.ext4` on macOS, or `~/.cache/gvx/volumes/<name>.ext4` on Linux) with:
+`pkg/sentry/fsimpl/ext4lite` implements a pure-Go `ext4` filesystem inside one pre-opened host file (`%LOCALAPPDATA%\gvx\cache\volumes\<name>.ext4` on Windows, `~/Library/Application Support/gvx/volumes/<name>.ext4` on macOS, or `$XDG_DATA_HOME/gvx/volumes/<name>.ext4` / `~/.local/share/gvx/volumes/<name>.ext4` on Linux and Android; override with `-volume-dir` or `GVX_VOLUME_DIR`) with:
 
 - **4 KiB blocks and 16 MiB dynamic block groups (`meta_bg`, up to 64 TiB)**: Grows dynamically without sparse-file allocation stalls (`fallocate` on Linux, `fcntl(F_PREALLOCATE)` on macOS, `FileAllocationInfo` on Windows), supports `size=` growth caps and `ephemeral` scratch volumes, punches freed holes online (`FITRIM`), and compacts unused trailing groups on clean unmount or via `rungvx volume compact`.
 - **JBD2 ordered-mode journal (inode 8) and shared locks**: Atomic transaction commits with CRC-32 checksums and revoke blocks, `fsckLite` recovery, `cgroup2` `io.stat` / `/proc/diskstats` counters, and `LOCK_SH` read-only locks enabling copy-on-write volume branching (`--mount type=overlay,src=base,upper=branch,dst=/path`) as well as persistent root filesystems (`-rootfs-volume`).
@@ -130,6 +130,7 @@ Recent `gvx` releases expand the single-process model with lockdown-safe lifecyc
 - **Live control (`gvx-ctrl/2`)**: Binding `-S`/`--control-socket` (or `--name NAME --control`) before lockdown enables `rungvx exec`, `cp`, `export`, `stats`, `top`, `dmesg`, `events`, `pause`/`unpause`, live `update` (memory, CPU quota, PIDs, LAN isolation, NAT bandwidth, tunables), `port` / `port-forward`, `unix-forward`, `net-policy`, and client-served `mount serve` (`fsimpl/rpcfs`) without weakening host confinement.
 - **Lockdown-safe Checkpoint & Restore**: Pre-opening `-checkpoint-dir` and `-S` allows `rungvx checkpoint` to snapshot full guest memory, task state, mounts, and network namespaces into a 4-file bundle (`manifest.json`, `state.img`, `pages.meta`, `pages.img`) and resume it in a new locked-down process via `rungvx restore`.
 - **Sandbox Extension SPI (`ext/` submodule)**: Keeps the core `rungvx` binary pure Go (`CGO_ENABLED=0`) while allowing compile-time opt-in extensions such as headless macOS GPU rendering (`ext/cmd/rungvx` built with `-tags ext_gpu`, supporting `-gpu=venus` and `-gpu=virgl` via `gvx-gpu-renderer`). Run `rungvx version -V` to inspect compiled build options and extensions.
+- **SDK Storage, Networking, and Slim Release Packaging (`v0.25`–`v0.27`)**: Supports external `hostfs` metadata directories (`WorkspaceMetaDir`, `Mount.MetaDir`), opt-in contained native host symlinks (`--mount ...,symlinks=contained`), embedder-supplied L3 packet links (`NetModeLink` / `Config.LinkConn`), shared `LayerCache` instances with persistent `.erofs.id` verification caching, and dead-method-eliminated release builds (`tools/slimlink`, reducing archive size by 13%–14%).
 
 ---
 
@@ -139,22 +140,32 @@ Recent `gvx` releases expand the single-process model with lockdown-safe lifecyc
 
 You can download a prebuilt `rungvx` archive for `linux/amd64`, `linux/arm64`, `linux/arm64v8.2`, `darwin/arm64`, `windows/amd64`, `windows/arm64`, or `android/arm64` (`gvx-android.aar`) from [GitHub Releases](https://github.com/gfire-sigs/gvx/releases) (each built by the SLSA release pipeline with a Sigstore provenance bundle and `SHA256SUMS`), or install directly from source with Go `1.27.4+` (`go install`). For a graphical interface on macOS or Windows, see the community-maintained [GVX Desktop](https://github.com/ironpark/gvx-desktop) app.
 
+> **CLI Rename Note**: The standalone CLI binary and Go entrypoint package were renamed from `rungv` (`z.gfire.dev/gvx/cmd/rungv`) to `rungvx` (`z.gfire.dev/gvx/cmd/rungvx`) in `v0.23`.
+
 ```sh
-# Option A: Download the latest prebuilt release and verify SHA-256 + SLSA provenance
+# Option A: Download the latest prebuilt release (auto-detects OS/arch; verifies SHA-256)
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
 VERSION=$(curl -fsSL https://api.github.com/repos/gfire-sigs/gvx/releases/latest | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p')
-TARGET=linux-amd64 # or darwin-arm64, linux-arm64, linux-arm64v8.2
-ARCHIVE="rungvx-${VERSION}-${TARGET}.tar.gz"
+ARCHIVE="rungvx-${VERSION}-${OS}-${ARCH}.tar.gz"
 BASE="https://github.com/gfire-sigs/gvx/releases/download/${VERSION}"
 
-curl -fsSLO "${BASE}/${ARCHIVE}" "${BASE}/SHA256SUMS" "${BASE}/rungvx-${VERSION}.sigstore.json"
-grep " ${ARCHIVE}\$" SHA256SUMS | shasum -a 256 -c -
-gh attestation verify "${ARCHIVE}" \
-  --bundle "rungvx-${VERSION}.sigstore.json" \
-  --repo gfire-sigs/gvx \
-  --signer-workflow gfire-sigs/gvx/.github/workflows/release.yml \
-  --source-ref "refs/tags/${VERSION}" --deny-self-hosted-runners
+curl -fsSLO "${BASE}/${ARCHIVE}" "${BASE}/SHA256SUMS"
+grep " ${ARCHIVE}\$" SHA256SUMS | (sha256sum -c - 2>/dev/null || shasum -a 256 -c -)
 tar -xzf "${ARCHIVE}"
-mv "rungvx-${VERSION}-${TARGET}/rungvx" ./rungvx
+mv "rungvx-${VERSION}-${OS}-${ARCH}/rungvx" ./rungvx
+chmod +x ./rungvx
+[ "$OS" = "darwin" ] && xattr -d com.apple.quarantine ./rungvx 2>/dev/null || true
+
+# Optional: verify SLSA provenance if GitHub CLI (gh) is installed
+if command -v gh >/dev/null 2>&1; then
+  curl -fsSLO "${BASE}/rungvx-${VERSION}.sigstore.json"
+  gh attestation verify "${ARCHIVE}" \
+    --bundle "rungvx-${VERSION}.sigstore.json" \
+    --repo gfire-sigs/gvx \
+    --signer-workflow gfire-sigs/gvx/.github/workflows/release.yml \
+    --source-ref "refs/tags/${VERSION}" --deny-self-hosted-runners
+fi
 
 # Option B: Install directly via Go 1.27.4+ (Linux / Windows / macOS)
 CGO_ENABLED=0 go install z.gfire.dev/gvx/cmd/rungvx@latest

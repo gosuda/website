@@ -22,7 +22,7 @@ At rollout scale (128 to 1,024 concurrent episodes per cluster), existing contai
 3. **Hardware Virtualization (`/dev/kvm`) Constraints**: MicroVM runtimes (`Firecracker`, `QEMU`, `Kata Containers`) isolate inner kernels cleanly, but they require `/dev/kvm`. Standard Kubernetes pods without nested virtualization, bare-metal cloud instances where KVM is disabled, and existing `gVisor` (`runsc`) sandboxes cannot launch KVM microVMs.
 4. **Slow Episode Reset (`env.reset()`) Latency**: Starting a fresh `docker:dind` environment and pulling or unpacking base images for every RL episode takes 10 to 60 seconds, leaving GPU training workers idle while waiting for environment resets.
 
-**[gvx](https://github.com/gfire-sigs/gvx)** (`rungvx` CLI and `z.gfire.dev/gvx/pkg/gvx` Go SDK) provides a **secure, low-effort, token-efficient rollout runtime** that resolves all four bottlenecks. Each rollout environment runs as **a single unprivileged, self-locked user-space process** (isolated by Google's gVisor `Sentry` kernel, `pkg/hostlockdown`, and an in-memory `netstack`) whose entire `/var/lib/docker` state resides inside **a single copy-on-write `.ext4` file (`ext4lite`)**.
+**[gvx](https://github.com/gfire-sigs/gvx)** (`rungvx` CLI, renamed from `rungv` in `v0.23`, and `z.gfire.dev/gvx/pkg/gvx` Go SDK) provides a **secure, low-effort, token-efficient rollout runtime** that resolves all four bottlenecks. Each rollout environment runs as **a single unprivileged, self-locked user-space process** (isolated by Google's gVisor `Sentry` kernel, `pkg/hostlockdown`, and an in-memory `netstack`) whose entire `/var/lib/docker` state resides inside **a single copy-on-write `.ext4` file (`ext4lite`)**.
 
 > **Low-Effort, Token-Efficient Execution for Agents**: When `docker build` or `docker compose` works out-of-the-box inside every episode (or can be bootstrapped by the agent in a single 3-command turn via `rungvx`), RL rollouts do not waste context window tokens or step budgets troubleshooting `service docker start` `ulimit` failures, `iptables-nft` errors, or `runc` `pivot_root` rejections. Every token in the trajectory goes toward solving the actual software engineering task.
 >
@@ -93,17 +93,22 @@ cp --reflink=always \
   "/srv/rl-episodes/${EPISODE_ID}.ext4"
 
 # Launch isolated unprivileged episode with 4 GiB RAM, 2 CPUs, PID/disk caps, and LAN isolation
+LOG="/tmp/gvx-${EPISODE_ID}.log"
 rungvx run \
   -m 4g --cpus 2 --pids-limit 512 \
   -isolate-lan \
   -p "unix:${SOCK}:2375" \
   --mount "type=volume,src=/srv/rl-episodes/${EPISODE_ID}.ext4,dst=/var/lib/docker,size=10g" \
   -e DOCKER_TLS_CERTDIR= \
-  docker:dind --tls=false &
+  docker:dind --tls=false >"$LOG" 2>&1 </dev/null &
 EP_PID=$!
 
 export DOCKER_HOST="unix://${SOCK}"
-until docker info >/dev/null 2>&1; do sleep 0.2; done
+for i in $(seq 1 100); do
+  docker info >/dev/null 2>&1 && break
+  kill -0 "$EP_PID" 2>/dev/null || { cat "$LOG" >&2; exit 1; }
+  sleep 0.2
+done
 
 # Inside the rollout worker, images are immediately available without network pull
 docker images
@@ -125,7 +130,7 @@ Recent `gvx` releases add three primitives tailored for high-density evaluation 
 
 ## Programmatic Rollout Pool Using the `z.gfire.dev/gvx/pkg/gvx` Go SDK
 
-If your RL environment server or evaluation harness is written in Go (or calls a Go rollout daemon over gRPC), you can manage parallel container episodes directly through `z.gfire.dev/gvx/pkg/gvx`:
+If your RL environment server or evaluation harness is written in Go (or calls a Go rollout daemon over gRPC), you can manage parallel container episodes directly through `z.gfire.dev/gvx/pkg/gvx`. Note the host lockdown trade-off: `gvx.New` applies an irreversible process-wide host lockdown by default, so **for strict three-ring host confinement per episode, spawn one `rungvx` subprocess per episode**; when running multiple episodes inside one long-lived Go worker process, share a single `LayerCache` (`v0.25+` persistent `.erofs.id` verification caching) and set `DisableHostLockdown: true`:
 
 ```go
 package main
@@ -141,9 +146,10 @@ import (
 	"time"
 
 	"z.gfire.dev/gvx/pkg/gvx"
+	"z.gfire.dev/gvx/pkg/oci"
 )
 
-func runEpisode(ctx context.Context, goldenExt4, scratchDir string, epID int) error {
+func runEpisode(ctx context.Context, cache *oci.LayerCache, goldenExt4, scratchDir string, epID int) error {
 	epExt4 := filepath.Join(scratchDir, fmt.Sprintf("ep-%04d.ext4", epID))
 	defer os.Remove(epExt4)
 
@@ -165,9 +171,13 @@ func runEpisode(ctx context.Context, goldenExt4, scratchDir string, epID int) er
 		NetRaw:                 true,
 		AllowPacketSocketWrite: true,
 		AllowSUID:              true,
-		OCIImage:               "docker:dind",
-		Entrypoint:             []string{"sh", "-c"},
-		EntrypointSet:          true,
+		LayerCache:             cache,
+		// Required when running multiple episodes in one host process
+		// (for full three-ring host lockdown per episode, spawn rungvx per episode).
+		DisableHostLockdown: true,
+		OCIImage:            "docker:dind",
+		Entrypoint:          []string{"sh", "-c"},
+		EntrypointSet:       true,
 		Cmd: []string{
 			"dockerd-entrypoint.sh --tls=false >/var/log/dockerd.log 2>&1 & " +
 				"until docker info >/dev/null 2>&1; do sleep 0.2; done && " +
@@ -206,7 +216,11 @@ func runEpisode(ctx context.Context, goldenExt4, scratchDir string, epID int) er
 
 func main() {
 	ctx := context.Background()
-	if err := runEpisode(ctx, "/srv/rl-snapshots/golden-docker.ext4", "/srv/rl-episodes", 1); err != nil {
+	cache, err := gvx.NewLayerCache("")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := runEpisode(ctx, cache, "/srv/rl-snapshots/golden-docker.ext4", "/srv/rl-episodes", 1); err != nil {
 		log.Fatal(err)
 	}
 }

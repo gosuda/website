@@ -13,46 +13,51 @@ category: ops
 
 ## Quick Solution: Secure Unprivileged Docker in Three Steps
 
-If you are working inside a locked-down Linux container, CI runner, Kubernetes Pod, or AI coding agent sandbox (such as a cloud agent compute environment) where `root`, `sudo`, user namespaces (`unshare(CLONE_NEWUSER)`), `mount(2)`, and `/dev/fuse` are blocked, **[gvx](https://github.com/gfire-sigs/gvx)** (`rungvx`) is the **secure, low-effort, token-efficient solution** to run a full `docker:dind` engine in user space.
+If you are working inside a locked-down Linux container, CI runner, Kubernetes Pod, or AI coding agent sandbox (such as a cloud agent compute environment) where `root`, `sudo`, user namespaces (`unshare(CLONE_NEWUSER)`), `mount(2)`, and `/dev/fuse` are blocked, **[gvx](https://github.com/gfire-sigs/gvx)** (`rungvx`, renamed from `rungv` in `v0.23`) is the **secure, low-effort, token-efficient solution** to run a full `docker:dind` engine in user space.
 
 > **Low-Effort, Token-Efficient Solution for AI Coding Agents**: When an autonomous coding agent hits `Cannot connect to the Docker daemon`, attempting to install and patch `docker.io`, `podman`, or `rootlesskit` inside a restricted container typically wastes **15 to 30 tool-call turns and tens of thousands of context tokens** cycling through `systemctl`, `ulimit`, `iptables`, `unshare`, and `runc` errors—only to fail or fall back to rewriting `Dockerfile`s by hand. With `gvx` (`rungvx`), the agent executes **one deterministic 3-step bootstrap in a single turn** and immediately runs standard `docker build`, `docker run`, and `docker compose` commands unchanged.
 >
 > **Why `gvx` Is Safe by Design (Not a Privilege-Escalation Workaround)**: Unlike mounting the host `/var/run/docker.sock` or running `docker run --privileged` (which grant root-equivalent control over the host kernel), `gvx` does not bypass or weaken any host security policy (`PR_SET_NO_NEW_PRIVS`, `seccomp`, AppArmor, or non-root UID limits). Instead, `rungvx` locks down its own host process (Landlock + `PR_SET_NO_NEW_PRIVS` + strict BPF `seccomp` allowlist) and runs `dockerd` inside Google's memory-safe **gVisor (`Sentry`)** user-space kernel. All guest `UID 0` capabilities, `overlayfs` mounts (`ext4lite`), and `iptables` rules remain strictly isolated inside the sandbox process.
 
 ```sh
-# 1. Install rungvx in user space (prebuilt SLSA-attested release or go install)
-# Option A: Download, verify, and extract the SLSA-attested prebuilt binary from GitHub Releases
+# 1. Install prebuilt static rungvx binary in user space (auto-detects OS/arch; no Go toolchain needed)
+mkdir -p ~/.local/bin ~/.gvx
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
 VERSION=$(curl -fsSL https://api.github.com/repos/gfire-sigs/gvx/releases/latest | sed -n 's/.*"tag_name": "\([^"]*\)".*/\1/p')
-TARGET=linux-amd64 # or linux-arm64, linux-arm64v8.2
-ARCHIVE="rungvx-${VERSION}-${TARGET}.tar.gz"
+ARCHIVE="rungvx-${VERSION}-${OS}-${ARCH}.tar.gz"
 BASE="https://github.com/gfire-sigs/gvx/releases/download/${VERSION}"
 
-curl -fsSLO "${BASE}/${ARCHIVE}" "${BASE}/SHA256SUMS" "${BASE}/rungvx-${VERSION}.sigstore.json"
-grep " ${ARCHIVE}\$" SHA256SUMS | sha256sum -c -
-gh attestation verify "${ARCHIVE}" \
-  --bundle "rungvx-${VERSION}.sigstore.json" \
-  --repo gfire-sigs/gvx \
-  --signer-workflow gfire-sigs/gvx/.github/workflows/release.yml \
-  --source-ref "refs/tags/${VERSION}" --deny-self-hosted-runners
-tar -xzf "${ARCHIVE}" && install -m 0755 "rungvx-${VERSION}-${TARGET}/rungvx" ~/.local/bin/rungvx
+TMP=$(mktemp -d)
+curl -fsSL "${BASE}/${ARCHIVE}" -o "${TMP}/${ARCHIVE}"
+curl -fsSL "${BASE}/SHA256SUMS" -o "${TMP}/SHA256SUMS"
+(cd "${TMP}" && grep " ${ARCHIVE}\$" SHA256SUMS | (sha256sum -c - 2>/dev/null || shasum -a 256 -c -))
+tar -xzf "${TMP}/${ARCHIVE}" -C "${TMP}"
+install -m 0755 "${TMP}/rungvx-${VERSION}-${OS}-${ARCH}/rungvx" ~/.local/bin/rungvx
+[ "$OS" = "darwin" ] && xattr -d com.apple.quarantine ~/.local/bin/rungvx 2>/dev/null || true
+rm -rf "${TMP}"
 
-# Option B: Or install directly from source with Go 1.27.4+
-CGO_ENABLED=0 GOBIN=~/.local/bin go install z.gfire.dev/gvx/cmd/rungvx@latest
+# Optional: verify SLSA provenance if GitHub CLI (gh) is installed, or install from source with Go 1.27.4+:
+# CGO_ENABLED=0 GOBIN=~/.local/bin go install z.gfire.dev/gvx/cmd/rungvx@latest
 
-# 2. Start docker:dind inside gvx with a single-file ext4lite volume
+# 2. Start docker:dind inside gvx with stdio detached (prevents agent bash tool hangs)
 #    Forwards ~/.gvx/docker.sock (mode 0600) to guest port 2375 and
 #    dynamically publishes container ports on 127.0.0.1 (--auto-publish)
-mkdir -p ~/.gvx
 ~/.local/bin/rungvx run \
   --auto-publish \
   -p unix:~/.gvx/docker.sock:2375 \
   -v gvx-docker:/var/lib/docker \
   -e DOCKER_TLS_CERTDIR= \
-  docker:dind --tls=false &
+  docker:dind --tls=false >/tmp/gvx-dind.log 2>&1 </dev/null &
+DIND_PID=$!
 
-# 3. Point the standard Docker CLI and Docker Compose at the user-space socket
+# 3. Point the standard Docker CLI and Docker Compose at the user-space socket (bounded wait)
 export DOCKER_HOST="unix://$HOME/.gvx/docker.sock"
-until docker info >/dev/null 2>&1; do sleep 0.5; done
+for i in $(seq 1 60); do
+  docker info >/dev/null 2>&1 && break
+  kill -0 "$DIND_PID" 2>/dev/null || { cat /tmp/gvx-dind.log >&2; exit 1; }
+  sleep 0.5
+done
 docker info --format '{{.Driver}} {{.OperatingSystem}}'
 # Output: overlayfs Alpine Linux ... (containerized)
 
@@ -194,11 +199,15 @@ rungvx run \
   -p unix:~/.gvx/docker.sock:2375 \
   -v gvx-docker:/var/lib/docker \
   -e DOCKER_TLS_CERTDIR= \
-  docker:dind --tls=false &
+  docker:dind --tls=false >/tmp/gvx-dind.log 2>&1 </dev/null &
 DIND_PID=$!
 
 export DOCKER_HOST="unix://$HOME/.gvx/docker.sock"
-until docker info >/dev/null 2>&1; do sleep 0.5; done
+for i in $(seq 1 60); do
+  docker info >/dev/null 2>&1 && break
+  kill -0 "$DIND_PID" 2>/dev/null || { cat /tmp/gvx-dind.log >&2; exit 1; }
+  sleep 0.5
+done
 
 mkdir -p /tmp/demo-app && cd /tmp/demo-app
 cat <<'EOF' > Dockerfile
