@@ -51,7 +51,11 @@ jobs:
             npm-${{ runner.os }}-
 
       - name: Update Metadata
-        run: ./build.sh
+        run: |
+          export GOENV=off GOCACHEPROG=''
+          effective_gocacheprog="$(go env GOCACHEPROG)"
+          test -z "$effective_gocacheprog"
+          ./build.sh
         env:
           PROVIDER: openrouter
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
