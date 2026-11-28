@@ -49,7 +49,15 @@ jobs:
         run: npm run lint:md
 
       - name: Go Test
-        run: go test -v ./...
+        run: |
+          export GOENV=off GOCACHEPROG=''
+          effective_gocacheprog="$(go env GOCACHEPROG)"
+          test -z "$effective_gocacheprog"
+          go test -v ./...
 
       - name: Check Retranslation Target Limit (<= 4)
-        run: LLM_INIT=false go run . check_retranslate 4
+        run: |
+          export GOENV=off GOCACHEPROG=''
+          effective_gocacheprog="$(go env GOCACHEPROG)"
+          test -z "$effective_gocacheprog"
+          LLM_INIT=false go run . check_retranslate 4
