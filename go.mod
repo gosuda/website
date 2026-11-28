@@ -14,7 +14,7 @@ require (
 	github.com/pemistahl/lingua-go v1.4.0
 	github.com/rs/zerolog v1.35.1
 	github.com/sashabaranov/go-openai v1.43.0
-	github.com/tdewolff/minify/v2 v2.24.24
+	github.com/tdewolff/minify/v2 v2.25.0
 	github.com/wyatt915/goldmark-treeblood v0.0.1
 	github.com/yuin/goldmark v1.8.7
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
@@ -58,7 +58,7 @@ require (
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
 	github.com/shopspring/decimal v1.6.0 // indirect
-	github.com/tdewolff/parse/v2 v2.8.20 // indirect
+	github.com/tdewolff/parse/v2 v2.25.0 // indirect
 	github.com/valyala/fastjson v1.6.10 // indirect
 	github.com/wyatt915/treeblood v0.1.16 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
@@ -74,7 +74,7 @@ require (
 	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/tools v0.52.0 // indirect
 	google.golang.org/api v0.308.0 // indirect
